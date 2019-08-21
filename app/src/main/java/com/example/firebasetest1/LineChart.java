@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -151,7 +150,7 @@ public class LineChart extends AppCompatActivity  implements SeekBar.OnSeekBarCh
         Iterator iterator = mapHour.entrySet().iterator();
         while (iterator.hasNext()){
             Map.Entry pair = (Map.Entry)iterator.next();
-            Log.d(TAG, pair.getKey()+" "+ pair.getValue());
+
             values.add(new Entry(Float.parseFloat(pair.getKey()+""),Float.parseFloat(pair.getValue()+"")));
         }
 
