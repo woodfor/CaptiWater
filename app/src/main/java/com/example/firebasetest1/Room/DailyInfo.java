@@ -5,6 +5,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,6 +17,8 @@ public class DailyInfo {
     public int id;
     @ColumnInfo(name = "uuid")
     public String uuid;
+    @ColumnInfo(name = "name")
+    public String name;
     @ColumnInfo(name = "usage")
     public int usage;
     @ColumnInfo(name = "duration")
@@ -32,18 +35,33 @@ public class DailyInfo {
     public int year;
 
 
-    public DailyInfo(String uuid, int usage, int duration) {
+    public DailyInfo(String uuid, int usage, int duration,String wholeTime,String name) {
         this.uuid=uuid;
         this.usage=usage;
         this.duration = duration;
-        this.time = time;
+        this.name = name;
+        Date today ;
+        try {
+            today = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmX").parse(wholeTime);
+            this.time =   new SimpleDateFormat("mm:ss").format(today);
+            this.date =  Integer.parseInt(new SimpleDateFormat("dd").format(today));
+            this.month =  Integer.parseInt(new SimpleDateFormat("MM").format(today));
+            this.year = Integer.parseInt(new SimpleDateFormat("yyyy").format(today));
+            this.hour = Integer.parseInt(new SimpleDateFormat("HH").format(today));
+        } catch (ParseException e) {
+            today = Calendar.getInstance().getTime();
+            this.time =   new SimpleDateFormat("mm:ss").format(today);
+            this.date =  Integer.parseInt(new SimpleDateFormat("dd").format(today));
+            this.month =  Integer.parseInt(new SimpleDateFormat("MM").format(today));
+            this.year = Integer.parseInt(new SimpleDateFormat("yyyy").format(today));
+            this.hour = Integer.parseInt(new SimpleDateFormat("HH").format(today));
+            e.printStackTrace();
+        }
 
-        Date today = Calendar.getInstance().getTime();
-        this.time =   new SimpleDateFormat("mm:ss").format(today);
-        this.date =  Integer.parseInt(new SimpleDateFormat("dd").format(today));
-        this.month =  Integer.parseInt(new SimpleDateFormat("MM").format(today));
-        this.year = Integer.parseInt(new SimpleDateFormat("yyyy").format(today));
-        this.hour = Integer.parseInt(new SimpleDateFormat("HH").format(today));
+
+    }
+    public DailyInfo() {
+
 
     }
 
@@ -73,6 +91,7 @@ public class DailyInfo {
     public int getHour() {
         return hour;
     }
+    public String getName(){return name;}
 
 
 

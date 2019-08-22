@@ -149,7 +149,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 DailyInfoDatabase.class, "dailyInfo_database")
                 .fallbackToDestructiveMigration()
                 .build();
-        DailyInfo dailyInfo = new DailyInfo(uniqueID,Integer.parseInt(data.get("U")),Integer.parseInt(data.get("D")));
+        DailyInfo dailyInfo = new DailyInfo(uniqueID,Integer.parseInt(data.get("U")),Integer.parseInt(data.get("D")),data.get("T"),data.get("N"));
         db.InfoDao().insert(dailyInfo);
         db.close();
     }
@@ -172,7 +172,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param messageBody FCM message body received.
      */
     private void sendNotification(String messageBody) {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, HomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);

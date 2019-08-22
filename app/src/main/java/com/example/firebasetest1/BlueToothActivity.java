@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
 import java.util.UUID;
 
-import static com.example.firebasetest1.MainActivity.id;
+import static com.example.firebasetest1.HomeActivity.id;
 
 public class BlueToothActivity extends AppCompatActivity {
 
@@ -31,7 +31,7 @@ public class BlueToothActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blue_tooth);
         Intent newint = getIntent();
-        address = newint.getStringExtra(MainActivity.EXTRA_ADDRESS);
+        address = newint.getStringExtra(HomeActivity.EXTRA_ADDRESS);
         String name = newint.getStringExtra("name");
         TextView textView = findViewById(R.id.textViewBluetooth);
         Button btn_connect = findViewById(R.id.btn_connectWifi);
@@ -55,7 +55,7 @@ public class BlueToothActivity extends AppCompatActivity {
             Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             btn_positive.setOnClickListener(v -> {
                 String tmp = edt_quantity.getText().toString().trim();
-                if (!(tmp == null || tmp.isEmpty()))
+                if (!(tmp.isEmpty()))
                 {
                    sendSignal("N:" + tmp);
                     msg("Name been set");
@@ -137,8 +137,9 @@ public class BlueToothActivity extends AppCompatActivity {
         }
     }
 
-protected void onPause(){
-        super.onPause();
+
+protected void onDestroy(){
+        super.onDestroy();
         try {
             btSocket.close();
         }
