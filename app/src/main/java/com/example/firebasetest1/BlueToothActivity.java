@@ -204,14 +204,14 @@ public class BlueToothActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
+            progressBar.setVisibility(View.GONE);
             if (result != null){
                 if (result.equals("1")){
-                    progressBar.setVisibility(View.GONE);
                     msg("Set name complete");
                 }else if (result.equals("-2")){
                     msg("No wifi device found");
                 }else if(result.equals("3")){
-                    progressBar.setVisibility(View.GONE);
+
                     msg("Connect successfully");
                 }else if(result.equals("-3")){
                     msg("Connect failed");
