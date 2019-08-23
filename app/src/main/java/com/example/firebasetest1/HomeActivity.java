@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -89,7 +90,8 @@ public class HomeActivity extends AppCompatActivity
         // dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.dialog_listview);
-
+        TextView textView = dialog.findViewById(R.id.tv_dialogTitle) ;
+        textView.setText("Bluetooth list:");
         Button btndialog = dialog.findViewById(R.id.btnDialog);
         btndialog.setOnClickListener(v -> dialog.dismiss());
 

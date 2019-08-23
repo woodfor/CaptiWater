@@ -153,7 +153,7 @@ public class ReportFragment extends Fragment implements SeekBar.OnSeekBarChangeL
         l.setFormSize(10f);
         l.setTextSize(12f);
         l.setEnabled(true);
-        
+
         l.setTextColor(Color.BLACK);
 
         MyMarkerView mv = new MyMarkerView(mContext, R.layout.custom_marker_view);
