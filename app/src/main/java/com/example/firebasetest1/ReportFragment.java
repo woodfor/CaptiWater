@@ -323,7 +323,7 @@ public class ReportFragment extends Fragment implements SeekBar.OnSeekBarChangeL
             //int date = Integer.parseInt(new SimpleDateFormat("HH").format(today));
             int month = Integer.parseInt(new SimpleDateFormat("MM").format(today));
             int year = Integer.parseInt(new SimpleDateFormat("yyyy").format(today));
-            dailyInfos = db.InfoDao().monthyTotalUsage(uuid,integers[0],month,year);
+           // dailyInfos = db.InfoDao().monthyTotalUsage(uuid,integers[0],month,year);
             return dailyInfos;
         }
 

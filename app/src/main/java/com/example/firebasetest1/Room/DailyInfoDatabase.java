@@ -5,11 +5,14 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 
-@Database(entities = {DailyInfo.class}, version = 3, exportSchema = false)
+import com.example.firebasetest1.General.Converters;
 
+@Database(entities = {House.class, Tap.class,User.class}, version = 5, exportSchema = false)
+@TypeConverters({Converters.class})
 public abstract class DailyInfoDatabase extends RoomDatabase {
-    public abstract DailyInfoDAO InfoDao();
+    public abstract InfoDAO InfoDao();
     private static volatile DailyInfoDatabase INSTANCE;
     static DailyInfoDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {

@@ -1,15 +1,14 @@
 package com.example.firebasetest1.FormalAct;
 
-import androidx.fragment.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
-
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.firebasetest1.R;
@@ -45,10 +44,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ActionBar bar = getSupportActionBar();
+       // bar.setBackgroundDrawable(new ColorDrawable(Color.BLUE));
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        bar.setIcon(R.drawable.app_logo);
 
-        getSupportActionBar().setLogo(R.drawable.app_logo);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
-        //getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);

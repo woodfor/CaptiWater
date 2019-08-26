@@ -1,8 +1,9 @@
 package com.example.firebasetest1.Room;
 
-
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import java.text.ParseException;
@@ -10,15 +11,21 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-@Entity
-public class DailyInfo {
-    private static final String TAG = "testData";
+import static androidx.room.ForeignKey.CASCADE;
+
+@Entity(foreignKeys = @ForeignKey(entity = House.class,
+        parentColumns = "id",
+        childColumns = "hid",
+        onDelete = CASCADE ),indices = {@Index(value = {"hid"}, unique = true)})
+public class Tap {
+
     @PrimaryKey(autoGenerate = true)
-    public int id;
-    @ColumnInfo(name = "uuid")
-    public String uuid;
+    @ColumnInfo(name = "id")
+    public int tid;
     @ColumnInfo(name = "name")
     public String name;
+    @ColumnInfo(name = "hid")
+    public int hid;
     @ColumnInfo(name = "usage")
     public int usage;
     @ColumnInfo(name = "duration")
@@ -33,10 +40,7 @@ public class DailyInfo {
     public int month;
     @ColumnInfo(name = "year")
     public int year;
-
-
-    public DailyInfo(String uuid, int usage, int duration,String wholeTime,String name) {
-        this.uuid=uuid;
+    public Tap(int usage, int duration, String wholeTime, String name) {
         this.usage=usage;
         this.duration = duration;
         this.name = name;
@@ -58,28 +62,12 @@ public class DailyInfo {
             e.printStackTrace();
         }
 
-
     }
-    public DailyInfo() {
+    public Tap() {
 
-
-    }
-
-
-
-    public void setuuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public  void setDuration(int duration){
-        this.duration = duration;
-    }
-
-    public int getDuration() {
-        return duration;
     }
     public int getId() {
-        return id;
+        return tid;
     }
 
     public int getUsage() {
@@ -93,8 +81,4 @@ public class DailyInfo {
         return hour;
     }
     public String getName(){return name;}
-
-
-
-
 }

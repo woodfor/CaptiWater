@@ -150,7 +150,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .fallbackToDestructiveMigration()
                 .build();
         DailyInfo dailyInfo = new DailyInfo(uniqueID,Integer.parseInt(data.get("U")),Integer.parseInt(data.get("D")),data.get("T"),data.get("N"));
-        db.InfoDao().insert(dailyInfo);
+       // db.InfoDao().insert(dailyInfo);
         db.close();
     }
 

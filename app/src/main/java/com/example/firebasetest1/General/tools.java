@@ -3,7 +3,10 @@ package com.example.firebasetest1.General;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.widget.Toast;
+
+import java.util.UUID;
 
 public class tools {
 
@@ -39,6 +42,23 @@ public class tools {
             }
         });
         return alertDialog;
+    }
+
+    public synchronized static String id(Context context) {
+        String uniqueID=null;
+        String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
+        if (uniqueID == null) {
+            SharedPreferences sharedPrefs = context.getSharedPreferences(
+                    PREF_UNIQUE_ID, Context.MODE_PRIVATE);
+            uniqueID = sharedPrefs.getString(PREF_UNIQUE_ID, null);
+            if (uniqueID == null) {
+                uniqueID = UUID.randomUUID().toString();
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.putString(PREF_UNIQUE_ID, uniqueID);
+                editor.apply();
+            }
+        }
+        return uniqueID;
     }
 
 

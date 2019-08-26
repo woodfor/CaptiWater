@@ -20,9 +20,9 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".HomeActivity"
-            android:label="@string/title_activity_home"
+            android:name=".FormalAct.StartActivity"
             android:theme="@style/AppTheme.NoActionBar">
+            <!--android:label="@string/title_activity_home">-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,6 +30,23 @@
             </intent-filter>
         </activity>
         <activity android:name=".BlueToothActivity" />
+        <activity
+            android:name=".FormalAct.SettingActivity">
+        </activity>
+        <activity
+            android:name=".FormalAct.QuestionActivity">
+        </activity>
+        <activity
+            android:name=".FormalAct.HelpActivity">
+        </activity>
+        <activity
+            android:name=".FormalAct.NotificationActivity">
+        </activity>
+        <activity
+
+            android:name=".FormalAct.MainActivity">
+
+        </activity>
         <!--
      Set custom default icon. This is used when no icon is set for incoming notification messages.
      See README(https://goo.gl/l4GJaQ) for more.
@@ -47,8 +64,6 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
-
-
 
         <service
             android:name=".MyFirebaseMessagingService"
