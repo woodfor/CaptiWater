@@ -11,26 +11,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
+    Fragment waterusgfrag;
+    Fragment areaFrag;
+    Fragment houseFrag;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
                 Fragment selectedFragment = null;
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
-                        selectedFragment = new WaterUsageFragment();
+                        selectedFragment = waterusgfrag;
                         break;
                     case R.id.navigation_house:
 
-                        selectedFragment = new HouseFragment();
+                        selectedFragment = houseFrag;
                         break;
                     case R.id.navigation_area:
 
-                        selectedFragment = new AreaFragment();
+                        selectedFragment = areaFrag;
                         break;
                 }
 
@@ -48,13 +52,23 @@ public class MainActivity extends AppCompatActivity {
        // bar.setBackgroundDrawable(new ColorDrawable(Color.BLUE));
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         bar.setIcon(R.drawable.app_logo);
-
-
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+       // navigation.setSelectedItemId(R.id.navigation_home);
+
+        String uuid = tools.id(getApplicationContext());
+        Bundle bundle = new Bundle();
+        bundle.putString("uuid",uuid);
+        waterusgfrag = new WaterUsageFragment();
+        areaFrag = new AreaFragment();
+        houseFrag = new HouseFragment();
+        waterusgfrag.setArguments(bundle);
+        areaFrag.setArguments(bundle);
+        houseFrag.setArguments(bundle);
+
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.frame_container,
-                new WaterUsageFragment()).commit();
+                houseFrag).commit();
     }
 
     @Override

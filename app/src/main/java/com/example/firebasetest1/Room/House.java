@@ -14,7 +14,7 @@ import static androidx.room.ForeignKey.CASCADE;
 @Entity(foreignKeys = @ForeignKey(entity = User.class,
         parentColumns = "id",
         childColumns = "uid",
-        onDelete = CASCADE ),indices = {@Index(value = {"uid"}, unique = true)})
+        onDelete = CASCADE ),indices = {@Index(value = {"uid"})})
 public class House {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
@@ -37,8 +37,14 @@ public class House {
         this.nop = nop;
         this.uid = uid;
     }
-    public House(){
 
+
+    public String getCpl() {
+        return cpl;
+    }
+
+    public int getNop() {
+        return nop;
     }
 
     public int getUid() {

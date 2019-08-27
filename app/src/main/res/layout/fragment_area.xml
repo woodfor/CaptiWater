@@ -6,6 +6,15 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/tv_houseName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="casual"
+        android:gravity="center"
+        android:text="TextView"
+        android:textSize="24sp" />
+
+    <TextView
         android:id="@+id/frag_area_text"
         android:text="Area"
         android:layout_marginTop="@dimen/activity_vertical_margin"
@@ -51,5 +60,12 @@
             android:layout_height="wrap_content" />
 
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/pg_area"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
 </LinearLayout>

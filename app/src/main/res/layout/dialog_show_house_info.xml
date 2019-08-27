@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/tv_houseName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Name:" />
+
+    <TextView
+        android:id="@+id/tv_billCycle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="BillCycle: every" />
+
+    <TextView
+        android:id="@+id/tv_cpl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Cost per liter:" />
+
+    <TextView
+        android:id="@+id/tv_nop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="No. people:" />
+
+    <Button
+        android:id="@+id/btn_rename"
+        android:layout_width="142dp"
+        android:layout_height="wrap_content"
+        android:text="Delete" />
+</LinearLayout>

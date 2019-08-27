@@ -1,8 +1,8 @@
 package com.example.firebasetest1.FormalAct;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -51,10 +51,10 @@ public class QuestionActivity extends AppCompatActivity {
         } );
     }
 
-    private class test extends AsyncTask<String,Void,Void>{
+    private class test extends AsyncTask<String,Void,Integer>{
 
         @Override
-        protected Void doInBackground(String... strings) {
+        protected Integer doInBackground(String... strings) {
             db = Room.databaseBuilder(getApplicationContext(),
                     DailyInfoDatabase.class, "dailyInfo_database")
                     .fallbackToDestructiveMigration()
@@ -68,8 +68,20 @@ public class QuestionActivity extends AppCompatActivity {
 
             House house = new House(strings[0],Integer.parseInt(strings[1]),strings[2],Integer.parseInt(strings[3]),id);
             id = (int) db.InfoDao().insertHouse(house);
-            Log.d(this.getClass().getName(), "id:" + id);
-            return null;
+
+            return id;
+        }
+        @Override
+        protected void onPostExecute(Integer result) {
+            if (result!=0){
+                Intent intent = new Intent(QuestionActivity.this,MainActivity.class);
+                startActivity(intent);
+                finish();
+
+            }else{
+                tools.toast_long(getApplicationContext(),"Insert not succeed, please try again");
+            }
         }
     }
+
 }

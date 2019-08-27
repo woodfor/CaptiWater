@@ -6,7 +6,11 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.util.UUID;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class tools {
 
@@ -49,7 +53,7 @@ public class tools {
         String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
         if (uniqueID == null) {
             SharedPreferences sharedPrefs = context.getSharedPreferences(
-                    PREF_UNIQUE_ID, Context.MODE_PRIVATE);
+                    PREF_UNIQUE_ID, MODE_PRIVATE);
             uniqueID = sharedPrefs.getString(PREF_UNIQUE_ID, null);
             if (uniqueID == null) {
                 uniqueID = UUID.randomUUID().toString();
@@ -60,6 +64,16 @@ public class tools {
         }
         return uniqueID;
     }
+
+    public synchronized static void saveObject(Context context,String preName ,String storeName, Object object){
+        SharedPreferences  mPrefs = context.getSharedPreferences(preName,MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(object);
+        prefsEditor.putString("SelectedHouse", json);
+        prefsEditor.apply();
+    }
+
 
 
 }
