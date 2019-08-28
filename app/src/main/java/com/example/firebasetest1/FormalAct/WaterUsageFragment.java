@@ -109,8 +109,8 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         seekBarXMonth.setMax(12);
         seekBarXMonth.setMin(1);
 
-        seekBarXYear.setMin(2017);
-        seekBarXYear.setMax(2030);
+        seekBarXYear.setMin(17);
+        seekBarXYear.setMax(30);
 
         seekBarXDay.setMax(31);
         seekBarXDay.setMin(1);
@@ -123,7 +123,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         tvDay.setText(date+"");
         seekBarXMonth.setProgress(month);
         tvMonth.setText(month+"");
-        seekBarXYear.setProgress(year);
+        seekBarXYear.setProgress(year-2000);
         tvYear.setText(year+"");
 
         chart.setOnChartValueSelectedListener(this);
@@ -152,7 +152,12 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-
+                int tmpday = seekBarXDay.getProgress();
+                int tmpmonth = seekBarXMonth.getProgress();
+                int tmpyear = 2000 + seekBarXYear.getProgress();
+                new fillData().execute(tmpyear,tmpmonth,tmpday);
+                new fillChart().execute(tmpyear,tmpmonth,tmpday);
+                tvDay.setText(tmpday+"");
             }
 
             @Override
@@ -162,19 +167,19 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                int tmpday = seekBarXDay.getProgress();
-                int tmpmonth = seekBarXMonth.getProgress();
-                int tmpyear = seekBarXYear.getProgress();
-                new fillData().execute(tmpyear,tmpmonth,tmpday);
-                new fillChart().execute(tmpyear,tmpmonth,tmpday);
-                tvDay.setText(tmpday+"");
+
             }
         });
         seekBarXMonth.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-
+                int tmpday = seekBarXDay.getProgress();
+                int tmpmonth = seekBarXMonth.getProgress();
+                int tmpyear = 2000 + seekBarXYear.getProgress();
+                new fillData().execute(tmpyear,tmpmonth,tmpday);
+                new fillChart().execute(tmpyear,tmpmonth,tmpday);
+                tvMonth.setText(tmpmonth + "");
             }
 
             @Override
@@ -184,19 +189,19 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                int tmpday = seekBarXDay.getProgress();
-                int tmpmonth = seekBarXMonth.getProgress();
-                int tmpyear = seekBarXYear.getProgress();
-                new fillData().execute(tmpyear,tmpmonth,tmpday);
-                new fillChart().execute(tmpyear,tmpmonth,tmpday);
-                tvMonth.setText(tmpmonth + "");
+
             }
         });
         seekBarXYear.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-
+                int tmpday = seekBarXDay.getProgress();
+                int tmpmonth = seekBarXMonth.getProgress();
+                int tmpyear = 2000 + seekBarXYear.getProgress();
+                new fillData().execute(tmpyear,tmpmonth,tmpday);
+                new fillChart().execute(tmpyear,tmpmonth,tmpday);
+                tvYear.setText(tmpyear + "");
             }
 
             @Override
@@ -206,12 +211,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                int tmpday = seekBarXDay.getProgress();
-                int tmpmonth = seekBarXMonth.getProgress();
-                int tmpyear = seekBarXYear.getProgress();
-                new fillData().execute(tmpyear,tmpmonth,tmpday);
-                new fillChart().execute(tmpyear,tmpmonth,tmpday);
-                tvMonth.setText(tmpyear + "");
+
             }
         });
 

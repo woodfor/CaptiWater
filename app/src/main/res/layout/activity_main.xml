@@ -7,18 +7,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FormalAct.MainActivity"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+
     >
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="676dp"
+        android:layout_height="583dp"
         app:layout_constraintBottom_toBottomOf="@+id/navigation">
 
         <FrameLayout
             android:id="@+id/frame_container"
             android:layout_width="match_parent"
-            android:layout_height="676dp">
+            android:layout_height="wrap_content">
 
         </FrameLayout>
     </ScrollView>
