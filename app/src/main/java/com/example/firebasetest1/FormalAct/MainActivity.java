@@ -2,9 +2,11 @@ package com.example.firebasetest1.FormalAct;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +16,7 @@ import androidx.fragment.app.FragmentManager;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,8 +89,23 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 break;
             case R.id.navigation_help:
-                Intent intent2 = new Intent(MainActivity.this, HelpActivity.class);
-                startActivity(intent2);
+                FirebaseInstanceId.getInstance().getInstanceId()
+                        .addOnCompleteListener(task -> {
+                            if (!task.isSuccessful()) {
+                                Log.w("Token failure", "getInstanceId failed", task.getException());
+                                return;
+                            }
+
+                            // Get new Instance ID token
+                            String token = task.getResult().getToken();
+
+                            // Log and toast
+                            String msg = getString(R.string.msg_token_fmt, token);
+                            Log.d("Token:", msg);
+                            Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
+                        });
+                //Intent intent2 = new Intent(MainActivity.this, HelpActivity.class);
+                //startActivity(intent2);
                 break;
             case R.id.notification:
                 Intent intent3 = new Intent(MainActivity.this, NotificationActivity.class);
@@ -95,5 +113,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        this.getSharedPreferences("House",MODE_PRIVATE).edit().remove("SelectedHouse").apply();
     }
 }

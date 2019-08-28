@@ -21,19 +21,20 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.room.Room;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
-import com.example.firebasetest1.Room.DailyInfo;
 import com.example.firebasetest1.Room.DailyInfoDatabase;
+import com.example.firebasetest1.Room.Records;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -142,16 +143,39 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * Handle time allotted to BroadcastReceivers.
      */
     private void handleNow(Map<String,String> data) {
-        SharedPreferences sharedPrefs = getApplication().getSharedPreferences(
-                "PREF_UNIQUE_ID", Context.MODE_PRIVATE);
-        String uniqueID = sharedPrefs.getString("PREF_UNIQUE_ID", null);
+
         db = Room.databaseBuilder(getApplicationContext(),
                 DailyInfoDatabase.class, "dailyInfo_database")
                 .fallbackToDestructiveMigration()
                 .build();
-        DailyInfo dailyInfo = new DailyInfo(uniqueID,Integer.parseInt(data.get("U")),Integer.parseInt(data.get("D")),data.get("T"),data.get("N"));
+
+        try{
+            Records records = new Records(Integer.parseInt(data.get("tid")),Integer.parseInt(data.get("hid")),Integer.parseInt(data.get("U")),Integer.parseInt((data.get("D"))),data.get("T"));
+            db.InfoDao().insertRecord(records);
+
+            Handler mainHandler = new Handler(getMainLooper());
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    // Do your stuff here related to UI, e.g. show toast
+                    Toast.makeText(getApplicationContext(), "Data received from a tap", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }catch (Exception e){
+            Handler mainHandler = new Handler(getMainLooper());
+            mainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    // Do your stuff here related to UI, e.g. show toast
+                    Toast.makeText(getApplicationContext(), "Warning, your tap is on at least 2 seconds", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }finally {
+            db.close();
+        }
+
        // db.InfoDao().insert(dailyInfo);
-        db.close();
+
     }
 
     /**

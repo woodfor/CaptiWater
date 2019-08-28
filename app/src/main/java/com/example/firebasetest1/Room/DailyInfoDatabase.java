@@ -9,7 +9,7 @@ import androidx.room.TypeConverters;
 
 import com.example.firebasetest1.General.Converters;
 
-@Database(entities = {House.class, Tap.class,User.class,Records.class}, version = 9, exportSchema = false)
+@Database(entities = {House.class, Tap.class,User.class,Records.class}, version = 10, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class DailyInfoDatabase extends RoomDatabase {
     public abstract InfoDAO InfoDao();

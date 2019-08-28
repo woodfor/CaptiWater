@@ -89,10 +89,16 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
         SharedPreferences mPrefs = getActivity().getApplicationContext().getSharedPreferences("House", MODE_PRIVATE);
         Gson gson = new Gson();
         String json = mPrefs.getString("SelectedHouse", "");
-        house = gson.fromJson(json, House.class);
-        tv_houseName.setText(house.getName());
+        if (!json.isEmpty()){
+            house = gson.fromJson(json,House.class);
+            String houseName = house.getName();
+            tv_houseName.setText(houseName);
+            new fillList().execute();
+        }else {
+            tv_houseName.setText("Please select an area");
+        }
         progressBar = vArea.findViewById(R.id.pg_area);
-        new fillList().execute();
+
         //bluetooth
         myBluetooth = BluetoothAdapter.getDefaultAdapter();
         if (myBluetooth == null) {
@@ -147,14 +153,16 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                     DailyInfoDatabase.class, "dailyInfo_database")
                     .fallbackToDestructiveMigration()
                     .build();
-            Tap tap = new Tap(strings[0],house.getId());
+            tap = new Tap(strings[0],house.getId(),address);
 
             return db.InfoDao().insertTap(tap);
         }
         @Override
         protected void onPostExecute(Long id){
             if (id!=0){
-                new fillList().execute();
+                String[] array = {"N:" + tap.getName() +"/"+house.getId()+"/"+id,"1"};
+                new SendSignal().execute(array);
+
             }else {
                 msg("Insert failed,please try again");
             }
@@ -191,7 +199,6 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                 EditText edt_rename = dialog.findViewById(R.id.edt_rename);
                 Button btn_del = dialog.findViewById(R.id.btn_del);
                 Button btn_rename = dialog.findViewById(R.id.btn_rename);
-                ProgressBar pg_rename = dialog.findViewById(R.id.pg_rename);
                 btn_del.setOnClickListener(view1 -> {
                     new delTap().execute(tap.getId());
                     dialog.dismiss();
@@ -199,10 +206,19 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                 btn_rename.setOnClickListener(view1 -> {
                     String tmp = edt_rename.getText().toString().trim();
                     if (!(tmp.isEmpty())) {
-                       progressBar.setVisibility(View.VISIBLE);
-                       new ConnectBT().execute("noWifi");
+                        /*address = tap.getAddress();
+                        isBtConnected = false;
+
+                        try {
+                            btSocket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }*/
+                        if (!isBtConnected){
+                           new ConnectBT().execute();
+                       }
                         tapname = tmp;
-                        String[] array = {"UN:" + tmp+"/"+house.getId(),"1"};
+                        String[] array = {"UN:" + tmp+"/"+house.getId(),"UN"};
                         new SendSignal().execute(array);
 
 
@@ -253,7 +269,8 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
             String info = (String) list.get((int) id);
             String name = info.substring(0, info.length() - 17);
             address = info.substring(info.length() - 17);
-            new ConnectBT().execute("withWifi");
+            new ConnectBT().execute();
+            new connectWIFI().execute();
             dialog.dismiss();
 
         });
@@ -262,17 +279,17 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    private class ConnectBT extends AsyncTask<String, Void, String> {
+    private class ConnectBT extends AsyncTask<String, Void, Void> {
         private boolean ConnectSuccess = true;
 
         // private ProgressDialog progress;
         @Override
         protected void onPreExecute() {
-            // progress = ProgressDialog.show(getApplicationContext() , "Connecting...", "Please Wait!!!");
+            progressBar.setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected Void doInBackground(String... strings) {
             try {
                 if (btSocket == null || !isBtConnected) {
                     mmDevice = myBluetooth.getRemoteDevice(address.trim());
@@ -295,45 +312,66 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                 return null;
             }
 
-            return strings[0];
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(Void result) {
+            progressBar.setVisibility(View.GONE);
             if (!ConnectSuccess) {
                 tools.toast_long(mContext, "Connection Failed. Is it a SPP Bluetooth? Try again.");
 
             } else {
-
-                isBtConnected = true;
-                beginListenForData();
-                if (result.equals("withWifi")){
-                    if (wifiManager.isWifiEnabled()) {
-                        msg("Bluetooth connected, please setup its wifi");
-                        // if(isLocnEnabled(this)){
-                        String location = Manifest.permission.ACCESS_FINE_LOCATION;
-                        if (ActivityCompat.checkSelfPermission(getActivity(), location) != PackageManager.PERMISSION_GRANTED) {
-                            ActivityCompat.requestPermissions(getActivity(),new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                        } else {
-                            startWifiScan();
-                        }
-
-                        //            }else{
-                        //              context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                        //          }
-                    }else {
-                        //ActivityCompat.requestPermissions(new String[] { locationPermission }, RC_LOCATION);
-                        Toast.makeText(mContext, "WiFi is disabled ... We need to enable it", Toast.LENGTH_LONG).show();
-                        wifiManager.setWifiEnabled(true);
-                    }
+                if (!isBtConnected){
+                    beginListenForData();
+                    isBtConnected = true;
                 }
-                //starting connect wifi
-
-            }
 
             //progress.dismiss();
         }
     }
+    }
+    protected class connectWIFI extends AsyncTask<Void,Void,Boolean>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            while(!isBtConnected){
+
+            }
+            return  true;
+        }
+        @Override
+        protected void onPostExecute(Boolean flag){
+           if (flag){
+               if (wifiManager.isWifiEnabled()) {
+                   msg("Bluetooth connected, please setup its wifi");
+                   // if(isLocnEnabled(this)){
+                   String location = Manifest.permission.ACCESS_FINE_LOCATION;
+                   if (ActivityCompat.checkSelfPermission(getActivity(), location) != PackageManager.PERMISSION_GRANTED) {
+                       ActivityCompat.requestPermissions(getActivity(),new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                   } else {
+                       startWifiScan();
+                   }
+
+                   //            }else{
+                   //              context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                   //          }
+               }else {
+                   //ActivityCompat.requestPermissions(new String[] { locationPermission }, RC_LOCATION);
+                   Toast.makeText(mContext, "WiFi is disabled ... We need to enable it", Toast.LENGTH_LONG).show();
+                   wifiManager.setWifiEnabled(true);
+               }
+           }
+          progressBar.setVisibility(View.GONE);
+        }
+    }
+
 
     void beginListenForData() {
         final Handler handler = new Handler();
@@ -377,20 +415,18 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
 
     private class SendSignal extends AsyncTask<String,Integer,String>{
 
+        String identifier;
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
         @Override
         protected String doInBackground(String... strings) {
+            identifier = strings[1];
             respond = "";
             counter = 0;
             while (!isBtConnected){
-                counter ++;
-                if (counter>20){
-                    break;
-                }
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+
             }
             if (isBtConnected){
                 counter = 0;
@@ -424,11 +460,11 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(String result) {
-            progressBar.setVisibility(View.GONE);
             if (result != null){
                 if (result.equals("1")){
+                    new fillList().execute();
                     toast_long(mContext,"Set name complete");
-                    new insertTap().execute(tapname);
+
                 }else if (result.equals("UC")){
                     toast_long(mContext,"Update name complete");
                     new updateTap().execute(tapname);
@@ -453,8 +489,8 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                         if (!(tmp.isEmpty()))
                         {
                             tapname = tmp;
-                            String[] array = {"N:" + tmp +"/"+house.getId(),"1"};
-                            new SendSignal().execute(array);
+                            new insertTap().execute(tapname);
+
 
                             setNameDialog.dismiss();
                         }
@@ -468,16 +504,15 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                 }
             }
             else {
+                if (identifier.equals("1")){
+                   // new delTap().execute(tap.getId());
+                }
                 msg("Setting error, please try again");
-                progressBar.setVisibility(View.GONE);
+
             }
-
+            progressBar.setVisibility(View.GONE);
         }
 
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            progressBar.setProgress(values[0]);
-        }
 
     }
 
@@ -552,11 +587,9 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                 String tmp = edt_password.getText().toString().trim();
                 if (!(tmp.isEmpty()))
                 {
-                   // progressBar.setVisibility(View.VISIBLE);
-                    //progressBar.setProgress(0);
+
                     String[] array = {"C:"+ wifiName + "/"+ tmp,"2"};
                     new SendSignal().execute(array);
-                    progressBar.setVisibility(View.VISIBLE);
                     alertDialog.dismiss();
                 }
                 else

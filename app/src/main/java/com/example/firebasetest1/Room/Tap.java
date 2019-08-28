@@ -20,15 +20,19 @@ public class Tap {
     public String name;
     @ColumnInfo(name = "hid")
     public int hid;
+    @ColumnInfo(name = "address")
+    public String address;
 
-    public Tap(String name,int hid) {
+    public Tap(String name,int hid,String address) {
         this.name = name;
         this.hid = hid;
+        this.address = address;
     }
     public int getId() {
         return tid;
     }
 
+    public String getAddress(){return address;}
 
     public String getName(){return name;}
 }

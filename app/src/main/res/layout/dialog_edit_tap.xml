@@ -4,6 +4,13 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
+    <TextView
+        android:id="@+id/textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Rename tap"
+        android:textSize="24sp" />
+
     <EditText
         android:id="@+id/edt_rename"
         android:layout_width="match_parent"
@@ -30,12 +37,5 @@
 
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/pg_rename"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="50dp"
-        android:layout_height="60dp"
-        android:layout_weight="1"
-        android:visibility="gone" />
 
 </LinearLayout>

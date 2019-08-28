@@ -65,9 +65,11 @@ public class QuestionActivity extends AppCompatActivity {
                 User user = new User(uuid);
                 id = (int) db.InfoDao().insertUser(user);
             }
-
+//            getSupportActionBar().setTitle("Questions");
             House house = new House(strings[0],Integer.parseInt(strings[1]),strings[2],Integer.parseInt(strings[3]),id);
-            id = (int) db.InfoDao().insertHouse(house);
+            tools.saveObject(getApplicationContext(),"House","HouseName",house);
+
+    //        id = (int) db.InfoDao().insertHouse(house);
 
             return id;
         }

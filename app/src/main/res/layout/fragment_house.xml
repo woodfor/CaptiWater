@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/frag_house_text"
+        android:id="@+id/tv_houseName"
         android:text="House"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:textSize="@dimen/title_size"

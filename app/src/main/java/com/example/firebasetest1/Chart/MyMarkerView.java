@@ -31,10 +31,10 @@ public class MyMarkerView extends MarkerView {
 
             CandleEntry ce = (CandleEntry) e;
 
-            tvContent.setText(Utils.formatNumber(ce.getLow(),0,true) +" o'clock, "+Utils.formatNumber(ce.getHigh(), 0, true) + " ml");
+            tvContent.setText(Utils.formatNumber(ce.getHigh(), 0, true) + " ml");
         } else {
 
-            tvContent.setText(Utils.formatNumber(e.getX(),0,true) +" o'clock, " +Utils.formatNumber(e.getY(), 0, true) + " ml");
+            tvContent.setText(Utils.formatNumber(e.getY(), 0, true) + " ml");
         }
 
         super.refreshContent(e, highlight);

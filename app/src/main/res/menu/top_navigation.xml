@@ -11,8 +11,10 @@
         android:id="@+id/navigation_setting"
         app:showAsAction="never"
         android:title="Settings" />
+
     <item
         android:id="@+id/navigation_help"
         app:showAsAction="never"
         android:title="Help" />
+
 </menu>

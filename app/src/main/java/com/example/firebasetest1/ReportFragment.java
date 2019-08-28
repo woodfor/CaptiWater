@@ -114,7 +114,7 @@ public class ReportFragment extends Fragment implements SeekBar.OnSeekBarChangeL
         seekBarX = vDisplayUnit.findViewById(R.id.seekBar1);
         seekBarX.setOnSeekBarChangeListener(this);
 
-        chart = vDisplayUnit.findViewById(R.id.lineChart);
+        chart = vDisplayUnit.findViewById(R.id.lc_water_usage);
         chart.setOnChartValueSelectedListener(this);
         //search database
         SharedPreferences sharedPrefs = appContext.getSharedPreferences(

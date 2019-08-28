@@ -2,7 +2,6 @@ package com.example.firebasetest1.General;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
@@ -39,12 +38,7 @@ public class tools {
         final AlertDialog alertDialog = new AlertDialog.Builder(context).create();
         alertDialog.setTitle(title);
         alertDialog.setMessage(message);
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                alertDialog.dismiss();
-            }
-        });
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", (dialog, which) -> alertDialog.dismiss());
         return alertDialog;
     }
 
@@ -70,7 +64,7 @@ public class tools {
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(object);
-        prefsEditor.putString("SelectedHouse", json);
+        prefsEditor.putString(storeName, json);
         prefsEditor.apply();
     }
 
