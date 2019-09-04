@@ -1,6 +1,7 @@
 package com.example.firebasetest1.FormalAct;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -13,8 +14,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
 import com.example.firebasetest1.General.tools;
+import com.example.firebasetest1.Model.Token;
 import com.example.firebasetest1.R;
+import com.example.firebasetest1.RestClient.RestClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -100,8 +105,8 @@ public class MainActivity extends AppCompatActivity {
                             String token = task.getResult().getToken();
 
                             // Log and toast
-                            String msg = getString(R.string.msg_token_fmt, token);
-                            Log.d("Token:", msg);
+                            new putREST().execute(token);
+                            //Log.d("Token:", msg);
                             Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
                         });
                 //Intent intent2 = new Intent(MainActivity.this, HelpActivity.class);
@@ -114,6 +119,18 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    protected class putREST extends AsyncTask<String, Void,Void>{
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            Token token = new Token(strings[0]);
+            queue.add(RestClient.putToken("token",token));
+            return null;
+        }
+    }
+
     @Override
     public void onDestroy(){
         super.onDestroy();
