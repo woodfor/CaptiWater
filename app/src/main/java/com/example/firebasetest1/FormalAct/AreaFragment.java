@@ -60,7 +60,7 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
     ListView lv_tap;
     List<Tap> taps;
     ArrayAdapter arrayAdapter;
-    House house;
+    House house = null;
     BluetoothAdapter myBluetooth = null;
     BluetoothSocket btSocket = null;
     private boolean isBtConnected = false;
@@ -112,17 +112,22 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                 mContext.getSystemService(Context.WIFI_SERVICE);
 
         addTapButton.setOnClickListener(view -> {
-            Set<BluetoothDevice> pairedDevices = myBluetooth.getBondedDevices();
-            ArrayList list = new ArrayList();
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice bt : pairedDevices) {
-                    list.add(bt.getName() + "\n" + bt.getAddress());
+            if(house!=null){
+                Set<BluetoothDevice> pairedDevices = myBluetooth.getBondedDevices();
+                ArrayList list = new ArrayList();
+                if (pairedDevices.size() > 0) {
+                    for (BluetoothDevice bt : pairedDevices) {
+                        list.add(bt.getName() + "\n" + bt.getAddress());
 
+                    }
+                    showDialog(mContext, list);
+                } else {
+                    Toast.makeText(appContext, "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
                 }
-                showDialog(mContext, list);
-            } else {
-                Toast.makeText(appContext, "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(appContext, "Please set area first.", Toast.LENGTH_LONG).show();
             }
+
         });
 
         return vArea;

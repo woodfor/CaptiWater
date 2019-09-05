@@ -16,7 +16,7 @@
 
     <TextView
         android:id="@+id/frag_area_text"
-        android:text="Area"
+        android:text="Taps"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:textSize="@dimen/title_size"
         android:textColor="@color/colorBlack"

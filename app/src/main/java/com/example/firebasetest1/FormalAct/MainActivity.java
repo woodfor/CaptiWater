@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.example.firebasetest1.General.tools;
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
                             // Get new Instance ID token
                             String token = task.getResult().getToken();
-
+                            Log.d("token:", token);
                             // Log and toast
                             new putREST().execute(token);
                             //Log.d("Token:", msg);
