@@ -54,7 +54,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class WaterUsageFragment extends Fragment implements View.OnClickListener, OnChartValueSelectedListener {
     View vWaterUsage;
-    House house;
+    House house = null;
     DailyInfoDatabase db = null;
     TextView tv_totalLiter;
     TextView tv_cost;
@@ -119,12 +119,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         year = Integer.parseInt(new SimpleDateFormat("yyyy").format(Calendar.getInstance().getTime()));
         Integer[] integers = {year,month,date};
 
-        seekBarXDay.setProgress(date);
-        tvDay.setText(date+"");
-        seekBarXMonth.setProgress(month);
-        tvMonth.setText(month+"");
-        seekBarXYear.setProgress(year-2000);
-        tvYear.setText(year+"");
+
 
         chart.setOnChartValueSelectedListener(this);
 
@@ -146,18 +141,26 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         //set chart
         setChartBasic();
 
-
+        seekBarXDay.setProgress(date);
+        tvDay.setText(date+"");
+        seekBarXMonth.setProgress(month);
+        tvMonth.setText(month+"");
+        seekBarXYear.setProgress(year-2000);
+        tvYear.setText(year+"");
 
         seekBarXDay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                int tmpday = seekBarXDay.getProgress();
-                int tmpmonth = seekBarXMonth.getProgress();
-                int tmpyear = 2000 + seekBarXYear.getProgress();
-                new fillData().execute(tmpyear,tmpmonth,tmpday);
-                new fillChart().execute(tmpyear,tmpmonth,tmpday);
-                tvDay.setText(tmpday+"");
+                if (house!=null){
+                    int tmpday = seekBarXDay.getProgress();
+                    int tmpmonth = seekBarXMonth.getProgress();
+                    int tmpyear = 2000 + seekBarXYear.getProgress();
+                    new fillData().execute(tmpyear,tmpmonth,tmpday);
+                    new fillChart().execute(tmpyear,tmpmonth,tmpday);
+                    tvDay.setText(tmpday+"");
+                }
+
             }
 
             @Override
@@ -174,12 +177,15 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                int tmpday = seekBarXDay.getProgress();
-                int tmpmonth = seekBarXMonth.getProgress();
-                int tmpyear = 2000 + seekBarXYear.getProgress();
-                new fillData().execute(tmpyear,tmpmonth,tmpday);
-                new fillChart().execute(tmpyear,tmpmonth,tmpday);
-                tvMonth.setText(tmpmonth + "");
+                if (house!=null){
+                    int tmpday = seekBarXDay.getProgress();
+                    int tmpmonth = seekBarXMonth.getProgress();
+                    int tmpyear = 2000 + seekBarXYear.getProgress();
+                    new fillData().execute(tmpyear,tmpmonth,tmpday);
+                    new fillChart().execute(tmpyear,tmpmonth,tmpday);
+                    tvMonth.setText(tmpmonth + "");
+                }
+
             }
 
             @Override
@@ -196,12 +202,15 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                int tmpday = seekBarXDay.getProgress();
-                int tmpmonth = seekBarXMonth.getProgress();
-                int tmpyear = 2000 + seekBarXYear.getProgress();
-                new fillData().execute(tmpyear,tmpmonth,tmpday);
-                new fillChart().execute(tmpyear,tmpmonth,tmpday);
-                tvYear.setText(tmpyear + "");
+                if (house!=null){
+                    int tmpday = seekBarXDay.getProgress();
+                    int tmpmonth = seekBarXMonth.getProgress();
+                    int tmpyear = 2000 + seekBarXYear.getProgress();
+                    new fillData().execute(tmpyear,tmpmonth,tmpday);
+                    new fillChart().execute(tmpyear,tmpmonth,tmpday);
+                    tvYear.setText(tmpyear + "");
+                }
+
             }
 
             @Override
@@ -219,8 +228,11 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         leftBtn.setOnClickListener(this);
         rightBtn.setOnClickListener(this);
 
-        new fillData().execute(integers);
-        new fillChart().execute(integers);
+        if (house!=null){
+            new fillData().execute(integers);
+            new fillChart().execute(integers);
+        }
+
 
         return vWaterUsage;
     }
@@ -256,8 +268,11 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         int month = Integer.parseInt(new SimpleDateFormat("MM").format(Calendar.getInstance().getTime()));
         int year = Integer.parseInt(new SimpleDateFormat("yyyy").format(Calendar.getInstance().getTime()));
         Integer[] integers = {year,month,date};
-        new fillChart().execute(integers);
-        new fillData().execute(integers);
+        if (house!=null){
+            new fillChart().execute(integers);
+            new fillData().execute(integers);
+        }
+
         if (period.equals("Daily")){
 
         }else if (period.equals("Monthly")){

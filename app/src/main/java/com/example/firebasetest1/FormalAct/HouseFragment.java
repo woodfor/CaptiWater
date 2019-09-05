@@ -122,6 +122,11 @@ public class HouseFragment extends Fragment{
             for (House house: houses){
                 strings.add(house.getName());
             }
+            if(houses.isEmpty()){
+
+            }else{
+                tools.saveObject(appContext,"House","SelectedHouse",houses.get(0));
+            }
             return strings;
         }
         @Override
