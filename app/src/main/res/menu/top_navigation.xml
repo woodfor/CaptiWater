@@ -8,13 +8,10 @@
         android:icon="@drawable/ic_notifications_none_black_24dp"
         app:showAsAction="ifRoom"/>
     <item
-        android:id="@+id/navigation_setting"
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
         app:showAsAction="never"
-        android:title="Settings" />
-
-    <item
-        android:id="@+id/navigation_help"
-        app:showAsAction="never"
-        android:title="Help" />
+        android:visible="false"
+        android:title="@string/action_settings"/>
 
 </menu>

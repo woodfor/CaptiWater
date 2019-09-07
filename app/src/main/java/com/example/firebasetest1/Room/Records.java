@@ -16,7 +16,7 @@ import static androidx.room.ForeignKey.CASCADE;
 @Entity(foreignKeys = {@ForeignKey(entity = Tap.class,
         parentColumns = "id",
         childColumns = "tid",
-        onDelete = CASCADE ),@ForeignKey(entity = House.class,
+        onDelete = CASCADE ),@ForeignKey(entity = HouseDAO.class,
         parentColumns = "id",
         childColumns = "hid",
         onDelete = CASCADE )},indices = {@Index(value = {"tid"}),@Index(value = {"hid"})})

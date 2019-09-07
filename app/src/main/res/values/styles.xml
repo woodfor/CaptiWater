@@ -6,7 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="actionOverflowButtonStyle">@style/DotsDarkTheme</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
 
     </style>
 
@@ -19,7 +19,8 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="DotsDarkTheme" parent="@style/Widget.AppCompat.ActionButton.Overflow" >
-        <item name="android:tint">@color/colorBlack</item>
+    <style name="DrawerArrowStyle" parent="@style/Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/black</item>
     </style>
 </resources>

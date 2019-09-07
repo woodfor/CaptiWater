@@ -15,17 +15,17 @@ public interface InfoDAO {
 
 
     @Insert
-    long insertUser(User user);
+    long insertUser(UserDAO userDAO);
     @Insert
     long insertTap(Tap tap);
     @Insert
-    long insertHouse(House house);
+    long insertHouse(HouseDAO houseDAO);
     @Insert
     long insertRecord(Records records);
-    @Query("SELECT id FROM User WHERE uuid = :uuid")
+    @Query("SELECT id FROM UserDAO WHERE uuid = :uuid")
     int userExists(String uuid);
-    @Query("SELECT * FROM House WHERE uid = :uid")
-    List<House> getHouses(int uid);
+    @Query("SELECT * FROM HouseDAO WHERE uid = :uid")
+    List<HouseDAO> getHouses(int uid);
     @Query("SELECT * FROM tap WHERE hid = :hid")
     List<Tap> getTaps(int hid);
     @Query("SELECT sum(usage) FROM records WHERE hid = :hid and month = :month and year=:year and date = :date")
@@ -38,7 +38,7 @@ public interface InfoDAO {
     int getTotalSumUsage(int hid);
     @Query("SELECT count(distinct year) FROM records WHERE hid = :hid")
     int getDistinctYear(int hid);
-    @Query("DELETE FROM House WHERE id = :id")
+    @Query("DELETE FROM HouseDAO WHERE id = :id")
     void deleteHouse(int id);
     @Query("DELETE FROM Tap WHERE id = :id")
     void deleteTap(int id);

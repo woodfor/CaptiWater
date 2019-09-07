@@ -36,7 +36,7 @@ import androidx.room.Room;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.Room.DailyInfoDatabase;
-import com.example.firebasetest1.Room.House;
+import com.example.firebasetest1.Room.HouseDAO;
 import com.example.firebasetest1.Room.Tap;
 import com.google.gson.Gson;
 
@@ -60,7 +60,7 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
     ListView lv_tap;
     List<Tap> taps;
     ArrayAdapter arrayAdapter;
-    House house = null;
+    HouseDAO houseDAO;
     BluetoothAdapter myBluetooth = null;
     BluetoothSocket btSocket = null;
     private boolean isBtConnected = false;
@@ -86,12 +86,12 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
         TextView tv_houseName = (TextView) vArea.findViewById(R.id.tv_houseName);
         lv_tap = (ListView) vArea.findViewById(R.id.tap_listview);
         ImageView addTapButton = (ImageView) vArea.findViewById(R.id.add_tap_btn);
-        SharedPreferences mPrefs = getActivity().getApplicationContext().getSharedPreferences("House", MODE_PRIVATE);
+        SharedPreferences mPrefs = getActivity().getApplicationContext().getSharedPreferences("HouseDAO", MODE_PRIVATE);
         Gson gson = new Gson();
         String json = mPrefs.getString("SelectedHouse", "");
         if (!json.isEmpty()){
-            house = gson.fromJson(json,House.class);
-            String houseName = house.getName();
+            houseDAO = gson.fromJson(json, HouseDAO.class);
+            String houseName = houseDAO.getName();
             tv_houseName.setText(houseName);
             new fillList().execute();
         }else {
@@ -112,22 +112,17 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                 mContext.getSystemService(Context.WIFI_SERVICE);
 
         addTapButton.setOnClickListener(view -> {
-            if(house!=null){
-                Set<BluetoothDevice> pairedDevices = myBluetooth.getBondedDevices();
-                ArrayList list = new ArrayList();
-                if (pairedDevices.size() > 0) {
-                    for (BluetoothDevice bt : pairedDevices) {
-                        list.add(bt.getName() + "\n" + bt.getAddress());
+            Set<BluetoothDevice> pairedDevices = myBluetooth.getBondedDevices();
+            ArrayList list = new ArrayList();
+            if (pairedDevices.size() > 0) {
+                for (BluetoothDevice bt : pairedDevices) {
+                    list.add(bt.getName() + "\n" + bt.getAddress());
 
-                    }
-                    showDialog(mContext, list);
-                } else {
-                    Toast.makeText(appContext, "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
                 }
-            }else{
-                Toast.makeText(appContext, "Please set area first.", Toast.LENGTH_LONG).show();
+                showDialog(mContext, list);
+            } else {
+                Toast.makeText(appContext, "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
             }
-
         });
 
         return vArea;
@@ -158,14 +153,14 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                     DailyInfoDatabase.class, "dailyInfo_database")
                     .fallbackToDestructiveMigration()
                     .build();
-            tap = new Tap(strings[0],house.getId(),address);
+            tap = new Tap(strings[0], houseDAO.getId(),address);
 
             return db.InfoDao().insertTap(tap);
         }
         @Override
         protected void onPostExecute(Long id){
             if (id!=0){
-                String[] array = {"N:" + tap.getName() +"/"+house.getId()+"/"+id,"1"};
+                String[] array = {"N:" + tap.getName() +"/"+ houseDAO.getId()+"/"+id,"1"};
                 new SendSignal().execute(array);
 
             }else {
@@ -183,7 +178,7 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                     DailyInfoDatabase.class, "dailyInfo_database")
                     .fallbackToDestructiveMigration()
                     .build();
-            taps = db.InfoDao().getTaps(house.getId());
+            taps = db.InfoDao().getTaps(houseDAO.getId());
             List<String> strings = new ArrayList<>();
             for (Tap tap : taps) {
                 strings.add(tap.getName());
@@ -223,7 +218,7 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                            new ConnectBT().execute();
                        }
                         tapname = tmp;
-                        String[] array = {"UN:" + tmp+"/"+house.getId(),"UN"};
+                        String[] array = {"UN:" + tmp+"/"+ houseDAO.getId(),"UN"};
                         new SendSignal().execute(array);
 
 

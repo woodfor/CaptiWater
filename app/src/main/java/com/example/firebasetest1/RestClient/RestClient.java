@@ -6,6 +6,7 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.firebasetest1.Model.Token;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,8 +20,8 @@ import java.util.Scanner;
 
 public class RestClient {
 
-    private static final String BASE_URL =
-            "http://capiwaterapi.ap-southeast-2.elasticbeanstalk.com/";
+    public static final String BASE_URL =
+            "http://capiwater-env.nnyv2mmdf9.ap-southeast-2.elasticbeanstalk.com/";
 
     public static Boolean getToken() {
         final String methodPath = "token";
@@ -73,6 +74,8 @@ public class RestClient {
                 response -> {
                     // response
                     Log.d("Response", response.toString());
+
+
                 },
                 error -> {
                     // error
@@ -91,13 +94,46 @@ public class RestClient {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
                 params.put("Content-Type", "application/json; charset=utf-8");
-               // params.put("Accept", "application/json");
+                // params.put("Accept", "application/json");
                 return params;
             }
 
         };
         return putRequest;
     }
+
+    public static JsonObjectRequest postObject(String url, Object object) throws JSONException {
+
+        String jsonInString = new Gson().toJson(object);
+        JsonObjectRequest postRequest = new JsonObjectRequest (Request.Method.POST, BASE_URL+ url, new JSONObject(jsonInString),
+                response -> {
+                    // response
+                    Log.d("Response", response.toString());
+                },
+                error -> {
+                    // error
+
+                    try{
+                        Log.d("Error.Response", error.getMessage());
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Content-Type", "application/json; charset=utf-8");
+                params.put("Accept", "application/json");
+                return params;
+            }
+
+        };
+        return postRequest;
+    }
+
 
 
     public static Map<String, String> parameters(Object obj) {

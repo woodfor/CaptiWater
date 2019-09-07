@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey;
 
 import static androidx.room.ForeignKey.CASCADE;
 
-@Entity(foreignKeys = @ForeignKey(entity = House.class,
+@Entity(foreignKeys = @ForeignKey(entity = HouseDAO.class,
         parentColumns = "id",
         childColumns = "hid",
         onDelete = CASCADE ),indices = {@Index(value = {"hid"})})

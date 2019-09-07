@@ -6,14 +6,14 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(indices = {@Index(value = {"id"}, unique = true)})
-public class User {
+public class UserDAO {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     public int uid;
     @ColumnInfo(name = "uuid")
     public String uuid;
 
-    public User(String uuid){
+    public UserDAO(String uuid){
         this.uuid = uuid;
     }
 

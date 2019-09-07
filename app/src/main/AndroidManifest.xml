@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
 
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -20,7 +21,6 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         android:usesCleartextTraffic="true">
-
         <activity
             android:name=".FormalAct.StartActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -46,7 +46,8 @@
         </activity>
         <activity
 
-            android:name=".FormalAct.MainActivity">
+            android:name=".FormalAct.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
         <!--
@@ -66,6 +67,10 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
+
+        <service
+            android:name=".Gecoder.FetchAddressIntentService"
+            android:exported="false"/>
 
         <service
             android:name=".MyFirebaseMessagingService"

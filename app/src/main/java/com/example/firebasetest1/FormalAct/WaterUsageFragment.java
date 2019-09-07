@@ -1,82 +1,38 @@
 package com.example.firebasetest1.FormalAct;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.room.Room;
 
-import com.example.firebasetest1.Chart.MyMarkerView;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
-import com.example.firebasetest1.Room.DailyInfoDatabase;
-import com.example.firebasetest1.Room.House;
-import com.example.firebasetest1.Room.Model.DailyResult;
-import com.example.firebasetest1.Room.Model.MonthlyResult;
-import com.example.firebasetest1.Room.Model.YearlyResult;
-import com.example.firebasetest1.Room.Records;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
+import com.example.firebasetest1.RestClient.Model.House;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.gson.Gson;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static android.content.Context.MODE_PRIVATE;
 
 
 public class WaterUsageFragment extends Fragment implements View.OnClickListener, OnChartValueSelectedListener {
     View vWaterUsage;
-    House house = null;
-    DailyInfoDatabase db = null;
+    House house =null;
     TextView tv_totalLiter;
     TextView tv_cost;
     TextView tv_estCost;
     TextView tv_houseName;
     Context mContext;
-    private SeekBar seekBarXDay;
-    private SeekBar seekBarXMonth;
-    private SeekBar seekBarXYear;
-    private TextView tvDay;
-    private TextView tvMonth;
-    private TextView tvYear;
     private ProgressBar pg_status;
     TextView timeText;
-    LinearLayout yearLayout;
-    LinearLayout monthLayout;
-    LinearLayout dateLayout;
-    List<Records> records;
-    String period;
-    int date;
-    int year;
-    int month;
+
+
     private static com.github.mikephil.charting.charts.LineChart chart;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -90,148 +46,23 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         tv_totalLiter = vWaterUsage.findViewById(R.id.liter_text);
         tv_cost = vWaterUsage.findViewById(R.id.cost_text);
         tv_estCost = vWaterUsage.findViewById(R.id.estimated_cost_text);
-        chart = vWaterUsage.findViewById(R.id.lc_water_usage);
-        tvDay = vWaterUsage.findViewById(R.id.tvXMaxDay);
-        tvMonth = vWaterUsage.findViewById(R.id.tvXMaxMonth);
-        tvYear = vWaterUsage.findViewById(R.id.tvXMaxYear);
-        seekBarXMonth = vWaterUsage.findViewById(R.id.seekBarMonth);
-        seekBarXYear = vWaterUsage.findViewById(R.id.seekBarYear);
-        seekBarXDay = vWaterUsage.findViewById(R.id.seekBarDay);
         timeText = (TextView) vWaterUsage.findViewById(R.id.time_text);
-        yearLayout = vWaterUsage.findViewById(R.id.year);
-        monthLayout = vWaterUsage.findViewById(R.id.month);
-        dateLayout = vWaterUsage.findViewById(R.id.date);
-        period = timeText.getText().toString();
-        yearLayout.setVisibility(View.VISIBLE);
-        monthLayout.setVisibility(View.VISIBLE);
-        dateLayout.setVisibility(View.VISIBLE);
+        leftBtn.setOnClickListener(this);
+        rightBtn.setOnClickListener(this);
 
-        seekBarXMonth.setMax(12);
-        seekBarXMonth.setMin(1);
+        try{
+            house = (House) tools.getObject(getActivity().getApplicationContext(),"House","House","House");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
-        seekBarXYear.setMin(17);
-        seekBarXYear.setMax(30);
+        if (house!=null){
 
-        seekBarXDay.setMax(31);
-        seekBarXDay.setMin(1);
-        date = Integer.parseInt(new SimpleDateFormat("dd").format(Calendar.getInstance().getTime()));
-        month = Integer.parseInt(new SimpleDateFormat("MM").format(Calendar.getInstance().getTime()));
-        year = Integer.parseInt(new SimpleDateFormat("yyyy").format(Calendar.getInstance().getTime()));
-        Integer[] integers = {year,month,date};
-
-
-
-        chart.setOnChartValueSelectedListener(this);
-
-        db = Room.databaseBuilder(getActivity().getApplicationContext(),
-                DailyInfoDatabase.class, "dailyInfo_database")
-                .fallbackToDestructiveMigration()
-                .build();
-
-        SharedPreferences mPrefs = getActivity().getApplicationContext().getSharedPreferences("House",MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = mPrefs.getString("SelectedHouse","");
-        if (!json.isEmpty()){
-            house = gson.fromJson(json,House.class);
-            String houseName = house.getName();
-            tv_houseName.setText(houseName);
+            tv_houseName.setText(house.getName());
         }else {
             tv_houseName.setText("Please select an area");
         }
         //set chart
-        setChartBasic();
-
-        seekBarXDay.setProgress(date);
-        tvDay.setText(date+"");
-        seekBarXMonth.setProgress(month);
-        tvMonth.setText(month+"");
-        seekBarXYear.setProgress(year-2000);
-        tvYear.setText(year+"");
-
-        seekBarXDay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if (house!=null){
-                    int tmpday = seekBarXDay.getProgress();
-                    int tmpmonth = seekBarXMonth.getProgress();
-                    int tmpyear = 2000 + seekBarXYear.getProgress();
-                    new fillData().execute(tmpyear,tmpmonth,tmpday);
-                    new fillChart().execute(tmpyear,tmpmonth,tmpday);
-                    tvDay.setText(tmpday+"");
-                }
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        seekBarXMonth.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if (house!=null){
-                    int tmpday = seekBarXDay.getProgress();
-                    int tmpmonth = seekBarXMonth.getProgress();
-                    int tmpyear = 2000 + seekBarXYear.getProgress();
-                    new fillData().execute(tmpyear,tmpmonth,tmpday);
-                    new fillChart().execute(tmpyear,tmpmonth,tmpday);
-                    tvMonth.setText(tmpmonth + "");
-                }
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        seekBarXYear.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if (house!=null){
-                    int tmpday = seekBarXDay.getProgress();
-                    int tmpmonth = seekBarXMonth.getProgress();
-                    int tmpyear = 2000 + seekBarXYear.getProgress();
-                    new fillData().execute(tmpyear,tmpmonth,tmpday);
-                    new fillChart().execute(tmpyear,tmpmonth,tmpday);
-                    tvYear.setText(tmpyear + "");
-                }
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-
-        leftBtn.setOnClickListener(this);
-        rightBtn.setOnClickListener(this);
-
-        if (house!=null){
-            new fillData().execute(integers);
-            new fillChart().execute(integers);
-        }
 
 
         return vWaterUsage;
@@ -241,8 +72,6 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     public void onClick(View v) {
 
         String keyword = timeText.getText().toString();
-        monthLayout.setVisibility(View.VISIBLE);
-        dateLayout.setVisibility(View.VISIBLE);
         switch (v.getId()) {
             case R.id.left_btn:
                 if (keyword.equals("Daily")) {
@@ -263,26 +92,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
                 }
                 break;
         }
-        period = timeText.getText().toString();
-        int date = Integer.parseInt(new SimpleDateFormat("dd").format(Calendar.getInstance().getTime()));
-        int month = Integer.parseInt(new SimpleDateFormat("MM").format(Calendar.getInstance().getTime()));
-        int year = Integer.parseInt(new SimpleDateFormat("yyyy").format(Calendar.getInstance().getTime()));
-        Integer[] integers = {year,month,date};
-        if (house!=null){
-            new fillChart().execute(integers);
-            new fillData().execute(integers);
-        }
 
-        if (period.equals("Daily")){
-
-        }else if (period.equals("Monthly")){
-            dateLayout.setVisibility(View.GONE);
-
-        }else if (period.equals("Yearly")){
-            dateLayout.setVisibility(View.GONE);
-            monthLayout.setVisibility(View.GONE);
-
-        }
     }
 
     @Override
@@ -297,7 +107,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
 
 
-    protected class fillData extends AsyncTask<Integer,Void,Integer>{
+ /*   protected class fillData extends AsyncTask<Integer,Void,Integer>{
         protected int averageUsage=0;
         @Override
         protected Integer doInBackground(Integer... integers) {
@@ -306,17 +116,17 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
 
             if (period.equals("Daily")){
-                int monthlySumUsage = db.InfoDao().getMonthlySumUsage(house.getId(),integers[0],integers[1]);
-                usage= db.InfoDao().getDailySumUsage(house.getId(),integers[0],integers[1],integers[2]);
+                int monthlySumUsage = db.InfoDao().getMonthlySumUsage(houseDAO.getId(),integers[0],integers[1]);
+                usage= db.InfoDao().getDailySumUsage(houseDAO.getId(),integers[0],integers[1],integers[2]);
                 averageUsage = monthlySumUsage / 31;
             }else if (period.equals("Monthly")){
-                int yearlySumUsage = db.InfoDao().getYearlySumUsage(house.getId(),integers[0]);
-                usage = db.InfoDao().getMonthlySumUsage(house.getId(),integers[0],integers[1]);
+                int yearlySumUsage = db.InfoDao().getYearlySumUsage(houseDAO.getId(),integers[0]);
+                usage = db.InfoDao().getMonthlySumUsage(houseDAO.getId(),integers[0],integers[1]);
                 averageUsage = yearlySumUsage / 12;
             }else if (period.equals("Yearly")){
-                usage = db.InfoDao().getYearlySumUsage(house.getId(),integers[0]);
-                int totalUsage = db.InfoDao().getTotalSumUsage(house.getId());
-                int divider = db.InfoDao().getDistinctYear(house.getId());
+                usage = db.InfoDao().getYearlySumUsage(houseDAO.getId(),integers[0]);
+                int totalUsage = db.InfoDao().getTotalSumUsage(houseDAO.getId());
+                int divider = db.InfoDao().getDistinctYear(houseDAO.getId());
                 averageUsage = totalUsage /divider ;
             }
             return usage;
@@ -327,7 +137,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
             }else {
                 tv_totalLiter.setText(integer+"");
-                double cpl = Double.parseDouble(house.getCpl());
+                double cpl = Double.parseDouble(houseDAO.getCpl());
                 double cost = integer * cpl / 1000 ;
                 double estCost = averageUsage * cpl / 1000;
                 tv_cost.setText(cost+"");
@@ -340,58 +150,11 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
                 pg_status.setProgress(ratio);
             }
         }
-    }
+    }*/
 
-    private void setChartBasic(){
-        chart.getDescription().setEnabled(false);
-        // enable touch gestures
-        chart.setTouchEnabled(true);
-        // enable scaling and dragging
-        chart.setDragEnabled(true);
-        chart.setScaleEnabled(true);
-        chart.setPinchZoom(true);
-        chart.setDrawGridBackground(false);
-        chart.setHighlightPerDragEnabled(true);
-        // set an alternative background color
-        chart.setBackgroundColor(Color.WHITE);
-        chart.setViewPortOffsets(0f, 0f, 0f, 0f);
-        Legend l = chart.getLegend();
-        l.setForm(Legend.LegendForm.LINE);
-        l.setFormSize(10f);
-        l.setTextSize(12f);
-        l.setEnabled(true);
 
-        l.setTextColor(Color.BLACK);
 
-        MyMarkerView mv = new MyMarkerView(mContext, R.layout.custom_marker_view);
-        mv.setChartView(chart); // For bounds control
-        chart.setMarker(mv); // Set the marker to the chart
-
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setAvoidFirstLastClipping(true);
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
-        xAxis.setTypeface(Typeface.DEFAULT);
-        xAxis.setTextSize(10f);
-        xAxis.setTextColor(Color.WHITE);
-        xAxis.setTextColor(Color.rgb(255, 192, 56));
-        xAxis.setGranularity(1f);
-        YAxis leftAxis = chart.getAxisLeft();
-        leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
-        leftAxis.setTypeface(Typeface.DEFAULT);
-        leftAxis.setTextColor(ColorTemplate.getHoloBlue());
-        leftAxis.setDrawGridLines(true);
-        leftAxis.setGranularityEnabled(true);
-        //leftAxis.setAxisMinimum(0f);
-        //leftAxis.setAxisMaximum(170f);
-        leftAxis.setYOffset(-9f);
-        leftAxis.setTextColor(Color.rgb(255, 192, 56));
-
-        YAxis rightAxis = chart.getAxisRight();
-        rightAxis.setEnabled(false);
-        chart.setAutoScaleMinMaxEnabled(true);
-    }
-
-    private void setData(Object object) {
+    /*private void setData(Object object) {
 
         List<DailyResult> dailyResults;
         List<MonthlyResult> monthlyResults;
@@ -572,36 +335,8 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
 
 
-    }
-    private class fillChart extends AsyncTask<Integer,Void, Object> {
+    }*/
 
-        @Override
-        protected Object doInBackground(Integer... integers) {
-
-            Object objects = null;
-            if (period.equals("Daily")){
-                objects = db.InfoDao().getRecordsByDay(integers[0],integers[1],integers[2],house.getId());
-            }else if (period.equals("Monthly")){
-                objects = db.InfoDao().getRecordsByMonth(integers[0],integers[1],house.getId());
-            }else if (period.equals("Yearly")){
-                objects = db.InfoDao().getRecordsByYear(integers[0],house.getId());
-            }else
-                objects = null;
-
-            return objects;
-        }
-
-        @Override
-        protected void onPostExecute(Object object) {
-            if (object!=null){
-                // add data
-                setData(object);
-                chart.invalidate();
-            } else
-                tools.toast_long(mContext,"Try again");
-
-        }
-    }
 
 
 

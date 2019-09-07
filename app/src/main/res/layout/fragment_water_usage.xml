@@ -57,7 +57,8 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ProgressBar
+
+  <!--      <ProgressBar
             android:id="@+id/background_progressbar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="279dp"
@@ -70,7 +71,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />-->
 
         <ProgressBar
             android:id="@+id/pg_status"
@@ -152,99 +153,6 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/lc_water_usage"
-        android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:layout_gravity="center" />
 
-    <LinearLayout
-        android:id="@+id/date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <SeekBar
-            android:id="@+id/seekBarDay"
-            android:layout_width="266dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-             />
-
-        <TextView
-            android:id="@+id/tvXMaxDay"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:text="@string/dash"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/tvwww"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Date" />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/month"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <SeekBar
-            android:id="@+id/seekBarMonth"
-            android:layout_width="266dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-             />
-
-        <TextView
-            android:id="@+id/tvXMaxMonth"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:text="@string/dash"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Month" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/year"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="visible">
-
-        <SeekBar
-            android:id="@+id/seekBarYear"
-            android:layout_width="266dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
-        <TextView
-            android:id="@+id/tvXMaxYear"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
-            android:text="@string/dash"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Year" />
-    </LinearLayout>
 
 </LinearLayout>

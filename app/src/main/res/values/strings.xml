@@ -95,13 +95,13 @@
     <string name="title_area">Tap</string>
     <string name="question_title">Questions</string>
     <string name="question_one">1. Name of your House</string>
-    <string name="question_two">2. Billing Cycle</string>
+    <string name="question_two">3. How many people live in your houseDAO</string>
     <string name="question_three">3. Cost per Litre</string>
-    <string name="question_four">4. No of people in the house</string>
+    <string name="question_four">4. No of people in the houseDAO</string>
     <string name="add_tap">Add Tap</string>
     <string name="add_area">Add Area</string>
     <string name="setting">Settings</string>
-    <string name="house">House</string>
+    <string name="houseDAO">House</string>
     <string name="daily">Daily</string>
     <string name="monthly">Monthly</string>
     <string name="yearly">Yearly</string>

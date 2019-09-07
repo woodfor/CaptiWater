@@ -3,13 +3,14 @@
 
     <item
         android:id="@+id/navigation_house"
-        android:icon="@drawable/home_orange"
-        android:title="@string/title_home" />
+        android:icon="@drawable/ribon_1"
+        android:title="Rank" />
 
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/water_drop"
-        android:title="@string/title_water" />
+        android:title="@string/title_water"
+        />
 
     <item
         android:id="@+id/navigation_area"

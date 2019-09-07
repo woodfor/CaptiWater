@@ -73,7 +73,7 @@ public class HomeActivity extends AppCompatActivity
               //  .setAction("Action", null).show());
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, new HomeFragment()).commit();
+       // fragmentManager.beginTransaction().replace(R.id.content_frame, new HomeFragment()).commit();
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -166,15 +166,15 @@ public class HomeActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         Fragment nextFragment = null;
-        if (id == R.id.nav_home) {
+        if (id == R.id.nav_setting) {
             nextFragment = new HomeFragment();
             // Handle the camera action
-        } else if (id == R.id.nav_report) {
+        } else if (id == R.id.nav_help) {
             nextFragment = new ReportFragment();
         }
         FragmentManager fm = getSupportFragmentManager();
-        fm.beginTransaction().replace(R.id.content_frame,
-                nextFragment).commit();
+      //  fm.beginTransaction().replace(R.id.content_frame,
+            //    nextFragment).commit();
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
