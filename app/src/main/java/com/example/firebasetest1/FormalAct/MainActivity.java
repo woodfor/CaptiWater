@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //get house
 
         //stop here
-        String uuid = tools.id(getApplicationContext());
+        String uuid = tools.getID(getApplicationContext());
         Bundle bundle = new Bundle();
         bundle.putString("uuid", uuid);
         waterusgfrag = new WaterUsageFragment();

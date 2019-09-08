@@ -65,7 +65,7 @@ public class QuestionActivity extends AppCompatActivity implements
         Geocoder gc = new Geocoder(this, Locale.getDefault());
         resultReceiver = new AddressResultReceiver(new Handler());
         Context mContext = this;
-        uuid = tools.id(getApplicationContext());
+        uuid = tools.getID(getApplicationContext());
         Button btn_submit = findViewById(R.id.btn_submit);
         EditText edt_houseName = findViewById(R.id.edt_houseName);
         edt_NoP = findViewById(R.id.edt_No_people);
@@ -225,6 +225,7 @@ public class QuestionActivity extends AppCompatActivity implements
                 JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, RestClient.BASE_URL + "house", new JSONObject(jsonInString),
                         response -> {
                             Log.d("Response", response.toString());
+                            tools.saveID(getApplicationContext(),uuid);
                             tools.saveString(getApplicationContext(),"house","house",response.toString());
                             Intent intent = new Intent(QuestionActivity.this,MainActivity.class);
                             startActivity(intent);
@@ -234,7 +235,7 @@ public class QuestionActivity extends AppCompatActivity implements
                         },
                         error -> {
                             // error
-
+                            tools.saveID(getApplicationContext(),"");
                             try {
                                 Log.d("Error.Response", error.getMessage());
                             } catch (Exception e) {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
+import com.example.firebasetest1.RestClient.Model.House;
 import com.google.gson.Gson;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -40,16 +41,25 @@ public class tools {
         return alertDialog;
     }
 
-    public synchronized static String id(Context context) {
+    public synchronized static String getID(Context context) {
         String uniqueID = null;
         String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
-        if (uniqueID == null) {
-            SharedPreferences sharedPrefs = context.getSharedPreferences(
-                    PREF_UNIQUE_ID, MODE_PRIVATE);
-            uniqueID = sharedPrefs.getString(PREF_UNIQUE_ID, null);
+        SharedPreferences sharedPrefs = context.getSharedPreferences(
+                PREF_UNIQUE_ID, MODE_PRIVATE);
+        uniqueID = sharedPrefs.getString(PREF_UNIQUE_ID, null);
 
-        }
+
         return uniqueID;
+    }
+
+    public synchronized static void saveID(Context context,String ID) {
+        String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
+        SharedPreferences sharedPrefs = context.getSharedPreferences(
+                PREF_UNIQUE_ID, MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = sharedPrefs.edit();
+        prefsEditor.putString(PREF_UNIQUE_ID, ID);
+        prefsEditor.apply();
+
     }
 
 
@@ -61,6 +71,21 @@ public class tools {
         String tmp = sharedPrefs.getString(storeName, null);
         if (tmp != null) {
            object = new Gson().fromJson(tmp,name);
+        }
+
+        return object;
+    }
+
+    public synchronized static Object getHouse(Context context){
+        String preName = "house";
+        String storeName = "house";
+        Object object = null;
+
+        SharedPreferences sharedPrefs = context.getSharedPreferences(
+                preName, MODE_PRIVATE);
+        String tmp = sharedPrefs.getString(storeName, null);
+        if (tmp != null) {
+            object = new Gson().fromJson(tmp, House.class);
         }
 
         return object;

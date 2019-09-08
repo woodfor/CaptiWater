@@ -39,28 +39,21 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     {
         vWaterUsage = inflater.inflate(R.layout.fragment_water_usage, container, false);
 
-        ImageView leftBtn = (ImageView) vWaterUsage.findViewById(R.id.left_btn);
-        ImageView rightBtn = (ImageView) vWaterUsage.findViewById(R.id.right_btn);
+        ImageView leftBtn =  vWaterUsage.findViewById(R.id.left_btn);
+        ImageView rightBtn = vWaterUsage.findViewById(R.id.right_btn);
         pg_status = vWaterUsage.findViewById(R.id.pg_status);
         tv_houseName = vWaterUsage.findViewById(R.id.tv_houseName);
         tv_totalLiter = vWaterUsage.findViewById(R.id.liter_text);
         tv_cost = vWaterUsage.findViewById(R.id.cost_text);
         tv_estCost = vWaterUsage.findViewById(R.id.estimated_cost_text);
-        timeText = (TextView) vWaterUsage.findViewById(R.id.time_text);
+        timeText =  vWaterUsage.findViewById(R.id.time_text);
         leftBtn.setOnClickListener(this);
         rightBtn.setOnClickListener(this);
 
-        try{
-            house = (House) tools.getObject(getActivity().getApplicationContext(),"House","House","House");
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        if (house!=null){
-
-            tv_houseName.setText(house.getName());
-        }else {
-            tv_houseName.setText("Please select an area");
+        house = (House) tools.getHouse(getActivity().getApplicationContext());
+        if (house==null){
+            tools.toast_long(getActivity().getApplicationContext(),"Program error");
+            getActivity().finish();
         }
         //set chart
 
