@@ -12,8 +12,9 @@
         android:id="@+id/tv_houseName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="casual"
+        android:textColor="@color/colorBlack"
         android:gravity="center"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="TextView"
         android:textSize="24sp" />
 

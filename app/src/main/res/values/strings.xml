@@ -83,6 +83,11 @@
     <string name="menu_tools">Tools</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
+    <string name="menu_account">Account</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_help">Help</string>
+    <string name="menu_about_us">About Us</string>
+
 
     <string name="add_device">Add device</string>
     <string name="report">Report</string>
@@ -95,7 +100,7 @@
     <string name="title_area">Tap</string>
     <string name="question_title">Questions</string>
     <string name="question_one">1. Name of your House</string>
-    <string name="question_two">3. How many people live in your houseDAO</string>
+    <string name="question_two">2. How many people live in your houseDAO</string>
     <string name="question_three">3. Cost per Litre</string>
     <string name="question_four">4. No of people in the houseDAO</string>
     <string name="add_tap">Add Tap</string>
@@ -105,4 +110,9 @@
     <string name="daily">Daily</string>
     <string name="monthly">Monthly</string>
     <string name="yearly">Yearly</string>
+    <string name="detail_about_us">CaptiWater is a solution that aims to help people monitor and limit
+    their water consumption to achieve the Target 155 water efficiency program proposed by the Victorian
+    government.</string>
+    <string name="monthly_ranking">Monthly Ranking</string>
+    <string name="captiwater_web">Visit CaptiWater Webpage <a href="https://www.captiwater.ml/">https://www.captiwater.ml/</a></string>
 </resources>

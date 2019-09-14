@@ -166,15 +166,19 @@ public class HomeActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         Fragment nextFragment = null;
-        if (id == R.id.nav_setting) {
-            nextFragment = new HomeFragment();
+        if (id == R.id.nav_account) {
+            nextFragment = new AccountFragment();
             // Handle the camera action
+        } else if (id == R.id.nav_settings) {
+            nextFragment = new SettingsFragment();
+
         } else if (id == R.id.nav_help) {
-            nextFragment = new ReportFragment();
+            nextFragment = new HelpFragment();
+        } else if (id == R.id.nav_about_us) {
+            nextFragment = new AboutUsFragment();
         }
         FragmentManager fm = getSupportFragmentManager();
-      //  fm.beginTransaction().replace(R.id.content_frame,
-            //    nextFragment).commit();
+        fm.beginTransaction().replace(R.id.frame_container, nextFragment).commit();
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

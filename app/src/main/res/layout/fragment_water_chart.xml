@@ -3,10 +3,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".FormalAct.WaterChartFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/left_btn"
+            android:layout_width="88dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/left_arrow"/>
+
+        <TextView
+            android:id="@+id/time_text"
+            android:text="Daily"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/colorBlack"
+            android:textSize="@dimen/title_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/right_btn"
+            android:layout_width="86dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/right_arrow" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"

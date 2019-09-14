@@ -18,13 +18,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,6 +83,7 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
     private ProgressBar progressBar;
     Tap tap;
     int uid;
+    ListView lv_taps;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -125,6 +130,41 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
             }
         });
 
+        /***
+         lv_taps = (ListView) vArea.findViewById(R.id.tap_listview);
+
+         lv_taps.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            //FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            //fragmentTransaction.replace(R.id.frame_container , new AreaSettingsFragment());
+            //fragmentTransaction.commit();
+
+            PopupMenu popupMenu = new PopupMenu(getContext(), lv_taps);
+            popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.lock_tap:
+                        break;
+                    case R.id.remove_tap:
+                        break;
+                    case R.id.rename_tap:
+                        break;
+                    case R.id.settings_tap:
+                        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.frame_container , new AreaSettingsFragment());
+                        fragmentTransaction.commit();
+                        break;
+                }
+                    return true;
+                }
+            });
+            popupMenu.show();
+        }
+    });
+     ***/
         return vArea;
     }
 
@@ -261,6 +301,7 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
         btndialog.setOnClickListener(v -> dialog.dismiss());
 
         ListView listView = dialog.findViewById(R.id.dialogListView);
+        //ArrayAdapter arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, list);
         ArrayAdapter arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, list);
         listView.setAdapter(arrayAdapter);
 
@@ -625,8 +666,7 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                 e.printStackTrace();
             }
         }
-
-
     }
+
 }
 

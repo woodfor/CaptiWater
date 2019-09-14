@@ -19,10 +19,14 @@ import androidx.fragment.app.FragmentManager;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.example.firebasetest1.AboutUsFragment;
+import com.example.firebasetest1.AccountFragment;
 import com.example.firebasetest1.General.tools;
+import com.example.firebasetest1.HelpFragment;
 import com.example.firebasetest1.Model.Token;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.RestClient;
+import com.example.firebasetest1.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -34,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Fragment waterusgfrag;
     Fragment areaFrag;
     Fragment houseFrag;
+    //Fragment rankingFrag;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
@@ -43,12 +48,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 selectedFragment = waterusgfrag;
                 break;
             case R.id.navigation_house:
-
-                selectedFragment = houseFrag;
+                selectedFragment = new RankingFragment();
+                //selectedFragment = houseFrag;
                 break;
             case R.id.navigation_area:
-
-                selectedFragment = areaFrag;
+                //selectedFragment = areaFrag;
+                selectedFragment = houseFrag;
                 break;
         }
 
@@ -150,11 +155,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
                     });
 
-        } else if (id == R.id.nav_setting) {
-            Intent intent = new Intent(this, SettingActivity.class);
-            startActivity(intent);
         }
+        Fragment nextFragment = null;
+        if (id == R.id.nav_account) {
+            nextFragment = new AccountFragment();
+            // Handle the camera action
+        } else if (id == R.id.nav_settings) {
+            nextFragment = new SettingsFragment();
 
+        } else if (id == R.id.nav_help) {
+            nextFragment = new HelpFragment();
+        } else if (id == R.id.nav_about_us) {
+            nextFragment = new AboutUsFragment();
+        }
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction().replace(R.id.frame_container, nextFragment).commit();
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

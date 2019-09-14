@@ -4,16 +4,21 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
@@ -34,6 +39,7 @@ public class HouseFragment extends Fragment{
     ArrayAdapter arrayAdapter;
     int uid;
     House house;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -62,6 +68,36 @@ public class HouseFragment extends Fragment{
         });
 
      //   new fillHouseList().execute();
+
+/***
+        lv_house.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.frame_container , new AreaFragment());
+                fragmentTransaction.commit();
+
+                PopupMenu popupMenu = new PopupMenu(getContext(), lv_house);
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu_area, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.lock_area:
+                                break;
+                            case R.id.remove_area:
+                                break;
+                            case R.id.rename_area:
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                popupMenu.show();
+            }
+        });
+***/
+
         return vHouse;
     }
 
@@ -87,6 +123,8 @@ public class HouseFragment extends Fragment{
         });
         setNameDialog.show();
     }
+
+
 
  /*   protected class insertHouse extends AsyncTask<String,Void,Long>{
 

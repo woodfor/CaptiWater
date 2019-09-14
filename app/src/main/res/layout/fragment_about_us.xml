@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/title_vertical_margin"
+        android:textSize="@dimen/title_size"
+        android:text="@string/menu_about_us"
+        android:textColor="@color/colorBlack">
+    </TextView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="64dp"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:lineSpacingExtra="@dimen/line_spacing"
+        android:text="@string/detail_about_us"
+        android:paddingRight="13dp"
+        android:paddingLeft="13dp"
+        android:textSize="@dimen/text_size">
+    </TextView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:contextClickable="true"
+        android:text="@string/captiwater_web"
+        android:autoLink="web">
+    </TextView>
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="@dimen/button_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_gravity="center"
+        android:src="@drawable/logo_by_new">
+    </ImageView>
+
+</LinearLayout>
