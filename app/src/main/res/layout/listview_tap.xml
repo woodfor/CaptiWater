@@ -13,11 +13,11 @@
 
     <TextView
         android:id="@+id/text_tap_list"
-        android:layout_width="wrap_content"
+        android:layout_width="128dp"
         android:layout_height="wrap_content"
-        android:text="Tap"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginTop="@dimen/nav_header_vertical_spacing"
+        android:text="Tap"
         android:textColor="@color/colorBlack"
         android:textSize="@dimen/text_size"></TextView>
 
@@ -25,18 +25,19 @@
         android:id="@+id/text_tap_control"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ON"
-        android:layout_marginLeft="100dp"
+
         android:layout_marginTop="@dimen/nav_header_vertical_spacing"
+        android:text="ON"
         android:textColor="@color/colorGreen"
         android:textSize="@dimen/text_size"></TextView>
 
     <ImageView
         android:id="@+id/imageView_popup_tap"
-        android:layout_width="match_parent"
+        android:layout_width="85dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="@dimen/nav_header_vertical_spacing"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_height="50dp"
         android:src="@drawable/three_dots"></ImageView>
 
 </LinearLayout>

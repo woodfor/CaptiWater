@@ -18,7 +18,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -98,7 +97,7 @@ public class AreaFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         vArea = inflater.inflate(R.layout.fragment_area, container, false);
-        TextView tv_houseName = vArea.findViewById(R.id.tv_houseName);
+        TextView tv_houseName = vArea.findViewById(R.id.tv_titleName);
         lv_area = vArea.findViewById(R.id.lv_area);
         LinearLayout lt_addArea = vArea.findViewById(R.id.lt_area);
 
@@ -260,32 +259,34 @@ public class AreaFragment extends Fragment {
                             }
                             arrayAdapter = new ArrayAdapter(mContext, R.layout.listview_area, R.id.text_area_list, areaList);
                             lv_area.setAdapter(arrayAdapter);
+                            List<Area> finalAreas = areas;
+                            lv_area.setOnItemLongClickListener((adapterView, view, i, l) -> {
+                                tools.saveObject(appContext,"area","area", finalAreas.get(i));
+                                Intent intent = new Intent(getActivity(),TapActivity.class);
+                                getActivity().startActivity(intent);
+                                return true;
+                            });
                             lv_area.setOnItemClickListener((adapterView, view, i, l) -> {
-
                                 ImageView option = view.findViewById(R.id.imageView_popup_area);
                                 option.setOnClickListener(view1 -> {
                                     PopupMenu popupMenu = new PopupMenu(mContext, option);
-                                    popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
+                                    popupMenu.getMenuInflater().inflate(R.menu.popup_menu_area, popupMenu.getMenu());
                                     popupMenu.setOnMenuItemClickListener(menuItem -> {
                                         switch (menuItem.getItemId()) {
-                                            case R.id.lock_tap:
+                                            case R.id.lock_area:
                                                 break;
-                                            case R.id.remove_tap:
+                                            case R.id.remove_area:
                                                 break;
-                                            case R.id.rename_tap:
+                                            case R.id.rename_area:
                                                 break;
-                                            case R.id.settings_tap:
 
-                                                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                                                fragmentTransaction.replace(R.id.frame_container, new AreaSettingsFragment());
-                                                fragmentTransaction.commit();
-                                                break;
                                         }
                                         return true;
                                     });
                                     popupMenu.show();
 
                                 });
+
                             });
 
                         }

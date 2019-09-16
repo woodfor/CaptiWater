@@ -3,15 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.firebasetest1">
 
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -19,12 +10,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".FormalAct.TapSettingActivity"></activity>
+        <activity android:name=".FormalAct.TapActivity" />
         <activity
             android:name=".FormalAct.StartActivity"
             android:theme="@style/AppTheme.NoActionBar">
-            <!--android:label="@string/title_activity_home">-->
+
+            <!-- android:label="@string/title_activity_home"> -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,24 +26,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".BlueToothActivity" />
+        <activity android:name=".FormalAct.SettingActivity" />
+        <activity android:name=".FormalAct.QuestionActivity" />
+        <activity android:name=".FormalAct.HelpActivity" />
+        <activity android:name=".FormalAct.NotificationActivity" />
         <activity
-            android:name=".FormalAct.SettingActivity">
-        </activity>
-        <activity
-            android:name=".FormalAct.QuestionActivity">
-        </activity>
-        <activity
-            android:name=".FormalAct.HelpActivity">
-        </activity>
-        <activity
-            android:name=".FormalAct.NotificationActivity">
-        </activity>
-        <activity
-
             android:name=".FormalAct.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <!--
      Set custom default icon. This is used when no icon is set for incoming notification messages.
      See README(https://goo.gl/l4GJaQ) for more.
@@ -70,8 +53,7 @@
 
         <service
             android:name=".Gecoder.FetchAddressIntentService"
-            android:exported="false"/>
-
+            android:exported="false" />
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="false">
@@ -80,5 +62,13 @@
             </intent-filter>
         </service>
     </application>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
 </manifest>

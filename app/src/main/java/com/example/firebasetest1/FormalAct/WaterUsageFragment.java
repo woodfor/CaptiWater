@@ -42,7 +42,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         ImageView leftBtn =  vWaterUsage.findViewById(R.id.left_btn);
         ImageView rightBtn = vWaterUsage.findViewById(R.id.right_btn);
         pg_status = vWaterUsage.findViewById(R.id.pg_status);
-        tv_houseName = vWaterUsage.findViewById(R.id.tv_houseName);
+        tv_houseName = vWaterUsage.findViewById(R.id.tv_titleName);
         tv_totalLiter = vWaterUsage.findViewById(R.id.liter_text);
         tv_cost = vWaterUsage.findViewById(R.id.cost_text);
         tv_estCost = vWaterUsage.findViewById(R.id.estimated_cost_text);

@@ -12,6 +12,10 @@ public class Tap {
         this.btaddress = btaddress;
     }
 
+    public Tap(){
+
+    }
+
     public long getTid() {
         return tid;
     }

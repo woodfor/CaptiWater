@@ -93,8 +93,8 @@ public class tools {
     }
 
     public synchronized static Object getArea(Context context){
-        String preName = "Area";
-        String storeName = "Area";
+        String preName = "area";
+        String storeName = "area";
         Object object = null;
 
         SharedPreferences sharedPrefs = context.getSharedPreferences(

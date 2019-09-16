@@ -4,29 +4,21 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.Model.House;
 import com.example.firebasetest1.Room.DailyInfoDatabase;
-import com.example.firebasetest1.Room.HouseDAO;
-
-import java.util.List;
 
 public class HouseFragment extends Fragment{
     View vHouse;
@@ -35,7 +27,7 @@ public class HouseFragment extends Fragment{
     Context appContext;
     Context mContext;
     ListView lv_house;
-    List<HouseDAO> houseDAOS;
+
     ArrayAdapter arrayAdapter;
     int uid;
     House house;
@@ -46,7 +38,7 @@ public class HouseFragment extends Fragment{
     {
         vHouse = inflater.inflate(R.layout.fragment_house, container, false);
         uuid = getArguments().getString("uuid",null);
-        TextView houseName = (TextView) vHouse.findViewById(R.id.tv_houseName);
+        TextView houseName = (TextView) vHouse.findViewById(R.id.tv_titleName);
         try{
             house = (House) tools.getObject(getActivity().getApplicationContext(),"House","House","House");
         }catch (Exception e){
@@ -58,7 +50,7 @@ public class HouseFragment extends Fragment{
             houseName.setText("");
         }
 
-        lv_house = (ListView) vHouse.findViewById(R.id.lv_house);
+        lv_house = (ListView) vHouse.findViewById(R.id.lv);
         ImageView addAreaButton = (ImageView) vHouse.findViewById(R.id.add_area_btn);
         addAreaButton.setOnClickListener(view -> {
 

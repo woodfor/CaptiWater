@@ -55,9 +55,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-iid:20.0.0'
     implementation 'com.google.firebase:firebase-messaging:20.0.0'
     implementation 'android.arch.work:work-runtime:1.0.1'
-
+    implementation 'com.google.firebase:firebase-database:19.1.0'
     // room
     implementation "androidx.room:room-runtime:$room_version"
+    implementation 'com.google.firebase:firebase-database:16.0.4'
     annotationProcessor "androidx.room:room-compiler:$room_version"
     // For Kotlin use kapt instead of annotationProcessor
 
