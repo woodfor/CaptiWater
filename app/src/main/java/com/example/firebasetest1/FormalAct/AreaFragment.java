@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -26,12 +27,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.room.Room;
 
 import com.android.volley.AuthFailureError;
@@ -40,6 +43,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.firebasetest1.AreaSettingsFragment;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.Model.Area;
@@ -63,48 +67,49 @@ import java.util.UUID;
 import static com.example.firebasetest1.General.tools.toast_long;
 
 public class AreaFragment extends Fragment {
-    View vArea;
-    String tapname;
-    DailyInfoDatabase db = null;
-    Context appContext;
-    Context mContext;
-    ListView lv_area;
-    List<Tap> taps;
-    ArrayAdapter arrayAdapter;
-    House house;
-    BluetoothAdapter myBluetooth = null;
-    BluetoothSocket btSocket = null;
-    BluetoothDevice mmDevice;
-    OutputStream mmOutputStream;
-    InputStream mmInputStream;
-    String address = null;
-    Thread workerThread;
-    byte[] readBuffer;
-    int readBufferPosition;
-    int counter = 1;
     String respond = "";
-    volatile boolean stopWorker;
-    WifiManager wifiManager;
-    BroadcastReceiver wifiScanReceiver;
-    Tap tap;
     int uid;
+    private View vArea;
+    private String tapname;
+    private DailyInfoDatabase db = null;
+    private Context appContext;
+    private Context mContext;
+    private ListView lv_area;
+    private List<Tap> taps;
+    private ArrayAdapter arrayAdapter;
+    private House house;
+    private BluetoothAdapter myBluetooth = null;
+    private BluetoothSocket btSocket = null;
+    private BluetoothDevice mmDevice;
+    private OutputStream mmOutputStream;
+    private InputStream mmInputStream;
+    private String address = null;
+    private Thread workerThread;
+    private byte[] readBuffer;
+    private int readBufferPosition;
+    private int counter = 1;
+    private volatile boolean stopWorker;
+    private WifiManager wifiManager;
+    private BroadcastReceiver wifiScanReceiver;
+    private Tap tap;
     private boolean isBtConnected = false;
     private ProgressBar progressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         vArea = inflater.inflate(R.layout.fragment_area, container, false);
-        TextView tv_houseName = (TextView) vArea.findViewById(R.id.tv_houseName);
-        lv_area = (ListView) vArea.findViewById(R.id.lv_area);
+        TextView tv_houseName = vArea.findViewById(R.id.tv_houseName);
+        lv_area = vArea.findViewById(R.id.lv_area);
         LinearLayout lt_addArea = vArea.findViewById(R.id.lt_area);
 
         progressBar = vArea.findViewById(R.id.pg_area);
 
-        house = (House) tools.getHouse(getActivity().getApplicationContext());
-        if (house==null){
-            tools.toast_long(getActivity().getApplicationContext(),"House object error");
+        house = WaterUsageFragment.house;
+//        house = (House) tools.getHouse(getActivity().getApplicationContext());
+        if (house == null) {
+            tools.toast_long(getActivity().getApplicationContext(), "House object error");
             getActivity().finish();
-        }else{
+        } else {
             tv_houseName.setText(house.getName());
         }
 
@@ -119,20 +124,18 @@ public class AreaFragment extends Fragment {
                     .setTitle("Add area")
                     .setMessage("Please set a name")
                     .setView(edt)
-                    .setPositiveButton("Ok",null)
-                    .setNegativeButton("No",null)
+                    .setPositiveButton("Ok", null)
+                    .setNegativeButton("No", null)
                     .setCancelable(true)
                     .show();
             Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             btn_positive.setOnClickListener(v -> {
                 String tmp = edt.getText().toString().trim();
-                if (!(tmp.isEmpty()))
-                {
+                if (!(tmp.isEmpty())) {
                     addArea(tmp);
 
                     alertDialog.dismiss();
-                }
-                else
+                } else
                     edt.setError("please input password");
             });
 
@@ -170,65 +173,63 @@ public class AreaFragment extends Fragment {
          lv_areas = (ListView) vArea.findViewById(R.id.tap_listview);
 
          lv_areas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            //FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-            //fragmentTransaction.replace(R.id.frame_container , new AreaSettingsFragment());
-            //fragmentTransaction.commit();
+        @Override public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        //FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        //fragmentTransaction.replace(R.id.frame_container , new AreaSettingsFragment());
+        //fragmentTransaction.commit();
 
-            PopupMenu popupMenu = new PopupMenu(getContext(), lv_areas);
-            popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
-            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.lock_tap:
-                        break;
-                    case R.id.remove_tap:
-                        break;
-                    case R.id.rename_tap:
-                        break;
-                    case R.id.settings_tap:
-                        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                        fragmentTransaction.replace(R.id.frame_container , new AreaSettingsFragment());
-                        fragmentTransaction.commit();
-                        break;
-                }
-                    return true;
-                }
-            });
-            popupMenu.show();
+        PopupMenu popupMenu = new PopupMenu(getContext(), lv_areas);
+        popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        @Override public boolean onMenuItemClick(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+        case R.id.lock_tap:
+        break;
+        case R.id.remove_tap:
+        break;
+        case R.id.rename_tap:
+        break;
+        case R.id.settings_tap:
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.frame_container , new AreaSettingsFragment());
+        fragmentTransaction.commit();
+        break;
         }
-    });
-     ***/
+        return true;
+        }
+        });
+        popupMenu.show();
+        }
+        });
+         ***/
         return vArea;
     }
 
-    private void addArea(String areaName){
+    private void addArea(String areaName) {
         RequestQueue queue = Volley.newRequestQueue(mContext);
-        String url = RestClient.BASE_URL +  "area/"+ house.getHid()+"/"+areaName;
+        String url = RestClient.BASE_URL + "area/" + house.getHid() + "/" + areaName;
         JsonObjectRequest putRequest = new JsonObjectRequest(Request.Method.PUT, url, null,
                 response -> {
-                    if (response.toString().equals("[]") || response.toString().isEmpty()){
-                        tools.toast_long(appContext,"Add area failure, Please try again");
-                    }else {
+                    if (response.toString().equals("[]") || response.toString().isEmpty()) {
+                        tools.toast_long(appContext, "Add area failure, Please try again");
+                    } else {
                         getAreas();
                     }
 
                 },
-                error ->{
+                error -> {
                     try {
                         Log.d("Error.Response", error.getMessage());
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
-                    }finally {
-                        tools.toast_long(getActivity().getApplicationContext(),"Please check your Internet");
+                    } finally {
+                        tools.toast_long(getActivity().getApplicationContext(), "Please check your Internet");
 
                     }
 
                 }
 
-        ){
+        ) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -239,48 +240,71 @@ public class AreaFragment extends Fragment {
         queue.add(putRequest);
     }
 
-    private void getAreas(){
+    private void getAreas() {
         RequestQueue queue = Volley.newRequestQueue(mContext);
-        String url = RestClient.BASE_URL +  "area/"+ house.getHid();
+        String url = RestClient.BASE_URL + "area/" + house.getHid();
 
         JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 response -> {
                     List<Area> areas = null;
-                    if (response.toString().equals("[]") || response.toString().isEmpty()){
+                    if (response.toString().equals("[]") || response.toString().isEmpty()) {
 
-                    }else {
-                        Type listType = new TypeToken<List<Area>>(){}.getType();
+                    } else {
+                        Type listType = new TypeToken<List<Area>>() {
+                        }.getType();
                         areas = new Gson().fromJson(response.toString(), listType);
-                        if (areas != null){
+                        if (areas != null) {
                             List<String> areaList = new ArrayList<>();
-                            for (Area a: areas){
+                            for (Area a : areas) {
                                 areaList.add(a.getName());
                             }
-                            arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, areaList);
+                            arrayAdapter = new ArrayAdapter(mContext, R.layout.listview_area, R.id.text_area_list, areaList);
                             lv_area.setAdapter(arrayAdapter);
-                            lv_area.setOnItemLongClickListener((parent, view, position, id) -> {
-                                return false;
+                            lv_area.setOnItemClickListener((adapterView, view, i, l) -> {
 
+                                ImageView option = view.findViewById(R.id.imageView_popup_area);
+                                option.setOnClickListener(view1 -> {
+                                    PopupMenu popupMenu = new PopupMenu(mContext, option);
+                                    popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
+                                    popupMenu.setOnMenuItemClickListener(menuItem -> {
+                                        switch (menuItem.getItemId()) {
+                                            case R.id.lock_tap:
+                                                break;
+                                            case R.id.remove_tap:
+                                                break;
+                                            case R.id.rename_tap:
+                                                break;
+                                            case R.id.settings_tap:
 
+                                                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                                                fragmentTransaction.replace(R.id.frame_container, new AreaSettingsFragment());
+                                                fragmentTransaction.commit();
+                                                break;
+                                        }
+                                        return true;
+                                    });
+                                    popupMenu.show();
+
+                                });
                             });
 
+                        }
+                        // display response
                     }
-                    // display response
-                            }
-                    },
-                error ->{
+                },
+                error -> {
                     try {
                         Log.d("Error.Response", error.getMessage());
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
-                    }finally {
-                        tools.toast_long(getActivity().getApplicationContext(),"Please check your Internet");
+                    } finally {
+                        tools.toast_long(getActivity().getApplicationContext(), "Please check your Internet");
 
                     }
 
                 }
 
-        ){
+        ) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
@@ -362,7 +386,7 @@ public class AreaFragment extends Fragment {
         workerThread.start();
     }
 
-    private void startWifiScan(){
+    private void startWifiScan() {
         wifiScanReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context c, Intent intent) {
@@ -393,15 +417,15 @@ public class AreaFragment extends Fragment {
         }
     }
 
-    private void wifiScanSuccess(){
+    private void wifiScanSuccess() {
         ArrayList<String> list = new ArrayList<>();
-        for(ScanResult scanResult:wifiManager.getScanResults()){
+        for (ScanResult scanResult : wifiManager.getScanResults()) {
             list.add(scanResult.SSID);
         }
-        showWifiDialog(mContext,list);
+        showWifiDialog(mContext, list);
     }
 
-    public void showWifiDialog(Context activity, ArrayList list){
+    public void showWifiDialog(Context activity, ArrayList list) {
 
         final Dialog dialog = new Dialog(activity);
         // dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -412,8 +436,8 @@ public class AreaFragment extends Fragment {
         Button btndialog = dialog.findViewById(R.id.btnDialog);
         btndialog.setOnClickListener(v -> dialog.dismiss());
 
-        ListView listView =  dialog.findViewById(R.id.dialogListView);
-        ArrayAdapter arrayAdapter = new ArrayAdapter(appContext,R.layout.list_item, R.id.tv, list);
+        ListView listView = dialog.findViewById(R.id.dialogListView);
+        ArrayAdapter arrayAdapter = new ArrayAdapter(appContext, R.layout.list_item, R.id.tv, list);
         listView.setAdapter(arrayAdapter);
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
@@ -424,20 +448,18 @@ public class AreaFragment extends Fragment {
                     .setTitle("Please input password")
                     .setMessage("length greater than 7")
                     .setView(edt_password)
-                    .setPositiveButton("Ok",null)
-                    .setNegativeButton("No",null)
+                    .setPositiveButton("Ok", null)
+                    .setNegativeButton("No", null)
                     .show();
             Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
             btn_positive.setOnClickListener(v -> {
                 String tmp = edt_password.getText().toString().trim();
-                if (!(tmp.isEmpty()))
-                {
+                if (!(tmp.isEmpty())) {
 
-                    String[] array = {"C:"+ wifiName + "/"+ tmp,"2"};
+                    String[] array = {"C:" + wifiName + "/" + tmp, "2"};
                     new SendSignal().execute(array);
                     alertDialog.dismiss();
-                }
-                else
+                } else
                     edt_password.setError("please input password");
             });
 
@@ -449,7 +471,7 @@ public class AreaFragment extends Fragment {
 
     }
 
-    private void msg (String s) {
+    private void msg(String s) {
         Toast.makeText(mContext, s, Toast.LENGTH_LONG).show();
     }
 
@@ -473,22 +495,23 @@ public class AreaFragment extends Fragment {
         }
     }
 
-    protected class updateTap extends AsyncTask<String,Void,Void>{
+    protected class updateTap extends AsyncTask<String, Void, Void> {
 
         @Override
         protected Void doInBackground(String... strings) {
-            db.InfoDao().updateTap(tap.getId(),strings[0]);
+            db.InfoDao().updateTap(tap.getId(), strings[0]);
             return null;
         }
+
         @Override
-        protected void onPostExecute(Void voids){
+        protected void onPostExecute(Void voids) {
             new getArea().execute();
         }
     }
 
     // WIFI
 
-    protected class insertTap extends AsyncTask<String,Void,Long>{
+    protected class insertTap extends AsyncTask<String, Void, Long> {
 
         @Override
         protected Long doInBackground(String... strings) {
@@ -497,17 +520,18 @@ public class AreaFragment extends Fragment {
                     DailyInfoDatabase.class, "dailyInfo_database")
                     .fallbackToDestructiveMigration()
                     .build();
-            tap = new Tap(strings[0], (int) house.getHid(),address);
+            tap = new Tap(strings[0], (int) house.getHid(), address);
 
             return db.InfoDao().insertTap(tap);
         }
+
         @Override
-        protected void onPostExecute(Long id){
-            if (id!=0){
-                String[] array = {"N:" + tap.getName() +"/"+(int) house.getHid()+"/"+id,"1"};
+        protected void onPostExecute(Long id) {
+            if (id != 0) {
+                String[] array = {"N:" + tap.getName() + "/" + (int) house.getHid() + "/" + id, "1"};
                 new SendSignal().execute(array);
 
-            }else {
+            } else {
                 msg("Insert failed,please try again");
             }
 
@@ -555,17 +579,16 @@ public class AreaFragment extends Fragment {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }*/
-                        if (!isBtConnected){
-                           new ConnectBT().execute();
-                       }
+                        if (!isBtConnected) {
+                            new ConnectBT().execute();
+                        }
                         tapname = tmp;
-                        String[] array = {"UN:" + tmp+"/"+(int) house.getHid(),"UN"};
+                        String[] array = {"UN:" + tmp + "/" + (int) house.getHid(), "UN"};
                         new SendSignal().execute(array);
 
 
                         dialog.dismiss();
-                    }
-                    else
+                    } else
                         edt_rename.setError("please input a number");
                 });
                 dialog.show();
@@ -633,17 +656,17 @@ public class AreaFragment extends Fragment {
                 tools.toast_long(mContext, "Connection Failed. Is it a SPP Bluetooth? Try again.");
 
             } else {
-                if (!isBtConnected){
+                if (!isBtConnected) {
                     beginListenForData();
                     isBtConnected = true;
                 }
 
-            //progress.dismiss();
+                //progress.dismiss();
+            }
         }
     }
-    }
 
-    protected class connectWIFI extends AsyncTask<Void,Void,Boolean>{
+    protected class connectWIFI extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -653,57 +676,60 @@ public class AreaFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            while(!isBtConnected){
+            while (!isBtConnected) {
 
             }
-            return  true;
+            return true;
         }
-        @Override
-        protected void onPostExecute(Boolean flag){
-           if (flag){
-               if (wifiManager.isWifiEnabled()) {
-                   msg("Bluetooth connected, please setup its wifi");
-                   // if(isLocnEnabled(this)){
-                   String location = Manifest.permission.ACCESS_FINE_LOCATION;
-                   if (ActivityCompat.checkSelfPermission(getActivity(), location) != PackageManager.PERMISSION_GRANTED) {
-                       ActivityCompat.requestPermissions(getActivity(),new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                   } else {
-                       startWifiScan();
-                   }
 
-                   //            }else{
-                   //              context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                   //          }
-               }else {
-                   //ActivityCompat.requestPermissions(new String[] { locationPermission }, RC_LOCATION);
-                   Toast.makeText(mContext, "WiFi is disabled ... We need to enable it", Toast.LENGTH_LONG).show();
-                   wifiManager.setWifiEnabled(true);
-               }
-           }
-          progressBar.setVisibility(View.GONE);
+        @Override
+        protected void onPostExecute(Boolean flag) {
+            if (flag) {
+                if (wifiManager.isWifiEnabled()) {
+                    msg("Bluetooth connected, please setup its wifi");
+                    // if(isLocnEnabled(this)){
+                    String location = Manifest.permission.ACCESS_FINE_LOCATION;
+                    if (ActivityCompat.checkSelfPermission(getActivity(), location) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                    } else {
+                        startWifiScan();
+                    }
+
+                    //            }else{
+                    //              context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    //          }
+                } else {
+                    //ActivityCompat.requestPermissions(new String[] { locationPermission }, RC_LOCATION);
+                    Toast.makeText(mContext, "WiFi is disabled ... We need to enable it", Toast.LENGTH_LONG).show();
+                    wifiManager.setWifiEnabled(true);
+                }
+            }
+            progressBar.setVisibility(View.GONE);
         }
     }
 
-    private class SendSignal extends AsyncTask<String,Integer,String>{
+    private class SendSignal extends AsyncTask<String, Integer, String> {
 
         String identifier;
+
         @Override
         protected void onPreExecute() {
             progressBar.setVisibility(View.VISIBLE);
         }
+
         @Override
         protected String doInBackground(String... strings) {
             identifier = strings[1];
             respond = "";
             counter = 0;
-            while (!isBtConnected){
+            while (!isBtConnected) {
 
             }
-            if (isBtConnected){
+            if (isBtConnected) {
                 counter = 0;
-                while(respond.isEmpty()){ // respond identifier
-                    counter ++;
-                    if ( btSocket != null ) {
+                while (respond.isEmpty()) { // respond identifier
+                    counter++;
+                    if (btSocket != null) {
                         try {
                             mmOutputStream.write(strings[0].getBytes());
                         } catch (Exception e) {
@@ -718,31 +744,30 @@ public class AreaFragment extends Fragment {
                         e.printStackTrace();
                         return null;
                     }
-                    if (counter>10){
+                    if (counter > 10) {
                         return null;
                     }
                 }
-            }else {
+            } else {
                 respond = null;
             }
 
-            return respond==null? respond : respond.trim();
+            return respond == null ? respond : respond.trim();
         }
 
         @Override
         protected void onPostExecute(String result) {
-            if (result != null){
-                if (result.equals("1")){
+            if (result != null) {
+                if (result.equals("1")) {
                     new getArea().execute();
-                    toast_long(mContext,"Set name complete");
+                    toast_long(mContext, "Set name complete");
 
-                }else if (result.equals("UC")){
-                    toast_long(mContext,"Update name complete");
+                } else if (result.equals("UC")) {
+                    toast_long(mContext, "Update name complete");
                     new updateTap().execute(tapname);
-                }
-                else if (result.equals("-2")){
+                } else if (result.equals("-2")) {
                     msg("No wifi found");
-                }else if(result.equals("3")){
+                } else if (result.equals("3")) {
                     msg("Connect successfully");
                     // set name for the tap
                     final EditText edt_name = new EditText(mContext);
@@ -750,33 +775,30 @@ public class AreaFragment extends Fragment {
                             .setTitle("Please input name of your Tap")
                             .setMessage("Using area name to label is a good idea")
                             .setView(edt_name)
-                            .setPositiveButton("Ok",null)
-                            .setNegativeButton("No",null)
+                            .setPositiveButton("Ok", null)
+                            .setNegativeButton("No", null)
                             .show();
                     setNameDialog.setCancelable(false);
                     Button btn_positive = setNameDialog.getButton(AlertDialog.BUTTON_POSITIVE);
                     btn_positive.setOnClickListener(v -> {
                         String tmp = edt_name.getText().toString().trim();
-                        if (!(tmp.isEmpty()))
-                        {
+                        if (!(tmp.isEmpty())) {
                             tapname = tmp;
                             new insertTap().execute(tapname);
 
 
                             setNameDialog.dismiss();
-                        }
-                        else
+                        } else
                             edt_name.setError("please input password");
                     });
                     setNameDialog.show();
 
-                }else if(result.equals("-3")){
+                } else if (result.equals("-3")) {
                     msg("Connect failed");
                 }
-            }
-            else {
-                if (identifier.equals("1")){
-                   // new delTap().execute(tap.getId());
+            } else {
+                if (identifier.equals("1")) {
+                    // new delTap().execute(tap.getId());
                 }
                 msg("Setting error, please try again");
 

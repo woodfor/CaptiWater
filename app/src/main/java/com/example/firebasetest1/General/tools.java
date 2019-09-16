@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
+import com.example.firebasetest1.RestClient.Model.Area;
 import com.example.firebasetest1.RestClient.Model.House;
 import com.google.gson.Gson;
 
@@ -86,6 +87,21 @@ public class tools {
         String tmp = sharedPrefs.getString(storeName, null);
         if (tmp != null) {
             object = new Gson().fromJson(tmp, House.class);
+        }
+
+        return object;
+    }
+
+    public synchronized static Object getArea(Context context){
+        String preName = "Area";
+        String storeName = "Area";
+        Object object = null;
+
+        SharedPreferences sharedPrefs = context.getSharedPreferences(
+                preName, MODE_PRIVATE);
+        String tmp = sharedPrefs.getString(storeName, null);
+        if (tmp != null) {
+            object = new Gson().fromJson(tmp, Area.class);
         }
 
         return object;

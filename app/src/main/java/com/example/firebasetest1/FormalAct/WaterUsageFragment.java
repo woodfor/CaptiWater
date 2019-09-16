@@ -23,7 +23,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 public class WaterUsageFragment extends Fragment implements View.OnClickListener, OnChartValueSelectedListener {
     View vWaterUsage;
-    House house =null;
+    public static House house =null;
     TextView tv_totalLiter;
     TextView tv_cost;
     TextView tv_estCost;
