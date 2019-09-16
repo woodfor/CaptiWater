@@ -10,25 +10,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,37 +34,46 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.room.Room;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
+import com.example.firebasetest1.RestClient.Model.Area;
+import com.example.firebasetest1.RestClient.Model.House;
+import com.example.firebasetest1.RestClient.RestClient;
 import com.example.firebasetest1.Room.DailyInfoDatabase;
-import com.example.firebasetest1.Room.HouseDAO;
 import com.example.firebasetest1.Room.Tap;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
-import static android.content.Context.MODE_PRIVATE;
 import static com.example.firebasetest1.General.tools.toast_long;
 
-public class AreaFragment extends Fragment implements View.OnClickListener {
+public class AreaFragment extends Fragment {
     View vArea;
     String tapname;
     DailyInfoDatabase db = null;
     Context appContext;
     Context mContext;
-    ListView lv_tap;
+    ListView lv_area;
     List<Tap> taps;
     ArrayAdapter arrayAdapter;
-    HouseDAO houseDAO;
+    House house;
     BluetoothAdapter myBluetooth = null;
     BluetoothSocket btSocket = null;
-    private boolean isBtConnected = false;
     BluetoothDevice mmDevice;
     OutputStream mmOutputStream;
     InputStream mmInputStream;
@@ -80,67 +86,97 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
     volatile boolean stopWorker;
     WifiManager wifiManager;
     BroadcastReceiver wifiScanReceiver;
-    private ProgressBar progressBar;
     Tap tap;
     int uid;
-    ListView lv_taps;
+    private boolean isBtConnected = false;
+    private ProgressBar progressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         vArea = inflater.inflate(R.layout.fragment_area, container, false);
         TextView tv_houseName = (TextView) vArea.findViewById(R.id.tv_houseName);
-        lv_tap = (ListView) vArea.findViewById(R.id.tap_listview);
-        ImageView addTapButton = (ImageView) vArea.findViewById(R.id.add_tap_btn);
-        SharedPreferences mPrefs = getActivity().getApplicationContext().getSharedPreferences("HouseDAO", MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = mPrefs.getString("SelectedHouse", "");
-        if (!json.isEmpty()){
-            houseDAO = gson.fromJson(json, HouseDAO.class);
-            String houseName = houseDAO.getName();
-            tv_houseName.setText(houseName);
-            new fillList().execute();
-        }else {
-            tv_houseName.setText("Please select an area");
-        }
+        lv_area = (ListView) vArea.findViewById(R.id.lv_area);
+        LinearLayout lt_addArea = vArea.findViewById(R.id.lt_area);
+
         progressBar = vArea.findViewById(R.id.pg_area);
 
-        //bluetooth
-        myBluetooth = BluetoothAdapter.getDefaultAdapter();
-        if (myBluetooth == null) {
-            toast_long(getActivity().getApplicationContext(), "");
-        } else if (!myBluetooth.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, 1);
+        house = (House) tools.getHouse(getActivity().getApplicationContext());
+        if (house==null){
+            tools.toast_long(getActivity().getApplicationContext(),"House object error");
+            getActivity().finish();
+        }else{
+            tv_houseName.setText(house.getName());
         }
-        //wifi
-        wifiManager = (WifiManager)
-                mContext.getSystemService(Context.WIFI_SERVICE);
 
-        addTapButton.setOnClickListener(view -> {
-            Set<BluetoothDevice> pairedDevices = myBluetooth.getBondedDevices();
-            ArrayList list = new ArrayList();
-            if (pairedDevices.size() > 0) {
-                for (BluetoothDevice bt : pairedDevices) {
-                    list.add(bt.getName() + "\n" + bt.getAddress());
+        //set list
+        getAreas();
 
+        //add area
+
+        lt_addArea.setOnClickListener(view -> {
+            final EditText edt = new EditText(mContext);
+            final AlertDialog alertDialog = new AlertDialog.Builder(mContext)
+                    .setTitle("Add area")
+                    .setMessage("Please set a name")
+                    .setView(edt)
+                    .setPositiveButton("Ok",null)
+                    .setNegativeButton("No",null)
+                    .setCancelable(true)
+                    .show();
+            Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            btn_positive.setOnClickListener(v -> {
+                String tmp = edt.getText().toString().trim();
+                if (!(tmp.isEmpty()))
+                {
+                    addArea(tmp);
+
+                    alertDialog.dismiss();
                 }
-                showDialog(mContext, list);
-            } else {
-                Toast.makeText(appContext, "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
-            }
+                else
+                    edt.setError("please input password");
+            });
+
+            alertDialog.show();
+
         });
 
-        /***
-         lv_taps = (ListView) vArea.findViewById(R.id.tap_listview);
+        //bluetooth
+//        myBluetooth = BluetoothAdapter.getDefaultAdapter();
+//        if (myBluetooth == null) {
+//            toast_long(getActivity().getApplicationContext(), "");
+//        } else if (!myBluetooth.isEnabled()) {
+//            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//            startActivityForResult(enableBtIntent, 1);
+//        }
+//        //wifi
+//        wifiManager = (WifiManager)
+//                mContext.getSystemService(Context.WIFI_SERVICE);
+//
+//        addTapButton.setOnClickListener(view -> {
+//            Set<BluetoothDevice> pairedDevices = myBluetooth.getBondedDevices();
+//            ArrayList list = new ArrayList();
+//            if (pairedDevices.size() > 0) {
+//                for (BluetoothDevice bt : pairedDevices) {
+//                    list.add(bt.getName() + "\n" + bt.getAddress());
+//
+//                }
+//                showDialog(mContext, list);
+//            } else {
+//                Toast.makeText(appContext, "No Paired Bluetooth Devices Found.", Toast.LENGTH_LONG).show();
+//            }
+//        });
 
-         lv_taps.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /***
+         lv_areas = (ListView) vArea.findViewById(R.id.tap_listview);
+
+         lv_areas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             //FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
             //fragmentTransaction.replace(R.id.frame_container , new AreaSettingsFragment());
             //fragmentTransaction.commit();
 
-            PopupMenu popupMenu = new PopupMenu(getContext(), lv_taps);
+            PopupMenu popupMenu = new PopupMenu(getContext(), lv_areas);
             popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
             popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -168,125 +204,91 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
         return vArea;
     }
 
-    @Override
-    public void onClick(View v) {
-
-    }
-    protected class updateTap extends AsyncTask<String,Void,Void>{
-
-        @Override
-        protected Void doInBackground(String... strings) {
-            db.InfoDao().updateTap(tap.getId(),strings[0]);
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void voids){
-            new fillList().execute();
-        }
-    }
-    protected class insertTap extends AsyncTask<String,Void,Long>{
-
-        @Override
-        protected Long doInBackground(String... strings) {
-
-            db = Room.databaseBuilder(appContext,
-                    DailyInfoDatabase.class, "dailyInfo_database")
-                    .fallbackToDestructiveMigration()
-                    .build();
-            tap = new Tap(strings[0], houseDAO.getId(),address);
-
-            return db.InfoDao().insertTap(tap);
-        }
-        @Override
-        protected void onPostExecute(Long id){
-            if (id!=0){
-                String[] array = {"N:" + tap.getName() +"/"+ houseDAO.getId()+"/"+id,"1"};
-                new SendSignal().execute(array);
-
-            }else {
-                msg("Insert failed,please try again");
-            }
-
-        }
-    }
-
-    protected class fillList extends AsyncTask<Void, Void, List<String>> {
-
-        @Override
-        protected List<String> doInBackground(Void... voids) {
-            db = Room.databaseBuilder(appContext,
-                    DailyInfoDatabase.class, "dailyInfo_database")
-                    .fallbackToDestructiveMigration()
-                    .build();
-            taps = db.InfoDao().getTaps(houseDAO.getId());
-            List<String> strings = new ArrayList<>();
-            for (Tap tap : taps) {
-                strings.add(tap.getName());
-            }
-            return strings;
-        }
-
-        @Override
-        protected void onPostExecute(List<String> tempStrings) {
-            arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, tempStrings);
-            lv_tap.setAdapter(arrayAdapter);
-            lv_tap.setOnItemLongClickListener((parent, view, position, id) -> {
-                tap = taps.get((int) id);
-
-                final Dialog dialog = new Dialog(mContext);
-                dialog.setCancelable(true);
-                dialog.setContentView(R.layout.dialog_edit_tap);
-                EditText edt_rename = dialog.findViewById(R.id.edt_rename);
-                Button btn_del = dialog.findViewById(R.id.btn_del);
-                Button btn_rename = dialog.findViewById(R.id.btn_rename);
-                btn_del.setOnClickListener(view1 -> {
-                    new delTap().execute(tap.getId());
-                    dialog.dismiss();
-                });
-                btn_rename.setOnClickListener(view1 -> {
-                    String tmp = edt_rename.getText().toString().trim();
-                    if (!(tmp.isEmpty())) {
-                        /*address = tap.getAddress();
-                        isBtConnected = false;
-
-                        try {
-                            btSocket.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }*/
-                        if (!isBtConnected){
-                           new ConnectBT().execute();
-                       }
-                        tapname = tmp;
-                        String[] array = {"UN:" + tmp+"/"+ houseDAO.getId(),"UN"};
-                        new SendSignal().execute(array);
-
-
-                        dialog.dismiss();
+    private void addArea(String areaName){
+        RequestQueue queue = Volley.newRequestQueue(mContext);
+        String url = RestClient.BASE_URL +  "area/"+ house.getHid()+"/"+areaName;
+        JsonObjectRequest putRequest = new JsonObjectRequest(Request.Method.PUT, url, null,
+                response -> {
+                    if (response.toString().equals("[]") || response.toString().isEmpty()){
+                        tools.toast_long(appContext,"Add area failure, Please try again");
+                    }else {
+                        getAreas();
                     }
-                    else
-                        edt_rename.setError("please input a number");
-                });
-                dialog.show();
-                return false;
-            });
 
-        }
+                },
+                error ->{
+                    try {
+                        Log.d("Error.Response", error.getMessage());
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }finally {
+                        tools.toast_long(getActivity().getApplicationContext(),"Please check your Internet");
+
+                    }
+
+                }
+
+        ){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Accept", "application/json");
+                return params;
+            }
+        };
+        queue.add(putRequest);
     }
 
-    protected class delTap extends AsyncTask<Integer, Void, Void> {
+    private void getAreas(){
+        RequestQueue queue = Volley.newRequestQueue(mContext);
+        String url = RestClient.BASE_URL +  "area/"+ house.getHid();
 
-        @Override
-        protected Void doInBackground(Integer... integers) {
-            db.InfoDao().deleteTap(integers[0]);
-            return null;
-        }
+        JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                response -> {
+                    List<Area> areas = null;
+                    if (response.toString().equals("[]") || response.toString().isEmpty()){
 
-        @Override
-        protected void onPostExecute(Void voids) {
+                    }else {
+                        Type listType = new TypeToken<List<Area>>(){}.getType();
+                        areas = new Gson().fromJson(response.toString(), listType);
+                        if (areas != null){
+                            List<String> areaList = new ArrayList<>();
+                            for (Area a: areas){
+                                areaList.add(a.getName());
+                            }
+                            arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, areaList);
+                            lv_area.setAdapter(arrayAdapter);
+                            lv_area.setOnItemLongClickListener((parent, view, position, id) -> {
+                                return false;
 
-            new fillList().execute();
-        }
+
+                            });
+
+                    }
+                    // display response
+                            }
+                    },
+                error ->{
+                    try {
+                        Log.d("Error.Response", error.getMessage());
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }finally {
+                        tools.toast_long(getActivity().getApplicationContext(),"Please check your Internet");
+
+                    }
+
+                }
+
+        ){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Accept", "application/json");
+                return params;
+            }
+        };
+        queue.add(getRequest);
     }
 
     public void showDialog(Context activity, ArrayList list) {
@@ -319,100 +321,6 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
         dialog.show();
 
     }
-
-    private class ConnectBT extends AsyncTask<String, Void, Void> {
-        private boolean ConnectSuccess = true;
-
-        // private ProgressDialog progress;
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected Void doInBackground(String... strings) {
-            try {
-                if (btSocket == null || !isBtConnected) {
-                    mmDevice = myBluetooth.getRemoteDevice(address.trim());
-                    btSocket = mmDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
-                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-                    btSocket.connect();
-                    mmOutputStream = btSocket.getOutputStream();
-                    mmInputStream = btSocket.getInputStream();
-
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                try {
-                    btSocket.close();
-                } catch (IOException closeException) {
-                    //Log.e(TAG, "Could not close the client socket", closeException);
-                }
-
-                ConnectSuccess = false;
-                return null;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            progressBar.setVisibility(View.GONE);
-            if (!ConnectSuccess) {
-                tools.toast_long(mContext, "Connection Failed. Is it a SPP Bluetooth? Try again.");
-
-            } else {
-                if (!isBtConnected){
-                    beginListenForData();
-                    isBtConnected = true;
-                }
-
-            //progress.dismiss();
-        }
-    }
-    }
-    protected class connectWIFI extends AsyncTask<Void,Void,Boolean>{
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            while(!isBtConnected){
-
-            }
-            return  true;
-        }
-        @Override
-        protected void onPostExecute(Boolean flag){
-           if (flag){
-               if (wifiManager.isWifiEnabled()) {
-                   msg("Bluetooth connected, please setup its wifi");
-                   // if(isLocnEnabled(this)){
-                   String location = Manifest.permission.ACCESS_FINE_LOCATION;
-                   if (ActivityCompat.checkSelfPermission(getActivity(), location) != PackageManager.PERMISSION_GRANTED) {
-                       ActivityCompat.requestPermissions(getActivity(),new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-                   } else {
-                       startWifiScan();
-                   }
-
-                   //            }else{
-                   //              context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                   //          }
-               }else {
-                   //ActivityCompat.requestPermissions(new String[] { locationPermission }, RC_LOCATION);
-                   Toast.makeText(mContext, "WiFi is disabled ... We need to enable it", Toast.LENGTH_LONG).show();
-                   wifiManager.setWifiEnabled(true);
-               }
-           }
-          progressBar.setVisibility(View.GONE);
-        }
-    }
-
 
     void beginListenForData() {
         final Handler handler = new Handler();
@@ -454,111 +362,6 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
         workerThread.start();
     }
 
-    private class SendSignal extends AsyncTask<String,Integer,String>{
-
-        String identifier;
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-        }
-        @Override
-        protected String doInBackground(String... strings) {
-            identifier = strings[1];
-            respond = "";
-            counter = 0;
-            while (!isBtConnected){
-
-            }
-            if (isBtConnected){
-                counter = 0;
-                while(respond.isEmpty()){ // respond identifier
-                    counter ++;
-                    if ( btSocket != null ) {
-                        try {
-                            mmOutputStream.write(strings[0].getBytes());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return null;
-                        }
-                        publishProgress(counter);
-                    }
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                    if (counter>10){
-                        return null;
-                    }
-                }
-            }else {
-                respond = null;
-            }
-
-            return respond==null? respond : respond.trim();
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if (result != null){
-                if (result.equals("1")){
-                    new fillList().execute();
-                    toast_long(mContext,"Set name complete");
-
-                }else if (result.equals("UC")){
-                    toast_long(mContext,"Update name complete");
-                    new updateTap().execute(tapname);
-                }
-                else if (result.equals("-2")){
-                    msg("No wifi found");
-                }else if(result.equals("3")){
-                    msg("Connect successfully");
-                    // set name for the tap
-                    final EditText edt_name = new EditText(mContext);
-                    final AlertDialog setNameDialog = new AlertDialog.Builder(mContext)
-                            .setTitle("Please input name of your Tap")
-                            .setMessage("Using area name to label is a good idea")
-                            .setView(edt_name)
-                            .setPositiveButton("Ok",null)
-                            .setNegativeButton("No",null)
-                            .show();
-                    setNameDialog.setCancelable(false);
-                    Button btn_positive = setNameDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    btn_positive.setOnClickListener(v -> {
-                        String tmp = edt_name.getText().toString().trim();
-                        if (!(tmp.isEmpty()))
-                        {
-                            tapname = tmp;
-                            new insertTap().execute(tapname);
-
-
-                            setNameDialog.dismiss();
-                        }
-                        else
-                            edt_name.setError("please input password");
-                    });
-                    setNameDialog.show();
-
-                }else if(result.equals("-3")){
-                    msg("Connect failed");
-                }
-            }
-            else {
-                if (identifier.equals("1")){
-                   // new delTap().execute(tap.getId());
-                }
-                msg("Setting error, please try again");
-
-            }
-            progressBar.setVisibility(View.GONE);
-        }
-
-
-    }
-
-    // WIFI
-
     private void startWifiScan(){
         wifiScanReceiver = new BroadcastReceiver() {
             @Override
@@ -589,6 +392,7 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
             msg("WIFI error");
         }
     }
+
     private void wifiScanSuccess(){
         ArrayList<String> list = new ArrayList<>();
         for(ScanResult scanResult:wifiManager.getScanResults()){
@@ -645,16 +449,17 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
 
     }
 
-
     private void msg (String s) {
         Toast.makeText(mContext, s, Toast.LENGTH_LONG).show();
     }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
         appContext = getActivity().getApplicationContext();
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -666,6 +471,320 @@ public class AreaFragment extends Fragment implements View.OnClickListener {
                 e.printStackTrace();
             }
         }
+    }
+
+    protected class updateTap extends AsyncTask<String,Void,Void>{
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            db.InfoDao().updateTap(tap.getId(),strings[0]);
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void voids){
+            new getArea().execute();
+        }
+    }
+
+    // WIFI
+
+    protected class insertTap extends AsyncTask<String,Void,Long>{
+
+        @Override
+        protected Long doInBackground(String... strings) {
+
+            db = Room.databaseBuilder(appContext,
+                    DailyInfoDatabase.class, "dailyInfo_database")
+                    .fallbackToDestructiveMigration()
+                    .build();
+            tap = new Tap(strings[0], (int) house.getHid(),address);
+
+            return db.InfoDao().insertTap(tap);
+        }
+        @Override
+        protected void onPostExecute(Long id){
+            if (id!=0){
+                String[] array = {"N:" + tap.getName() +"/"+(int) house.getHid()+"/"+id,"1"};
+                new SendSignal().execute(array);
+
+            }else {
+                msg("Insert failed,please try again");
+            }
+
+        }
+    }
+
+    protected class getArea extends AsyncTask<Void, Void, List<String>> {
+
+        @Override
+        protected List<String> doInBackground(Void... voids) {
+
+
+            List<String> areaList = new ArrayList<>();
+            for (Tap tap : taps) {
+                areaList.add(tap.getName());
+            }
+            return areaList;
+        }
+
+        @Override
+        protected void onPostExecute(List<String> tempStrings) {
+            arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, tempStrings);
+            lv_area.setAdapter(arrayAdapter);
+            lv_area.setOnItemLongClickListener((parent, view, position, id) -> {
+                tap = taps.get((int) id);
+
+                final Dialog dialog = new Dialog(mContext);
+                dialog.setCancelable(true);
+                dialog.setContentView(R.layout.dialog_edit_tap);
+                EditText edt_rename = dialog.findViewById(R.id.edt_rename);
+                Button btn_del = dialog.findViewById(R.id.btn_del);
+                Button btn_rename = dialog.findViewById(R.id.btn_rename);
+                btn_del.setOnClickListener(view1 -> {
+                    new delTap().execute(tap.getId());
+                    dialog.dismiss();
+                });
+                btn_rename.setOnClickListener(view1 -> {
+                    String tmp = edt_rename.getText().toString().trim();
+                    if (!(tmp.isEmpty())) {
+                        /*address = tap.getAddress();
+                        isBtConnected = false;
+
+                        try {
+                            btSocket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }*/
+                        if (!isBtConnected){
+                           new ConnectBT().execute();
+                       }
+                        tapname = tmp;
+                        String[] array = {"UN:" + tmp+"/"+(int) house.getHid(),"UN"};
+                        new SendSignal().execute(array);
+
+
+                        dialog.dismiss();
+                    }
+                    else
+                        edt_rename.setError("please input a number");
+                });
+                dialog.show();
+                return false;
+            });
+
+        }
+    }
+
+    protected class delTap extends AsyncTask<Integer, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            db.InfoDao().deleteTap(integers[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void voids) {
+
+            new getArea().execute();
+        }
+    }
+
+    private class ConnectBT extends AsyncTask<String, Void, Void> {
+        private boolean ConnectSuccess = true;
+
+        // private ProgressDialog progress;
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            try {
+                if (btSocket == null || !isBtConnected) {
+                    mmDevice = myBluetooth.getRemoteDevice(address.trim());
+                    btSocket = mmDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"));
+                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+                    btSocket.connect();
+                    mmOutputStream = btSocket.getOutputStream();
+                    mmInputStream = btSocket.getInputStream();
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    btSocket.close();
+                } catch (IOException closeException) {
+                    //Log.e(TAG, "Could not close the client socket", closeException);
+                }
+
+                ConnectSuccess = false;
+                return null;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            progressBar.setVisibility(View.GONE);
+            if (!ConnectSuccess) {
+                tools.toast_long(mContext, "Connection Failed. Is it a SPP Bluetooth? Try again.");
+
+            } else {
+                if (!isBtConnected){
+                    beginListenForData();
+                    isBtConnected = true;
+                }
+
+            //progress.dismiss();
+        }
+    }
+    }
+
+    protected class connectWIFI extends AsyncTask<Void,Void,Boolean>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            while(!isBtConnected){
+
+            }
+            return  true;
+        }
+        @Override
+        protected void onPostExecute(Boolean flag){
+           if (flag){
+               if (wifiManager.isWifiEnabled()) {
+                   msg("Bluetooth connected, please setup its wifi");
+                   // if(isLocnEnabled(this)){
+                   String location = Manifest.permission.ACCESS_FINE_LOCATION;
+                   if (ActivityCompat.checkSelfPermission(getActivity(), location) != PackageManager.PERMISSION_GRANTED) {
+                       ActivityCompat.requestPermissions(getActivity(),new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                   } else {
+                       startWifiScan();
+                   }
+
+                   //            }else{
+                   //              context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                   //          }
+               }else {
+                   //ActivityCompat.requestPermissions(new String[] { locationPermission }, RC_LOCATION);
+                   Toast.makeText(mContext, "WiFi is disabled ... We need to enable it", Toast.LENGTH_LONG).show();
+                   wifiManager.setWifiEnabled(true);
+               }
+           }
+          progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    private class SendSignal extends AsyncTask<String,Integer,String>{
+
+        String identifier;
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+        @Override
+        protected String doInBackground(String... strings) {
+            identifier = strings[1];
+            respond = "";
+            counter = 0;
+            while (!isBtConnected){
+
+            }
+            if (isBtConnected){
+                counter = 0;
+                while(respond.isEmpty()){ // respond identifier
+                    counter ++;
+                    if ( btSocket != null ) {
+                        try {
+                            mmOutputStream.write(strings[0].getBytes());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return null;
+                        }
+                        publishProgress(counter);
+                    }
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                    if (counter>10){
+                        return null;
+                    }
+                }
+            }else {
+                respond = null;
+            }
+
+            return respond==null? respond : respond.trim();
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null){
+                if (result.equals("1")){
+                    new getArea().execute();
+                    toast_long(mContext,"Set name complete");
+
+                }else if (result.equals("UC")){
+                    toast_long(mContext,"Update name complete");
+                    new updateTap().execute(tapname);
+                }
+                else if (result.equals("-2")){
+                    msg("No wifi found");
+                }else if(result.equals("3")){
+                    msg("Connect successfully");
+                    // set name for the tap
+                    final EditText edt_name = new EditText(mContext);
+                    final AlertDialog setNameDialog = new AlertDialog.Builder(mContext)
+                            .setTitle("Please input name of your Tap")
+                            .setMessage("Using area name to label is a good idea")
+                            .setView(edt_name)
+                            .setPositiveButton("Ok",null)
+                            .setNegativeButton("No",null)
+                            .show();
+                    setNameDialog.setCancelable(false);
+                    Button btn_positive = setNameDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    btn_positive.setOnClickListener(v -> {
+                        String tmp = edt_name.getText().toString().trim();
+                        if (!(tmp.isEmpty()))
+                        {
+                            tapname = tmp;
+                            new insertTap().execute(tapname);
+
+
+                            setNameDialog.dismiss();
+                        }
+                        else
+                            edt_name.setError("please input password");
+                    });
+                    setNameDialog.show();
+
+                }else if(result.equals("-3")){
+                    msg("Connect failed");
+                }
+            }
+            else {
+                if (identifier.equals("1")){
+                   // new delTap().execute(tap.getId());
+                }
+                msg("Setting error, please try again");
+
+            }
+            progressBar.setVisibility(View.GONE);
+        }
+
+
     }
 
 }

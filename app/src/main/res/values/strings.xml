@@ -97,7 +97,7 @@
     <string name="title_home">Home</string>
     <string name="title_house">House</string>
     <string name="title_water">Water</string>
-    <string name="title_area">Tap</string>
+    <string name="title_area">Area</string>
     <string name="question_title">Questions</string>
     <string name="question_one">1. Name of your House</string>
     <string name="question_two">2. How many people live in your houseDAO</string>

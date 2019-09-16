@@ -52,8 +52,10 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
         house = (House) tools.getHouse(getActivity().getApplicationContext());
         if (house==null){
-            tools.toast_long(getActivity().getApplicationContext(),"Program error");
+            tools.toast_long(getActivity().getApplicationContext(),"House object error");
             getActivity().finish();
+        }else{
+            tv_houseName.setText(house.getName());
         }
         //set chart
 

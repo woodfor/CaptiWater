@@ -52,8 +52,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 //selectedFragment = houseFrag;
                 break;
             case R.id.navigation_area:
-                //selectedFragment = areaFrag;
-                selectedFragment = houseFrag;
+                selectedFragment = areaFrag;
+               // selectedFragment = houseFrag;
                 break;
         }
 
