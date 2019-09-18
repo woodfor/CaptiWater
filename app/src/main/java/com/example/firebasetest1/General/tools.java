@@ -3,16 +3,21 @@ package com.example.firebasetest1.General;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.firebasetest1.RestClient.Model.Area;
 import com.example.firebasetest1.RestClient.Model.House;
+import com.example.firebasetest1.RestClient.Model.Tap;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import static android.content.Context.MODE_PRIVATE;
 
 public class tools {
-
+    public static String token;
     public static boolean toast_short(Context context, String string) {
         Toast.makeText(context, string, Toast.LENGTH_SHORT).show();
         return true;
@@ -107,6 +112,21 @@ public class tools {
         return object;
     }
 
+    public synchronized static Tap getTap(Context context){
+        String preName = "tap";
+        String storeName = "tap";
+        Tap object = null;
+
+        SharedPreferences sharedPrefs = context.getSharedPreferences(
+                preName, MODE_PRIVATE);
+        String tmp = sharedPrefs.getString(storeName, null);
+        if (tmp != null) {
+            object = new Gson().fromJson(tmp, Tap.class);
+        }
+
+        return object;
+    }
+
     public synchronized static void saveObject(Context context, String preName, String storeName, Object object) {
         SharedPreferences mPrefs = context.getSharedPreferences(preName, MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
@@ -122,6 +142,26 @@ public class tools {
         prefsEditor.putString(storeName, object);
         prefsEditor.apply();
     }
+
+//    public static String getToken(){
+//
+//        FirebaseInstanceId.getInstance().getInstanceId()
+//                .addOnCompleteListener(task -> {
+//                    if (!task.isSuccessful()) {
+//                        Log.w("Token failure", "getInstanceId failed", task.getException());
+//                        return;
+//                    }
+//
+//                    // Get new Instance ID token
+//                      token = task.getResult().getToken();
+//
+//                    // Log and toast
+//                    //new putREST().execute(token);
+//                    //Log.d("Token:", msg);
+//
+//                });
+//        return token;
+//    }
 
 
 }

@@ -3,6 +3,8 @@
 
     <item android:id="@+id/lock_tap"
         android:title="Lock"/>
+    <item android:id="@+id/unlock_tap"
+        android:title="Unlock"/>
     <item android:id="@+id/settings_tap"
         android:title="Settings"/>
     <item android:id="@+id/rename_tap"

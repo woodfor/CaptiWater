@@ -17,7 +17,11 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.firebasetest1.AboutUsFragment;
 import com.example.firebasetest1.AccountFragment;
@@ -25,19 +29,26 @@ import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.HelpFragment;
 import com.example.firebasetest1.Model.Token;
 import com.example.firebasetest1.R;
+import com.example.firebasetest1.RestClient.Model.House;
+import com.example.firebasetest1.RestClient.Model.Tap;
 import com.example.firebasetest1.RestClient.RestClient;
 import com.example.firebasetest1.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     Fragment waterusgfrag;
     Fragment areaFrag;
     Fragment houseFrag;
+
     //Fragment rankingFrag;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -148,11 +159,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         // Get new Instance ID token
                         String token = task.getResult().getToken();
+                        House house = (House) tools.getHouse(getApplicationContext());
+                        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                        String url = RestClient.BASE_URL + "tap/token/" + house.getHid()+"/"+token;
+                        StringRequest putRequest = new StringRequest(Request.Method.PUT, url,
+                                response -> {
+                                    tools.toast_long(getApplicationContext(),"update success");
+                                },
+                                error -> {
+                                    try {
+                                        Log.d("Error.Response", error.getMessage());
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    } finally {
+                                        tools.toast_long(getApplicationContext(), "Please check your Internet");
+
+                                    }
+
+                                }
+
+                        ) {
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                Map<String, String> params = new HashMap<>();
+                                params.put("Accept", "application/json");
+                                return params;
+                            }
+                        };
+                        queue.add(putRequest);
 
                         // Log and toast
-                        new putREST().execute(token);
+                        //new putREST().execute(token);
                         //Log.d("Token:", msg);
-                        Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
+
                     });
 
         }

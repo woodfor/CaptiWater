@@ -36,6 +36,14 @@
     </ListView>
 
 
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Long click area to enter"
+        android:textAlignment="center"
+        android:textSize="18sp" />
+
     <LinearLayout
         android:id="@+id/lt_area"
         android:layout_width="125dp"

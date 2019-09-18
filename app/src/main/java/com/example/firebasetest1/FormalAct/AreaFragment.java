@@ -50,6 +50,8 @@ import com.example.firebasetest1.RestClient.Model.House;
 import com.example.firebasetest1.RestClient.RestClient;
 import com.example.firebasetest1.Room.DailyInfoDatabase;
 import com.example.firebasetest1.Room.Tap;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -93,7 +95,9 @@ public class AreaFragment extends Fragment {
     private Tap tap;
     private boolean isBtConnected = false;
     private ProgressBar progressBar;
-
+    private FirebaseDatabase database;
+    private DatabaseReference statusRef;
+    private DatabaseReference myRef;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         vArea = inflater.inflate(R.layout.fragment_area, container, false);
@@ -111,6 +115,9 @@ public class AreaFragment extends Fragment {
         } else {
             tv_houseName.setText(house.getName());
         }
+
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference();
 
         //set list
         getAreas();
@@ -274,6 +281,7 @@ public class AreaFragment extends Fragment {
                                     popupMenu.setOnMenuItemClickListener(menuItem -> {
                                         switch (menuItem.getItemId()) {
                                             case R.id.lock_area:
+                                                myRef.child("turn").setValue(0);
                                                 break;
                                             case R.id.remove_area:
                                                 break;

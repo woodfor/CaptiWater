@@ -5,11 +5,21 @@ public class Tap {
     private long tid;
     private String name;
     private String btaddress;
+    private String token;
 
-    public Tap(long tid, String name, String btaddress) {
+    public Tap(long tid, String name, String btaddress,String token) {
         this.tid = tid;
         this.name = name;
         this.btaddress = btaddress;
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public Tap(){

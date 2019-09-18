@@ -94,7 +94,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 scheduleJob();
             } else {
                 // Handle message within 10 seconds
-                handleNow(data);
+                handleNow();
             }
 
         }
@@ -102,6 +102,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            handleNow();
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
@@ -142,39 +143,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /**
      * Handle time allotted to BroadcastReceivers.
      */
-    private void handleNow(Map<String,String> data) {
+    private void handleNow() {
 
-        db = Room.databaseBuilder(getApplicationContext(),
-                DailyInfoDatabase.class, "dailyInfo_database")
-                .fallbackToDestructiveMigration()
-                .build();
-
-        try{
-            Records records = new Records(Integer.parseInt(data.get("tid")),Integer.parseInt(data.get("hid")),Integer.parseInt(data.get("U")),Integer.parseInt((data.get("D"))),data.get("T"));
-            db.InfoDao().insertRecord(records);
-
-            Handler mainHandler = new Handler(getMainLooper());
-            mainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    // Do your stuff here related to UI, e.g. show toast
-                    Toast.makeText(getApplicationContext(), "Data received from a tap", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }catch (Exception e){
-            Handler mainHandler = new Handler(getMainLooper());
-            mainHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    // Do your stuff here related to UI, e.g. show toast
-                    Toast.makeText(getApplicationContext(), "Warning, your tap is on at least 2 seconds", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }finally {
-            db.close();
-        }
-
-       // db.InfoDao().insert(dailyInfo);
+        Handler mainHandler = new Handler(getMainLooper());
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                // Do your stuff here related to UI, e.g. show toast
+                Toast.makeText(getApplicationContext(), "Notification received from a tap", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 

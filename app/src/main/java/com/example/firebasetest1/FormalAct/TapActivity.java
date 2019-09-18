@@ -1,5 +1,6 @@
 package com.example.firebasetest1.FormalAct;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentTransaction;
@@ -41,6 +42,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
@@ -51,7 +53,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
@@ -76,6 +81,7 @@ public class TapActivity extends AppCompatActivity {
     private Tap tap;
     private ProgressBar pg;
     private Context mContext = this;
+    List<Tap> taps = null;
     //bluetooth
     private boolean isBtConnected = false;
     private BluetoothAdapter myBluetooth = null;
@@ -94,8 +100,11 @@ public class TapActivity extends AppCompatActivity {
     //firebase
     List<HashMap<String, String>> tapListArray;
     SimpleAdapter arrayAdapter;
-
-
+    private FirebaseDatabase database;
+    private DatabaseReference statusRef;
+    private DatabaseReference myRef;
+    //Rest
+    RequestQueue queue;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +114,7 @@ public class TapActivity extends AppCompatActivity {
         tap = new Tap();
         LinearLayout lt_addTap = findViewById(R.id.lt_addTap);
         pg = findViewById(R.id.pb);
+        queue = Volley.newRequestQueue(getApplicationContext());
         //setup
         try {
             area = (Area) tools.getArea(getApplicationContext());
@@ -128,9 +138,9 @@ public class TapActivity extends AppCompatActivity {
         wifiManager = (WifiManager) getSystemService(this.WIFI_SERVICE);
 
         //firebase
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference();
-        DatabaseReference statusRef = myRef.child("status");
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference();
+        statusRef = myRef.child("turn");
         statusRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -421,7 +431,7 @@ public class TapActivity extends AppCompatActivity {
 
     private class SendBTSignal extends AsyncTask<String, Integer, String> {
 
-        String identifier;
+        char identifier;
 
         @Override
         protected void onPreExecute() {
@@ -430,14 +440,15 @@ public class TapActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... strings) {
-            identifier = strings[1];
+
+            identifier = strings[0].charAt(0);
+
             btRespond = "";
             int counter = 0;
             while (!isBtConnected) {
 
             }
-            if (isBtConnected) {
-                counter = 0;
+            counter = 0;
                 while (btRespond.isEmpty()) { // respond identifier
                     counter++;
                     if (btSocket != null) {
@@ -447,7 +458,7 @@ public class TapActivity extends AppCompatActivity {
                             e.printStackTrace();
                             return null;
                         }
-                        publishProgress(counter);
+
                     }
                     try {
                         Thread.sleep(2000);
@@ -459,9 +470,6 @@ public class TapActivity extends AppCompatActivity {
                         return null;
                     }
                 }
-            } else {
-                btRespond = null;
-            }
 
             return btRespond == null ? btRespond : btRespond.trim();
         }
@@ -495,6 +503,7 @@ public class TapActivity extends AppCompatActivity {
                         String tmp = edt_name.getText().toString().trim();
                         if (!(tmp.isEmpty())) {
                             tap.setName(tmp);
+
                             addTap();
 
                             setNameDialog.dismiss();
@@ -507,8 +516,9 @@ public class TapActivity extends AppCompatActivity {
                     msg("wifi Connect failed");
                 }
             } else {
-                if (identifier.equals("1")) {
-                    // new delTap().execute(tap.getId());
+                if (identifier == 'N'){
+                    delTap(tap.getTid());
+
                 }
                 msg("Setting error, please try again");
 
@@ -519,106 +529,155 @@ public class TapActivity extends AppCompatActivity {
 
     }
 
-private void addTap(){
-    RequestQueue queue = Volley.newRequestQueue(mContext);
-    String url = RestClient.BASE_URL + "tap/" + area.getAid() + "/" + tap.getName()+"/"+ tap.getBtaddress();
-    JsonObjectRequest putRequest = new JsonObjectRequest(Request.Method.PUT, url, null,
+private void delTap(long tid){
+    String url = RestClient.BASE_URL + "tap/" + tid;
+    StringRequest delRequest = new StringRequest(Request.Method.DELETE,url,
             response -> {
-                if (response.toString().equals("[]") || response.toString().isEmpty()) {
-                    tools.toast_long(this, "Add tap failure, Please try again");
-                } else {
-                    getTaps();
-                }
-
+                getTaps();
             },
             error -> {
-                try {
-                    Log.d("Error.Response", error.getMessage());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    tools.toast_long(getApplicationContext(), "Please check your Internet");
+                Log.d("del Tap error:", "delTap: " +  error.toString());
+            }
+            );
+    queue.add(delRequest);
+}
 
+private void addTap(){
+    FirebaseInstanceId.getInstance().getInstanceId()
+            .addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    Log.w("Token failure", "getInstanceId failed", task.getException());
+                    return;
                 }
 
-            }
+                // Get new Instance ID token
+                String token = task.getResult().getToken();
+                String url = RestClient.BASE_URL + "tap/" + area.getAid() + "/" + tap.getName()+"/"+ tap.getBtaddress()+"/"+token;
+                JsonObjectRequest putRequest = new JsonObjectRequest(Request.Method.PUT, url, null,
+                        response -> {
+                            if (response.toString().equals("[]") || response.toString().isEmpty()) {
+                                tools.toast_long(this, "Add tap failure, Please try again");
+                            } else {
+                                Tap tmptap = new Gson().fromJson(response.toString(),Tap.class);
+                                tap = tmptap;
+                                String array = "N:"  + tap.getName()+"/"+area.getAid()+ "/" + tmptap.getTid();
+                                new SendBTSignal().execute(array);
+                                getTaps();
+                            }
 
-    ) {
-        @Override
-        public Map<String, String> getHeaders() throws AuthFailureError {
-            Map<String, String> params = new HashMap<>();
-            params.put("Accept", "application/json");
-            return params;
-        }
-    };
-    queue.add(putRequest);
+                        },
+                        error -> {
+                            try {
+                                Log.d("Error.Response", error.getMessage());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+                                tools.toast_long(getApplicationContext(), "Please check your Internet");
+
+                            }
+
+                        }
+
+                ) {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put("Accept", "application/json");
+                        return params;
+                    }
+                };
+                queue.add(putRequest);
+                // Log and toast
+                //new putREST().execute(token);
+                //Log.d("Token:", msg);
+
+            });
+
 
 }
     private void getTaps(){
-        RequestQueue queue = Volley.newRequestQueue(mContext);
+
         String url = RestClient.BASE_URL + "tap/" + area.getAid();
         JsonArrayRequest putRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 response -> {
                     if (response.toString().equals("[]") || response.toString().isEmpty()) {
-                        tools.toast_long(this, "get tap failure, Please try again");
+                        tools.toast_long(this, "No tap present, please add some");
                     } else {
-                        List<Tap> taps = null;
+
                         Type listType = new TypeToken<List<Tap>>() {
                         }.getType();
                         taps = new Gson().fromJson(response.toString(),listType);
                         if (taps != null) {
-                            tapListArray = new ArrayList<>();
-                            HashMap<String,String> map = new HashMap<>();
 
-                            for (Tap a : taps) {
-                                map=new HashMap<>();
-                                map.put("name",a.getName());
-                                map.put("status", "ON");
-                                tapListArray.add(map);
-                            }
-                            String[] colHEAD = new String[] {"name","status"};
-                            int[] dataCell = new int[] {R.id.text_tap_list,R.id.text_tap_control};
-                            arrayAdapter = new SimpleAdapter(mContext,tapListArray, R.layout.listview_tap, colHEAD,dataCell){
+                            statusRef.addValueEventListener(new ValueEventListener() {
                                 @Override
-                                public View getView(int position, View convertView, ViewGroup parent){
-                                    // Get the current item from ListView
-                                    View view = super.getView(position,convertView,parent);
-                                    TextView tv_status = view.findViewById(R.id.text_tap_control);
-                                    if (tv_status.getText().toString().equals("ON")){
-                                        tv_status.setTextColor(Color.parseColor("#4CAF50"));
-                                    }else {
-                                        tv_status.setTextColor(Color.parseColor("#D81B60"));
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    tapListArray = new ArrayList<>();
+                                    HashMap<String,String> map;
+                                    String status= dataSnapshot.getValue(Integer.class) == 1 ? "ON" : "OFF";
+                                    for (Tap a : taps) {
+                                        map=new HashMap<>();
+                                        map.put("name",a.getName());
+                                        map.put("status", status);
+                                        tapListArray.add(map);
                                     }
-                                    return view;
-                                }
-                            };
-                            lv.setAdapter(arrayAdapter);
-
-                            //
-                            lv.setOnItemClickListener((adapterView, view, i, l) -> {
-                                ImageView option = view.findViewById(R.id.imageView_popup_tap);
-                                option.setOnClickListener(view1 -> {
-                                    PopupMenu popupMenu = new PopupMenu(mContext, option);
-                                    popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
-                                    popupMenu.setOnMenuItemClickListener(menuItem -> {
-                                        switch (menuItem.getItemId()) {
-                                            case R.id.lock_tap:
-                                                break;
-                                            case R.id.remove_tap:
-                                                break;
-                                            case R.id.rename_tap:
-                                                break;
-                                            case R.id.settings_tap:
-                                                Intent intent = new Intent(this,TapSettingActivity.class);
-                                                startActivity(intent);
-
+                                    String[] colHEAD = new String[] {"name","status"};
+                                    int[] dataCell = new int[] {R.id.text_tap_list,R.id.text_tap_control};
+                                    arrayAdapter = new SimpleAdapter(mContext,tapListArray, R.layout.listview_tap, colHEAD,dataCell){
+                                        @Override
+                                        public View getView(int position, View convertView, ViewGroup parent){
+                                            // Get the current item from ListView
+                                            View view = super.getView(position,convertView,parent);
+                                            TextView tv_status = view.findViewById(R.id.text_tap_control);
+                                            if (tv_status.getText().toString().equals("ON")){
+                                                tv_status.setTextColor(Color.parseColor("#4CAF50"));
+                                            }else {
+                                                tv_status.setTextColor(Color.parseColor("#D81B60"));
+                                            }
+                                            return view;
                                         }
-                                        return true;
-                                    });
-                                    popupMenu.show();
+                                    };
+                                    lv.setAdapter(arrayAdapter);
 
-                                });
+                                    //lock and unlock
+                                    lv.setOnItemClickListener((adapterView, view, i, l) -> {
+                                        ImageView option = view.findViewById(R.id.imageView_popup_tap);
+                                        option.setOnClickListener(view1 -> {
+                                            PopupMenu popupMenu = new PopupMenu(mContext, option);
+                                            popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
+                                            popupMenu.setOnMenuItemClickListener(menuItem -> {
+                                                switch (menuItem.getItemId()) {
+                                                    case R.id.lock_tap:
+                                                        statusRef.setValue(0);
+                                                        break;
+                                                    case R.id.unlock_tap:
+                                                        statusRef.setValue(1);
+                                                        break;
+                                                    case R.id.remove_tap:
+                                                        delTap(taps.get(i).getTid());
+                                                        break;
+                                                    case R.id.rename_tap:
+                                                        break;
+                                                    case R.id.settings_tap:
+                                                        tools.saveObject(getApplicationContext(),"tap","tap",taps.get(i));
+                                                        Intent intent = new Intent(TapActivity.this,TapSettingActivity.class);
+                                                        startActivity(intent);
+
+                                                }
+                                                return true;
+                                            });
+                                            popupMenu.show();
+
+                                        });
+                                    });
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    tools.toast_long(getApplicationContext(),"can't get status");
+                                }
                             });
+
                         }
                     }
 
@@ -647,8 +706,59 @@ private void addTap(){
 
     }
     private void msg(String text){
-        tools.toast_long(this,text);
+        tools.toast_long(getApplicationContext(),text);
     }
+
+
+  /*  private void onStarClicked(DatabaseReference postRef) {
+        postRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                Post p = mutableData.getValue(Post.class);
+                if (p == null) {
+                    return Transaction.success(mutableData);
+                }
+
+                if (p.stars.containsKey(getUid())) {
+                    // Unstar the post and remove self from stars
+                    p.starCount = p.starCount - 1;
+                    p.stars.remove(getUid());
+                } else {
+                    // Star the post and add self to stars
+                    p.starCount = p.starCount + 1;
+                    p.stars.put(getUid(), true);
+                }
+
+                // Set value and report transaction success
+                mutableData.setValue(p);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b,
+                                   DataSnapshot dataSnapshot) {
+                // Transaction completed
+                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
+            }
+        });
+    }
+*/
+
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (btSocket != null) {
+            try {
+                btSocket.close();
+                isBtConnected = false;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
 }
 

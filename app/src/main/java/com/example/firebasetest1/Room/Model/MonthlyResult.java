@@ -4,13 +4,24 @@ import androidx.room.ColumnInfo;
 
 public class MonthlyResult {
     String name;
-    @ColumnInfo(name = "sum(usage)")
-    int usage;
+    long usage;
     int date;
-    public MonthlyResult(String name, int usage, int date){
+    String area;
+    public MonthlyResult(String name, long usage, int date){
         this.name = name;
         this.usage = usage;
         this.date = date;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public MonthlyResult(String name, long usage, int date, String area) {
+        this.name = name;
+        this.usage = usage;
+        this.date = date;
+        this.area = area;
     }
 
     public String getName() {
@@ -21,7 +32,7 @@ public class MonthlyResult {
         return date;
     }
 
-    public int getUsage() {
+    public long getUsage() {
         return usage;
     }
 }

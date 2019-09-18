@@ -5,8 +5,11 @@ import android.util.Log;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.firebasetest1.GsonBuilder.DateDeserializer;
+import com.example.firebasetest1.GsonBuilder.TimeDeserializer;
 import com.example.firebasetest1.Model.Token;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,6 +17,8 @@ import org.json.JSONObject;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Time;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -145,6 +150,13 @@ public class RestClient {
             } catch (Exception e) { }
         }
         return map;
+    }
+
+    private void function(){
+        GsonBuilder gSonBuilder=  new GsonBuilder();
+        gSonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
+        gSonBuilder.registerTypeAdapter(Time.class, new TimeDeserializer());
+        Gson gSon = gSonBuilder.create();
     }
 }
 
