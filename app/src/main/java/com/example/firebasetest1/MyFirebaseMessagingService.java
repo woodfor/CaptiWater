@@ -94,7 +94,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 scheduleJob();
             } else {
                 // Handle message within 10 seconds
-                handleNow();
+
             }
 
         }
@@ -102,7 +102,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
-            handleNow();
+            handleNow(remoteMessage.getNotification().getBody());
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
@@ -143,14 +143,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /**
      * Handle time allotted to BroadcastReceivers.
      */
-    private void handleNow() {
+    private void handleNow(String data) {
 
         Handler mainHandler = new Handler(getMainLooper());
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 // Do your stuff here related to UI, e.g. show toast
-                Toast.makeText(getApplicationContext(), "Notification received from a tap", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), data, Toast.LENGTH_SHORT).show();
             }
         });
 

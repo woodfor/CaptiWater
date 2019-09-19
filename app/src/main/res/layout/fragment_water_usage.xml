@@ -154,7 +154,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:text="Please scroll to see different charts" />
+        android:text="Please scroll left and right to see different charts" />
 
     <LinearLayout
         android:layout_width="275dp"
