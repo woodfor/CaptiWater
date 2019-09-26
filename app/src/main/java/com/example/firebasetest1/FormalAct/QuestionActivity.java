@@ -69,7 +69,7 @@ public class QuestionActivity extends AppCompatActivity implements
         Button btn_submit = findViewById(R.id.btn_submit);
         EditText edt_houseName = findViewById(R.id.edt_houseName);
         edt_NoP = findViewById(R.id.edt_No_people);
-        EditText edt_address = findViewById(R.id.edt_address);
+        EditText edt_address = findViewById(R.id.edt_postcode);
         EditText edt_name = findViewById(R.id.edt_UserName);
        /* edt_address.setOnEditorActionListener((textView, i, keyEvent) -> {
             if (i == EditorInfo.IME_ACTION_DONE) {
@@ -158,7 +158,7 @@ public class QuestionActivity extends AppCompatActivity implements
     }
 
     class AddressResultReceiver extends ResultReceiver {
-        TextView edt_address = findViewById(R.id.edt_address);
+        TextView edt_address = findViewById(R.id.edt_postcode);
 
         public AddressResultReceiver(Handler handler) {
             super(handler);
@@ -185,19 +185,11 @@ public class QuestionActivity extends AppCompatActivity implements
                     flag = false;
                     edt_address.setError("Please add suburb");
                 }
-                if (addressOutput.getAdminArea().isEmpty()) {
-                    flag = false;
-                    edt_address.setError("Please input state");
-                }
-                if (addressOutput.getThoroughfare().isEmpty()) {
-                    flag = false;
-                    edt_address.setError("Please input street name");
-                }
                 if (flag == true) {
                     User user = new User(uuid, name);
                     State state = new State(addressOutput.getAdminArea());
                     Suburb suburb = new Suburb(addressOutput.getLocality(), addressOutput.getPostalCode());
-                    House house = new House(houseName, addressOutput.getSubThoroughfare() + " " + addressOutput.getThoroughfare(), Integer.parseInt(nop));
+                    House house = new House(houseName, "",Integer.parseInt(nop));
                     HouseCreation houseCreation = new HouseCreation(user, house, state, suburb);
                     new ExecuteAndTransfer().execute(houseCreation);
 

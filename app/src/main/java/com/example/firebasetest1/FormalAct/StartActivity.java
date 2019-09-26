@@ -10,6 +10,8 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -18,6 +20,7 @@ import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.RestClient;
 
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -66,12 +69,15 @@ public class StartActivity extends AppCompatActivity {
                         startActivity(intent);
                     },
                     error ->{
-                        try {
-                            Log.d("Error.Response", error.getMessage());
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }finally {
-                            tools.toast_long(getApplicationContext(),"Please check your Internet");
+
+
+                        if (error instanceof NoConnectionError){
+                            tools.toast_long(getApplicationContext(),"Please connect Internet");
+                            finish();
+
+                        }else if (error.networkResponse.statusCode==404){
+                            Intent intent = new Intent(StartActivity.this, QuestionActivity.class);
+                            startActivity(intent);
                             finish();
                         }
 

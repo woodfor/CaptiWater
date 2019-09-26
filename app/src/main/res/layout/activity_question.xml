@@ -100,15 +100,16 @@
 
 
             <EditText
-                android:id="@+id/edt_address"
+                android:id="@+id/edt_postcode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:backgroundTint="@android:color/holo_blue_dark"
-                android:text="951-955 Dandenong Rd Malven 3145 VIC"
+                android:inputType="numberSigned"
+                android:text="3145"
                 android:textSize="@dimen/text_size"
-                tools:text="951-955 Dandenong Rd Malven 3145 VIC" />
+                tools:text="3145" />
 
             <Button
                 android:id="@+id/btn_submit"
