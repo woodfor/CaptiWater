@@ -49,6 +49,7 @@ import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.Model.Area;
 import com.example.firebasetest1.RestClient.Model.Tap;
 import com.example.firebasetest1.RestClient.RestClient;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -112,10 +113,11 @@ public class TapActivity extends AppCompatActivity {
         TextView tv_title = findViewById(R.id.tv_titleName);
         lv = findViewById(R.id.lv);
         tap = new Tap();
-        LinearLayout lt_addTap = findViewById(R.id.lt_addTap);
+        FloatingActionButton fab_addTap = findViewById(R.id.fab_addTap);
         pg = findViewById(R.id.pb);
         queue = Volley.newRequestQueue(getApplicationContext());
         //setup
+        setTitle("Tap List");
         try {
             area = (Area) tools.getArea(getApplicationContext());
 
@@ -167,7 +169,7 @@ public class TapActivity extends AppCompatActivity {
         getTaps();
 
 
-        lt_addTap.setOnClickListener(view -> {
+        fab_addTap.setOnClickListener(view -> {
             Set<BluetoothDevice> pairedDevices = myBluetooth.getBondedDevices();
             ArrayList list = new ArrayList();
             if (pairedDevices.size() > 0) {
@@ -628,6 +630,35 @@ private void addTap(){
                                         public View getView(int position, View convertView, ViewGroup parent){
                                             // Get the current item from ListView
                                             View view = super.getView(position,convertView,parent);
+                                            ImageView option = view.findViewById(R.id.imageView_popup_tap);
+                                            option.setOnClickListener(view1 -> {
+                                                PopupMenu popupMenu = new PopupMenu(mContext, option);
+                                                popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
+                                                popupMenu.setOnMenuItemClickListener(menuItem -> {
+                                                    switch (menuItem.getItemId()) {
+                                                        case R.id.lock_tap:
+                                                            statusRef.setValue(0);
+                                                            break;
+                                                        case R.id.unlock_tap:
+                                                            statusRef.setValue(1);
+                                                            break;
+                                                        case R.id.remove_tap:
+                                                            delTap(taps.get(position).getTid());
+                                                            break;
+                                                        case R.id.rename_tap:
+                                                            break;
+                                                        case R.id.settings_tap:
+                                                            tools.saveObject(getApplicationContext(),"tap","tap",taps.get(position));
+                                                            Intent intent = new Intent(TapActivity.this,TapSettingActivity.class);
+                                                            startActivity(intent);
+
+                                                    }
+                                                    return true;
+                                                });
+                                                popupMenu.show();
+
+                                            });
+                                            //set colour for status
                                             TextView tv_status = view.findViewById(R.id.text_tap_control);
                                             if (tv_status.getText().toString().equals("ON")){
                                                 tv_status.setTextColor(Color.parseColor("#4CAF50"));
@@ -639,37 +670,6 @@ private void addTap(){
                                     };
                                     lv.setAdapter(arrayAdapter);
 
-                                    //lock and unlock
-                                    lv.setOnItemClickListener((adapterView, view, i, l) -> {
-                                        ImageView option = view.findViewById(R.id.imageView_popup_tap);
-                                        option.setOnClickListener(view1 -> {
-                                            PopupMenu popupMenu = new PopupMenu(mContext, option);
-                                            popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
-                                            popupMenu.setOnMenuItemClickListener(menuItem -> {
-                                                switch (menuItem.getItemId()) {
-                                                    case R.id.lock_tap:
-                                                        statusRef.setValue(0);
-                                                        break;
-                                                    case R.id.unlock_tap:
-                                                        statusRef.setValue(1);
-                                                        break;
-                                                    case R.id.remove_tap:
-                                                        delTap(taps.get(i).getTid());
-                                                        break;
-                                                    case R.id.rename_tap:
-                                                        break;
-                                                    case R.id.settings_tap:
-                                                        tools.saveObject(getApplicationContext(),"tap","tap",taps.get(i));
-                                                        Intent intent = new Intent(TapActivity.this,TapSettingActivity.class);
-                                                        startActivity(intent);
-
-                                                }
-                                                return true;
-                                            });
-                                            popupMenu.show();
-
-                                        });
-                                    });
                                 }
 
                                 @Override

@@ -18,14 +18,10 @@ import androidx.fragment.app.Fragment;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.Model.House;
-import com.example.firebasetest1.Room.DailyInfoDatabase;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class HouseFragment extends Fragment{
     View vHouse;
     String uuid;
-    DailyInfoDatabase db = null;
     Context appContext;
     Context mContext;
     ListView lv_house;

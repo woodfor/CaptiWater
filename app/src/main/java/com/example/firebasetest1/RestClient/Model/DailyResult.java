@@ -1,4 +1,4 @@
-package com.example.firebasetest1.Room.Model;
+package com.example.firebasetest1.RestClient.Model;
 
 import androidx.room.ColumnInfo;
 

@@ -1,24 +1,18 @@
 package com.example.firebasetest1.FormalAct;
 
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -29,17 +23,12 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.firebasetest1.Chart.MyMarkerView;
 import com.example.firebasetest1.General.tools;
-import com.example.firebasetest1.GsonBuilder.DateDeserializer;
-import com.example.firebasetest1.GsonBuilder.TimeDeserializer;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.Model.House;
-import com.example.firebasetest1.RestClient.Model.Report;
-import com.example.firebasetest1.RestClient.Model.Tap;
 import com.example.firebasetest1.RestClient.RestClient;
-import com.example.firebasetest1.Room.Model.DailyResult;
-import com.example.firebasetest1.Room.Model.MonthlyResult;
-import com.example.firebasetest1.Room.Model.YearlyResult;
-import com.github.mikephil.charting.animation.Easing;
+import com.example.firebasetest1.RestClient.Model.DailyResult;
+import com.example.firebasetest1.RestClient.Model.MonthlyResult;
+import com.example.firebasetest1.RestClient.Model.YearlyResult;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
@@ -56,17 +45,12 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.whiteelephant.monthpicker.MonthPickerDialog;
 
 import java.lang.reflect.Type;
-import java.sql.Time;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -77,15 +61,15 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     public static House house =null;
     View vWaterUsage;
     TextView tv_totalLiter;
-    TextView tv_cost;
-    TextView tv_estCost;
-    TextView tv_houseName;
+    private TextView tv_limitLiter;
+
     Context mContext;
     TextView timeText;
     ImageView leftBtn;
     ImageView rightBtn;
+    private TextView tv_leftLiter;
+    private String today = new SimpleDateFormat("yyyy-MM-dd",Locale.US).format(Calendar.getInstance().getTime()) ;
     private ProgressBar pg_status;
-    private EditText edt_date;
     private String[] selection = {"Daily","Monthly","Yearly"};
     private int index = 0;
     private RequestQueue queue;
@@ -101,14 +85,12 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         leftBtn =  vWaterUsage.findViewById(R.id.left_btn);
         rightBtn = vWaterUsage.findViewById(R.id.right_btn);
         pg_status = vWaterUsage.findViewById(R.id.pg_status);
-        tv_houseName = vWaterUsage.findViewById(R.id.tv_titleName);
+        tv_leftLiter = vWaterUsage.findViewById(R.id.tv_liter_left);
         tv_totalLiter = vWaterUsage.findViewById(R.id.liter_text);
-        tv_cost = vWaterUsage.findViewById(R.id.cost_text);
-        tv_estCost = vWaterUsage.findViewById(R.id.estimated_cost_text);
         timeText =  vWaterUsage.findViewById(R.id.time_text);
-        edt_date = vWaterUsage.findViewById(R.id.edt_date);
         lineChart = vWaterUsage.findViewById(R.id.lc_water_usage);
         pieChart = vWaterUsage.findViewById(R.id.pc_water_usage);
+        tv_limitLiter = vWaterUsage.findViewById(R.id.tv_limit_liter);
         leftBtn.setOnClickListener(this);
         rightBtn.setOnClickListener(this);
 
@@ -116,115 +98,21 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         if (house==null){
             tools.toast_long(getActivity().getApplicationContext(),"House object error");
             getActivity().finish();
-        }else{
-            tv_houseName.setText(house.getName());
         }
+
         queue = Volley.newRequestQueue(getActivity().getApplicationContext());
 
-        tv_estCost.setText(155 * house.getNop() + "");
+        tv_limitLiter.setText(155 * house.getNop() + "");
 
-        final Calendar today = Calendar.getInstance();
-        final Calendar myCalendar = Calendar.getInstance();
-        final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
-
-        final DatePickerDialog.OnDateSetListener date  = (view, year, monthOfYear, dayOfMonth) -> {
-            myCalendar.set(Calendar.YEAR, year);
-            myCalendar.set(Calendar.MONTH, monthOfYear);
-            myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            edt_date.setText(sdf.format(myCalendar.getTime()));
-        };
-
-        final MonthPickerDialog.Builder yearMonthPickerbuilder = new MonthPickerDialog.Builder(getActivity(),(selectedMonth, selectedYear) -> {
-            myCalendar.set(Calendar.YEAR, selectedYear);
-            myCalendar.set(Calendar.MONTH, selectedMonth);
-            edt_date.setText(new SimpleDateFormat("MM-yyyy",Locale.US).format(myCalendar.getTime()));
-        },today.get(Calendar.YEAR),today.get(Calendar.MONTH));
-
-        final MonthPickerDialog.Builder yearPickerbuilder = new MonthPickerDialog.Builder(getActivity(),(selectedMonth, selectedYear) -> {
-            myCalendar.set(Calendar.YEAR, selectedYear);
-            myCalendar.set(Calendar.MONTH, selectedMonth);
-            edt_date.setText(new SimpleDateFormat("yyyy",Locale.US).format(myCalendar.getTime()));
-        },today.get(Calendar.YEAR),today.get(Calendar.MONTH));
-
-        timeText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                switch (index){
-                    case 0:
-                        edt_date.setText(sdf.format(today.getTime()));
-                        edt_date.setOnClickListener(v -> {
-                            DatePickerDialog dialog =new DatePickerDialog(mContext, date, today
-                                    .get(Calendar.YEAR), today.get(Calendar.MONTH),
-                                    today.get(Calendar.DAY_OF_MONTH));
-                            dialog.getDatePicker().setMaxDate(new Date().getTime());
-
-                            dialog.show();
-                        });
-                        break;
-                    case 1:
-                        edt_date.setText(new SimpleDateFormat("MM-yyyy",Locale.US).format(today.getTime()));
-                        edt_date.setOnClickListener(view -> {
-                            yearMonthPickerbuilder
-                                    .setMaxYear(today.get(Calendar.YEAR))
-                                    .setMaxMonth(today.get(Calendar.MONTH))
-                                    .build().show();
-                        });
-                        break;
-                    case 2:
-                        edt_date.setText(String.valueOf(today.get(Calendar.YEAR)));
-                        edt_date.setOnClickListener(view -> {
-                            yearPickerbuilder.setMaxYear(today.get(Calendar.YEAR))
-                                    .showYearOnly().build().show();
-                        });
-                        break;
-                }
-            }
-        });
-
-        edt_date.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                try{
-
-                    getSummary(index,edt_date.getText().toString());
-                }catch (Exception e){
-
-                }
-
-            }
-        });
-
-        index = 0 ;
-        leftBtn.callOnClick();
-//        timeText.setText("Daily");
-//        try {
-//            getSummary(index,edt_date.getText().toString());
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-        //set chart
         setLineChart();
         setPieChart(pieChart);
+        index = 0 ;
+//
+        timeText.setText(selection[index]);
+
+        getSummary();
+        //set chart
+
         //set color
         for (int c : ColorTemplate.VORDIPLOM_COLORS)
             colors.add(c);
@@ -247,37 +135,28 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     }
 
 
-    private void getSummary(int chosen, String date) throws ParseException {
+    private void getSummary()  {
         String period="";
-        String time="";
-        int number = 0;
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd",Locale.US);
-        if(chosen == 0){
+        if(index == 0){
             period = "date";
-            time = format.format(new SimpleDateFormat("dd-MM-yyyy",Locale.US).parse(date));
-            number = 155 * house.getNop();
-            tv_estCost.setText(number + "");
-        }else if (chosen==1){
+        }else if (index==1){
             period = "month";
-            time = format.format(new SimpleDateFormat("MM-yyyy",Locale.US).parse(date));
-            number = 155*30*house.getNop();
-            tv_estCost.setText(number + "");
-        }else if (chosen == 2){
+        }else if (index == 2){
             period = "year";
-            time = format.format(new SimpleDateFormat("yyyy",Locale.US).parse(date));
-            number = 155*365*house.getNop();
-            tv_estCost.setText(number + "");
         }
-        setLineChartData(period,time);
-        final int divider = number;
-        String url = RestClient.BASE_URL + "report/sum/" + period +"/" + house.getHid()+"/"+time;
+        //set pie chart and line chart
+        setLineChartData(period);
+        //set total usage
+        final String thisperiod = period;
+        final int divider = Integer.parseInt(tv_limitLiter.getText().toString());
+        String url = RestClient.BASE_URL + "report/sum/" + period +"/" + house.getHid()+"/"+ today;
         StringRequest getRequest = new StringRequest(Request.Method.GET,url,
                 response -> {
                     if (!response.isEmpty()){
                         double usage = Double.parseDouble(response)/1000;
                         pg_status.setProgress((int) usage*100/ (divider == 0 ? 1 : divider));
-                        tv_cost.setText(usage + "");
                         tv_totalLiter.setText(usage+"");
+                        tv_leftLiter.setText((divider - usage)/house.getNop() + " left for the " + thisperiod  +" per person." );
                     }else {
                         tools.toast_long(mContext,"get data error");
                     }
@@ -292,13 +171,11 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
         switch (v.getId()) {
             case R.id.left_btn:
-                rightBtn.setVisibility(View.VISIBLE);
                 if (index!=0){
                     index --;
                 }
                 break;
             case R.id.right_btn:
-                leftBtn.setVisibility(View.VISIBLE);
                 if (index!=2){
                     index ++;
                 }
@@ -308,10 +185,36 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         if (!timeText.getText().toString().equals(selection[index])){
             timeText.setText(selection[index]);
         }
+
+        int number = 0;
+
+        switch(index){
+            case 0:
+                number = 155 * house.getNop();
+                tv_limitLiter.setText(number + "");
+                break;
+            case 1:
+                number = 155*30*house.getNop();
+                tv_limitLiter.setText(number + "");
+                break;
+            case 2:
+                number = 155*365*house.getNop();
+                tv_limitLiter.setText(number + "");
+                break;
+        }
+
+        getSummary();
+
+        //change color
         if (index ==0){
-            leftBtn.setVisibility(View.INVISIBLE);
+            leftBtn.setImageResource(R.drawable.left_arrow_grey);
+          //  leftBtn.setVisibility(View.INVISIBLE);
         }else if (index == 2){
-            rightBtn.setVisibility(View.INVISIBLE);
+            rightBtn.setImageResource(R.drawable.right_arrow_grey);
+           // rightBtn.setVisibility(View.INVISIBLE);
+        }else {
+            leftBtn.setImageResource(R.drawable.left_arrow);
+            rightBtn.setImageResource(R.drawable.right_arrow);
         }
     }
 
@@ -368,55 +271,10 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     }
 
 
- /*   protected class fillData extends AsyncTask<Integer,Void,Integer>{
-        protected int averageUsage=0;
-        @Override
-        protected Integer doInBackground(Integer... integers) {
-            int usage = -1;
 
 
-
-            if (period.equals("Daily")){
-                int monthlySumUsage = db.InfoDao().getMonthlySumUsage(houseDAO.getId(),integers[0],integers[1]);
-                usage= db.InfoDao().getDailySumUsage(houseDAO.getId(),integers[0],integers[1],integers[2]);
-                averageUsage = monthlySumUsage / 31;
-            }else if (period.equals("Monthly")){
-                int yearlySumUsage = db.InfoDao().getYearlySumUsage(houseDAO.getId(),integers[0]);
-                usage = db.InfoDao().getMonthlySumUsage(houseDAO.getId(),integers[0],integers[1]);
-                averageUsage = yearlySumUsage / 12;
-            }else if (period.equals("Yearly")){
-                usage = db.InfoDao().getYearlySumUsage(houseDAO.getId(),integers[0]);
-                int totalUsage = db.InfoDao().getTotalSumUsage(houseDAO.getId());
-                int divider = db.InfoDao().getDistinctYear(houseDAO.getId());
-                averageUsage = totalUsage /divider ;
-            }
-            return usage;
-        }
-        @Override
-        protected void onPostExecute(Integer integer){
-            if (integer == -1){
-
-            }else {
-                tv_totalLiter.setText(integer+"");
-                double cpl = Double.parseDouble(houseDAO.getCpl());
-                double cost = integer * cpl / 1000 ;
-                double estCost = averageUsage * cpl / 1000;
-                tv_cost.setText(cost+"");
-                tv_estCost.setText(estCost+"");
-                int ratio;
-                if (averageUsage == 0){
-                    ratio = 0;
-                }else
-                    ratio = integer/averageUsage * 100;
-                pg_status.setProgress(ratio);
-            }
-        }
-    }*/
-
-
-
-    private void setLineChartData(String period,String date) {
-        String url = RestClient.BASE_URL + "report/" + period +"/" + house.getHid() + "/" + date;
+    private void setLineChartData(String period) {
+        String url = RestClient.BASE_URL + "report/" + period +"/" + house.getHid() + "/" + today;
             JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                     response -> {
                         if (!response.toString().equals("[]") && !response.toString().isEmpty()) {

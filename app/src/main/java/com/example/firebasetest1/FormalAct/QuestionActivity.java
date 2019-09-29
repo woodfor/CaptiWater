@@ -35,7 +35,6 @@ import com.example.firebasetest1.RestClient.Model.State;
 import com.example.firebasetest1.RestClient.Model.Suburb;
 import com.example.firebasetest1.RestClient.Model.User;
 import com.example.firebasetest1.RestClient.RestClient;
-import com.example.firebasetest1.Room.DailyInfoDatabase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.gson.Gson;
@@ -49,7 +48,6 @@ import java.util.Map;
 public class QuestionActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     protected String lastLocation;
-    DailyInfoDatabase db = null;
     EditText edt_NoP;
     String uuid;
     String name;

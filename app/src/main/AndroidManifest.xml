@@ -25,7 +25,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BlueToothActivity" />
         <activity android:name=".FormalAct.SettingActivity" />
         <activity android:name=".FormalAct.QuestionActivity" />
         <activity android:name=".FormalAct.HelpActivity" />
