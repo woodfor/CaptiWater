@@ -67,6 +67,7 @@ public class StartActivity extends AppCompatActivity {
                         tools.saveString(getApplicationContext(),"house","house",response.toString());
                         Intent intent = new Intent(StartActivity.this,MainActivity.class);
                         startActivity(intent);
+                        finish();
                     },
                     error ->{
 

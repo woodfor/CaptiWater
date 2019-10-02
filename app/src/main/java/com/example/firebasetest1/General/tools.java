@@ -4,8 +4,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.firebasetest1.FormalAct.TapActivity;
 import com.example.firebasetest1.RestClient.Model.Area;
 import com.example.firebasetest1.RestClient.Model.House;
 import com.example.firebasetest1.RestClient.Model.Tap;
@@ -142,6 +145,27 @@ public class tools {
         prefsEditor.putString(storeName, object);
         prefsEditor.apply();
     }
+
+//    public static String SingleInputDialog(Context context, String title, String message){
+//        final EditText editText = new EditText(context);
+//        final AlertDialog alertDialog = new AlertDialog.Builder(context)
+//                .setTitle(title)
+//                .setMessage(message)
+//                .setView(editText)
+//                .setPositiveButton("Ok", null)
+//                .setNegativeButton("No", null)
+//                .show();
+//        Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+//        btn_positive.setOnClickListener(v -> {
+//            String tmp = editText.getText().toString().trim();
+//            if (!(tmp.isEmpty())) {
+//
+//                alertDialog.dismiss();
+//
+//            } else
+//                editText.setError("please input password");
+//        });
+//    }
 
 //    public static String getToken(){
 //

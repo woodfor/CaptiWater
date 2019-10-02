@@ -13,8 +13,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -56,12 +60,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import me.relex.circleindicator.CircleIndicator;
+import me.relex.circleindicator.CircleIndicator3;
+
 
 public class WaterUsageFragment extends Fragment implements View.OnClickListener, OnChartValueSelectedListener {
     public static House house =null;
     View vWaterUsage;
-    TextView tv_totalLiter;
-    private TextView tv_limitLiter;
+
 
     Context mContext;
     TextView timeText;
@@ -69,28 +75,31 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     ImageView rightBtn;
     private TextView tv_leftLiter;
     private String today = new SimpleDateFormat("yyyy-MM-dd",Locale.US).format(Calendar.getInstance().getTime()) ;
-    private ProgressBar pg_status;
+
     private String[] selection = {"Daily","Monthly","Yearly"};
     private int index = 0;
     private RequestQueue queue;
     private LineChart lineChart;
-    private PieChart pieChart;
+
     private  ArrayList<Integer> colors = new ArrayList<>();
+    private ViewPager viewPager;
+    private  CircleIndicator indicator;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         vWaterUsage = inflater.inflate(R.layout.fragment_water_usage, container, false);
 
+        indicator = vWaterUsage.findViewById(R.id.indicator);
         leftBtn =  vWaterUsage.findViewById(R.id.left_btn);
         rightBtn = vWaterUsage.findViewById(R.id.right_btn);
-        pg_status = vWaterUsage.findViewById(R.id.pg_status);
+
         tv_leftLiter = vWaterUsage.findViewById(R.id.tv_liter_left);
-        tv_totalLiter = vWaterUsage.findViewById(R.id.liter_text);
         timeText =  vWaterUsage.findViewById(R.id.time_text);
         lineChart = vWaterUsage.findViewById(R.id.lc_water_usage);
-        pieChart = vWaterUsage.findViewById(R.id.pc_water_usage);
-        tv_limitLiter = vWaterUsage.findViewById(R.id.tv_limit_liter);
+
+        viewPager = vWaterUsage.findViewById(R.id.vp);
+
         leftBtn.setOnClickListener(this);
         rightBtn.setOnClickListener(this);
 
@@ -102,16 +111,18 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
         queue = Volley.newRequestQueue(getActivity().getApplicationContext());
 
-        tv_limitLiter.setText(155 * house.getNop() + "");
+
 
         setLineChart();
-        setPieChart(pieChart);
+
         index = 0 ;
 //
         timeText.setText(selection[index]);
 
-        getSummary();
+
         //set chart
+
+
 
         //set color
         for (int c : ColorTemplate.VORDIPLOM_COLORS)
@@ -131,6 +142,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
         colors.add(ColorTemplate.getHoloBlue());
 
+        getSummary();
         return vWaterUsage;
     }
 
@@ -144,19 +156,16 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         }else if (index == 2){
             period = "year";
         }
-        //set pie chart and line chart
-        setLineChartData(period);
+        final String thisPeriod = period;
         //set total usage
-        final String thisperiod = period;
-        final int divider = Integer.parseInt(tv_limitLiter.getText().toString());
-        String url = RestClient.BASE_URL + "report/sum/" + period +"/" + house.getHid()+"/"+ today;
+        String url = RestClient.BASE_URL + "report/sum/" + thisPeriod +"/" + house.getHid()+"/"+ today;
         StringRequest getRequest = new StringRequest(Request.Method.GET,url,
                 response -> {
                     if (!response.isEmpty()){
                         double usage = Double.parseDouble(response)/1000;
-                        pg_status.setProgress((int) usage*100/ (divider == 0 ? 1 : divider));
-                        tv_totalLiter.setText(usage+"");
-                        tv_leftLiter.setText((divider - usage)/house.getNop() + " left for the " + thisperiod  +" per person." );
+
+                        viewPager.setAdapter(new MyViewPagerAdapter(mContext,thisPeriod,usage));
+                        indicator.setViewPager(viewPager);
                     }else {
                         tools.toast_long(mContext,"get data error");
                     }
@@ -184,23 +193,6 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
         if (!timeText.getText().toString().equals(selection[index])){
             timeText.setText(selection[index]);
-        }
-
-        int number = 0;
-
-        switch(index){
-            case 0:
-                number = 155 * house.getNop();
-                tv_limitLiter.setText(number + "");
-                break;
-            case 1:
-                number = 155*30*house.getNop();
-                tv_limitLiter.setText(number + "");
-                break;
-            case 2:
-                number = 155*365*house.getNop();
-                tv_limitLiter.setText(number + "");
-                break;
         }
 
         getSummary();
@@ -273,7 +265,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
 
 
-    private void setLineChartData(String period) {
+    private void setLineChartData(String period,PieChart pieChart) {
         String url = RestClient.BASE_URL + "report/" + period +"/" + house.getHid() + "/" + today;
             JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                     response -> {
@@ -617,5 +609,78 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     }
 
 
+    private class MyViewPagerAdapter extends PagerAdapter {
+
+        private Context context;
+        private double usedLiter;
+        private String period;
+
+        public MyViewPagerAdapter(Context context,String period,double usedLiter) {
+            this.context = context;
+            this.usedLiter = usedLiter;
+            this.period = period;
+        }
+
+        @Override
+        public Object instantiateItem(@NonNull ViewGroup collection, int position) {
+            LayoutInflater inflater = LayoutInflater.from(context);
+            ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.viewpage_waterusage, collection, false);
+            ConstraintLayout constraintLayout = layout.findViewById(R.id.constraintLayout);
+            PieChart pieChart = layout.findViewById(R.id.pc_water_usage);
+            TextView tv_limitLiter = layout.findViewById(R.id.tv_limit_liter);
+            TextView tv_totalLiter = layout.findViewById(R.id.liter_text);
+            ProgressBar pg_status = layout.findViewById(R.id.pg_status);
+            setPieChart(pieChart);
+            int number = 0;
+
+            switch(index){
+                case 0:
+                    number = 155 * house.getNop();
+                    tv_limitLiter.setText(number + "");
+                    break;
+                case 1:
+                    number = 155*30*house.getNop();
+                    tv_limitLiter.setText(number + "");
+                    break;
+                case 2:
+                    number = 155*365*house.getNop();
+                    tv_limitLiter.setText(number + "");
+                    break;
+            }
+            setLineChartData(period,pieChart);
+            int limitLiter = Integer.parseInt(tv_limitLiter.getText().toString());
+            pg_status.setProgress((int) usedLiter*100/ (limitLiter == 0 ? 1 : limitLiter));
+            tv_totalLiter.setText(usedLiter+"");
+            tv_leftLiter.setText((limitLiter - usedLiter)/house.getNop() + " left for the " + period  +" per person." );
+            switch (position){
+                case 0:
+                    constraintLayout.setVisibility(View.VISIBLE);
+                    pieChart.setVisibility(View.INVISIBLE);
+                    break;
+                case 1:
+                    constraintLayout.setVisibility(View.INVISIBLE);
+                    pieChart.setVisibility(View.VISIBLE);
+                    break;
+
+            }
+            collection.addView(layout);
+            return layout;
+        }
+
+        @Override
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object view) {
+            container.removeView((View) view);
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+            return view == object;
+        }
+    }
 
 }

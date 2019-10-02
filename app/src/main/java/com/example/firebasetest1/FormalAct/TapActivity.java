@@ -84,6 +84,7 @@ public class TapActivity extends AppCompatActivity {
     private Context mContext = this;
     List<Tap> taps = null;
     //bluetooth
+    private int function = 0; //0 for connect, 1 for connect and setup
     private boolean isBtConnected = false;
     private BluetoothAdapter myBluetooth = null;
     private BluetoothSocket btSocket = null;
@@ -423,7 +424,9 @@ public class TapActivity extends AppCompatActivity {
             String address = info.substring(info.length() - 17).trim();
             tap.setBtaddress(address);
             new ConnectBT().execute(address);
+            function = 1;
             new ConnectWIFI().execute();
+
             dialog.dismiss();
 
         });
@@ -491,28 +494,31 @@ public class TapActivity extends AppCompatActivity {
                 } else if (result.equals("3")) {
                     tools.toast_long(mContext,"Connect successfully");
                     // set name for the tap
-                    final EditText edt_name = new EditText(mContext);
-                    final AlertDialog setNameDialog = new AlertDialog.Builder(mContext)
-                            .setTitle("Add Tap")
-                            .setMessage("Please input tap name.")
-                            .setView(edt_name)
-                            .setPositiveButton("Ok", null)
-                            .setNegativeButton("No", null)
-                            .show();
-                    setNameDialog.setCancelable(false);
-                    Button btn_positive = setNameDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    btn_positive.setOnClickListener(v -> {
-                        String tmp = edt_name.getText().toString().trim();
-                        if (!(tmp.isEmpty())) {
-                            tap.setName(tmp);
+                    if (function == 1){
+                        final EditText edt_name = new EditText(mContext);
+                        final AlertDialog setNameDialog = new AlertDialog.Builder(mContext)
+                                .setTitle("Add Tap")
+                                .setMessage("Please input tap name.")
+                                .setView(edt_name)
+                                .setPositiveButton("Ok", null)
+                                .setNegativeButton("No", null)
+                                .show();
+                        setNameDialog.setCancelable(false);
+                        Button btn_positive = setNameDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                        btn_positive.setOnClickListener(v -> {
+                            String tmp = edt_name.getText().toString().trim();
+                            if (!(tmp.isEmpty())) {
+                                tap.setName(tmp);
 
-                            addTap();
+                                addTap();
 
-                            setNameDialog.dismiss();
-                        } else
-                            edt_name.setError("please input tap name");
-                    });
-                    setNameDialog.show();
+                                setNameDialog.dismiss();
+                            } else
+                                edt_name.setError("please input tap name");
+                        });
+                        setNameDialog.show();
+                    }
+
 
                 } else if (result.equals("-3")) {
                     msg("wifi Connect failed");
@@ -582,7 +588,7 @@ private void addTap(){
 
                 ) {
                     @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
+                    public Map<String, String> getHeaders() {
                         Map<String, String> params = new HashMap<>();
                         params.put("Accept", "application/json");
                         return params;
@@ -642,10 +648,35 @@ private void addTap(){
                                                         case R.id.unlock_tap:
                                                             statusRef.setValue(1);
                                                             break;
+                                                        case R.id.connectWifi_tap:
+                                                            new ConnectBT().execute(taps.get(position).getBtaddress());
+                                                            function = 0;
+                                                            new ConnectWIFI().execute();
+
+                                                            break;
                                                         case R.id.remove_tap:
                                                             delTap(taps.get(position).getTid());
                                                             break;
                                                         case R.id.rename_tap:
+                                                            final EditText editText = new EditText(mContext);
+                                                            final AlertDialog alertDialog = new AlertDialog.Builder(mContext)
+                                                                    .setTitle("Rename Tap")
+                                                                    .setMessage("Please input the name you want.")
+                                                                    .setView(editText)
+                                                                    .setPositiveButton("Ok", null)
+                                                                    .setNegativeButton("No", null)
+                                                                    .show();
+                                                            Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                                                            btn_positive.setOnClickListener(v -> {
+                                                                String tmp = editText.getText().toString().trim();
+                                                                if (!(tmp.isEmpty())) {
+                                                                    updateTaps((int) taps.get(position).getTid(),tmp);
+                                                                    alertDialog.dismiss();
+
+                                                                } else
+                                                                    editText.setError("Please input something");
+                                                            });
+
                                                             break;
                                                         case R.id.settings_tap:
                                                             tools.saveObject(getApplicationContext(),"tap","tap",taps.get(position));
@@ -705,6 +736,27 @@ private void addTap(){
         queue.add(putRequest);
 
     }
+
+    private void updateTaps(int ID,String name){
+        RequestQueue queue = Volley.newRequestQueue(mContext);
+        String url = RestClient.BASE_URL + "Tap/update/" + ID +"/"+name;
+        StringRequest delRequest = new StringRequest(Request.Method.PUT, url,
+                response -> {
+                    if (response.equals("Success")){
+                        getTaps();
+                    }else {
+                        tools.toast_long(getApplicationContext(),"Server error");
+                    }
+
+                },
+                error -> {
+                    tools.toast_long(getApplicationContext(), "Update error, " + error.toString());
+                }
+        );
+        queue.add(delRequest);
+    }
+
+
     private void msg(String text){
         tools.toast_long(getApplicationContext(),text);
     }

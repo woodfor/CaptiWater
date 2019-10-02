@@ -3,11 +3,11 @@ package com.example.firebasetest1.FormalAct;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,23 +20,19 @@ import androidx.fragment.app.FragmentManager;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.firebasetest1.AboutUsFragment;
-import com.example.firebasetest1.AccountFragment;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.HelpFragment;
 import com.example.firebasetest1.Model.Token;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.Model.House;
-import com.example.firebasetest1.RestClient.Model.Tap;
 import com.example.firebasetest1.RestClient.RestClient;
 import com.example.firebasetest1.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.gson.Gson;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,10 +41,10 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    Fragment waterusgfrag;
-    Fragment areaFrag;
-    Fragment houseFrag;
-
+    private Fragment waterusgfrag;
+    private Fragment areaFrag;
+    private Fragment houseFrag;
+    boolean doubleBackToExitPressedOnce = false;
     //Fragment rankingFrag;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -66,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 selectedFragment = areaFrag;
                // selectedFragment = houseFrag;
                 break;
+
         }
 
         FragmentManager fm = getSupportFragmentManager();
@@ -123,9 +120,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else  if (doubleBackToExitPressedOnce){
             super.onBackPressed();
+            Intent a = new Intent(Intent.ACTION_MAIN);
+            a.addCategory(Intent.CATEGORY_HOME);
+            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(a);
+            return;
         }
+        this.doubleBackToExitPressedOnce = true;
+        tools.toast_long(getApplicationContext(),"Please press back again to exit");
+        new Handler().postDelayed(() -> doubleBackToExitPressedOnce=false, 2000);
+
     }
 
     @Override
@@ -206,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             nextFragment = new HelpFragment();
         } else if (id == R.id.nav_about_us) {
             nextFragment = new AboutUsFragment();
+        } else if (id == R.id.draw_nav_home){
+            nextFragment = waterusgfrag;
         }
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.frame_container, nextFragment).commit();
@@ -230,4 +238,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return null;
         }
     }
+
+
 }
