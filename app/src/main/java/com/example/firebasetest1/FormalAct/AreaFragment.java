@@ -275,7 +275,7 @@ public class AreaFragment extends Fragment {
                 popupMenu.setOnMenuItemClickListener(menuItem -> {
                     switch (menuItem.getItemId()) {
                         case R.id.lock_area:
-                            //myRef.child("turn").setValue(0);
+                            myRef.child("turn").setValue(0);
                             break;
                         case R.id.remove_area:
                             delArea((int) area.getAid());

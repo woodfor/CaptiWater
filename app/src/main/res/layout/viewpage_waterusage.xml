@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal" android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent">
@@ -32,87 +33,55 @@
 
         <ProgressBar
             android:id="@+id/pg_status"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="270dp"
-            android:layout_height="261dp"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:indeterminate="false"
             android:max="155"
             android:progress="0"
-            android:progressDrawable="@drawable/stats_progress"
+            android:progressDrawable="@drawable/progressbar"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/liter_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:autoSizeMaxTextSize="@dimen/title_size"
+            android:autoSizeMinTextSize="20sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
             android:text="0.00"
+            android:textAlignment="center"
             android:textColor="@color/colorBlack"
-            android:textSize="@dimen/title_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/pg_status"
-            app:layout_constraintHorizontal_bias="0.456"
-            app:layout_constraintStart_toStartOf="@+id/pg_status"
+            app:layout_constraintHorizontal_bias="0.505"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.275" />
+            app:layout_constraintVertical_bias="0.415" />
 
         <TextView
             android:id="@+id/tv_limit_liter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="28dp"
+            android:autoSizeMaxTextSize="45dp"
+            android:autoSizeMinTextSize="20sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
             android:text="0.00"
+            android:textAlignment="center"
             android:textColor="@color/colorBlack"
-            android:textSize="@dimen/title_size"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/pg_status"
-            app:layout_constraintHorizontal_bias="0.153"
-            app:layout_constraintStart_toEndOf="@+id/textView6"
-            app:layout_constraintTop_toBottomOf="@+id/textView8"
-            app:layout_constraintVertical_bias="0.296" />
-
-        <TextView
-            android:id="@+id/textView8"
-            android:layout_width="29dp"
-            android:layout_height="50dp"
-            android:text="L"
-            android:textColor="@color/colorBlack"
-            android:textSize="@dimen/title_size"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.111"
-            app:layout_constraintStart_toEndOf="@+id/liter_text"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.265" />
-
-        <TextView
-            android:id="@+id/textView9"
-            android:layout_width="29dp"
-            android:layout_height="50dp"
-            android:text="L"
-            android:textColor="@color/colorBlack"
-            android:textSize="@dimen/title_size"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/pg_status"
-            app:layout_constraintHorizontal_bias="0.205"
-            app:layout_constraintStart_toEndOf="@+id/tv_limit_liter"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.639" />
-
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="28dp"
-            android:text="Used of"
-            android:textColor="@color/colorBlack"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/pg_status"
-            app:layout_constraintTop_toBottomOf="@+id/liter_text"
-            app:layout_constraintVertical_bias="0.382" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/liter_text" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

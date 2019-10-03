@@ -558,7 +558,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
         chart.setRotationAngle(0);
         // enable rotation of the chart by touch
-        chart.setRotationEnabled(true);
+        chart.setRotationEnabled(false);
         chart.setHighlightPerTapEnabled(true);
 
        // chart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
@@ -636,29 +636,29 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
             switch(index){
                 case 0:
                     number = 155 * house.getNop();
-                    tv_limitLiter.setText(number + "");
+                    tv_limitLiter.setText("Used of "+ number + " L");
                     break;
                 case 1:
                     number = 155*30*house.getNop();
-                    tv_limitLiter.setText(number + "");
+                    tv_limitLiter.setText("Used of "+number + " L");
                     break;
                 case 2:
                     number = 155*365*house.getNop();
-                    tv_limitLiter.setText(number + "");
+                    tv_limitLiter.setText("Used of "+ number + " L");
                     break;
             }
             setLineChartData(period,pieChart);
-            int limitLiter = Integer.parseInt(tv_limitLiter.getText().toString());
+            int limitLiter = number;
             pg_status.setProgress((int) usedLiter*100/ (limitLiter == 0 ? 1 : limitLiter));
-            tv_totalLiter.setText(usedLiter+"");
-            tv_leftLiter.setText((limitLiter - usedLiter)/house.getNop() + " left for the " + period  +" per person." );
+            tv_totalLiter.setText(usedLiter+" L");
+            tv_leftLiter.setText((int) (limitLiter - usedLiter)/house.getNop() + " left for the " + period  +" per person." );
             switch (position){
                 case 0:
                     constraintLayout.setVisibility(View.VISIBLE);
-                    pieChart.setVisibility(View.INVISIBLE);
+                    pieChart.setVisibility(View.GONE);
                     break;
                 case 1:
-                    constraintLayout.setVisibility(View.INVISIBLE);
+                    constraintLayout.setVisibility(View.GONE);
                     pieChart.setVisibility(View.VISIBLE);
                     break;
 
