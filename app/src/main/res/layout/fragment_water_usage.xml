@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
 
 
     <LinearLayout
@@ -59,151 +57,6 @@
 
     </androidx.viewpager.widget.ViewPager>
 
-    <HorizontalScrollView
-        android:id="@+id/hsv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ly_1"
-        app:layout_constraintVertical_bias="0.100000024">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constraintLayout"
-                android:layout_width="414dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent">
-
-
-                <!--      <ProgressBar-->
-                <!--            android:id="@+id/background_progressbar"-->
-                <!--            style="?android:attr/progressBarStyleHorizontal"-->
-                <!--            android:layout_width="279dp"-->
-                <!--            android:layout_height="291dp"-->
-                <!--            android:indeterminate="false"-->
-                <!--            android:max="100"-->
-                <!--            android:progress="0"-->
-                <!--            android:progressDrawable="@drawable/stats_full"-->
-                <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-                <!--            app:layout_constraintEnd_toEndOf="parent"-->
-                <!--            app:layout_constraintHorizontal_bias="0.5"-->
-                <!--            app:layout_constraintStart_toStartOf="parent"-->
-                <!--            app:layout_constraintTop_toTopOf="parent" />-->
-
-                <ProgressBar
-                    android:id="@+id/pg_status"
-                    style="?android:attr/progressBarStyleHorizontal"
-                    android:layout_width="270dp"
-                    android:layout_height="261dp"
-                    android:indeterminate="false"
-                    android:max="155"
-                    android:progress="0"
-                    android:progressDrawable="@drawable/stats_progress"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0" />
-
-                <TextView
-                    android:id="@+id/liter_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0.00"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/title_size"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/pg_status"
-                    app:layout_constraintHorizontal_bias="0.456"
-                    app:layout_constraintStart_toStartOf="@+id/pg_status"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.275" />
-
-                <TextView
-                    android:id="@+id/tv_limit_liter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0.00"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/title_size"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/pg_status"
-                    app:layout_constraintHorizontal_bias="0.153"
-                    app:layout_constraintStart_toEndOf="@+id/textView6"
-                    app:layout_constraintTop_toBottomOf="@+id/textView8"
-                    app:layout_constraintVertical_bias="0.296" />
-
-                <TextView
-                    android:id="@+id/textView8"
-                    android:layout_width="29dp"
-                    android:layout_height="50dp"
-                    android:text="L"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/title_size"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.111"
-                    app:layout_constraintStart_toEndOf="@+id/liter_text"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.265" />
-
-                <TextView
-                    android:id="@+id/textView9"
-                    android:layout_width="29dp"
-                    android:layout_height="50dp"
-                    android:text="L"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="@dimen/title_size"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/pg_status"
-                    app:layout_constraintHorizontal_bias="0.205"
-                    app:layout_constraintStart_toEndOf="@+id/tv_limit_liter"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.639" />
-
-                <TextView
-                    android:id="@+id/textView6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="28dp"
-                    android:text="Used of"
-                    android:textColor="@color/colorBlack"
-                    android:textSize="24sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="@+id/pg_status"
-                    app:layout_constraintTop_toBottomOf="@+id/liter_text"
-                    app:layout_constraintVertical_bias="0.382" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/lc_water_usage"
-                android:layout_width="414dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center" />
-
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pc_water_usage"
-                android:layout_width="414dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center">
-
-            </com.github.mikephil.charting.charts.PieChart>
-
-        </LinearLayout>
-    </HorizontalScrollView>
-
 
     <me.relex.circleindicator.CircleIndicator
         android:id="@+id/indicator"
@@ -253,7 +106,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.131"
             app:layout_constraintStart_toEndOf="@+id/imageView4"
-            app:layout_constraintTop_toBottomOf="@+id/hsv"
             app:layout_constraintVertical_bias="0.267" />
     </LinearLayout>
 

@@ -1,12 +1,14 @@
-package com.example.firebasetest1.FormalAct;
+package com.example.firebasetest1.FragmentBottomNav;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -25,14 +27,15 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.firebasetest1.Activity.ChartActivity;
 import com.example.firebasetest1.Chart.MyMarkerView;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
-import com.example.firebasetest1.RestClient.Model.House;
-import com.example.firebasetest1.RestClient.RestClient;
 import com.example.firebasetest1.RestClient.Model.DailyResult;
+import com.example.firebasetest1.RestClient.Model.House;
 import com.example.firebasetest1.RestClient.Model.MonthlyResult;
 import com.example.firebasetest1.RestClient.Model.YearlyResult;
+import com.example.firebasetest1.RestClient.RestClient;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
@@ -44,10 +47,11 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -61,26 +65,24 @@ import java.util.Locale;
 import java.util.Map;
 
 import me.relex.circleindicator.CircleIndicator;
-import me.relex.circleindicator.CircleIndicator3;
 
 
-public class WaterUsageFragment extends Fragment implements View.OnClickListener, OnChartValueSelectedListener {
+public class WaterUsageFragment extends Fragment implements View.OnClickListener {
     public static House house =null;
     View vWaterUsage;
 
-
+    public static PieData openPieData;
     Context mContext;
     TextView timeText;
     ImageView leftBtn;
     ImageView rightBtn;
+    Context appContext;
     private TextView tv_leftLiter;
     private String today = new SimpleDateFormat("yyyy-MM-dd",Locale.US).format(Calendar.getInstance().getTime()) ;
 
     private String[] selection = {"Daily","Monthly","Yearly"};
     private int index = 0;
     private RequestQueue queue;
-    private LineChart lineChart;
-
     private  ArrayList<Integer> colors = new ArrayList<>();
     private ViewPager viewPager;
     private  CircleIndicator indicator;
@@ -96,10 +98,10 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
         tv_leftLiter = vWaterUsage.findViewById(R.id.tv_liter_left);
         timeText =  vWaterUsage.findViewById(R.id.time_text);
-        lineChart = vWaterUsage.findViewById(R.id.lc_water_usage);
 
         viewPager = vWaterUsage.findViewById(R.id.vp);
-
+        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation);
+        bottomNavigationView.getMenu().findItem(R.id.navigation_home).setChecked(true);
         leftBtn.setOnClickListener(this);
         rightBtn.setOnClickListener(this);
 
@@ -113,7 +115,6 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
 
 
-        setLineChart();
 
         index = 0 ;
 //
@@ -188,7 +189,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
                 if (index!=2){
                     index ++;
                 }
-                break;
+
         }
 
         if (!timeText.getText().toString().equals(selection[index])){
@@ -210,25 +211,14 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    @Override
-    public void onValueSelected(Entry e, Highlight h) {
 
-    }
-
-    @Override
-    public void onNothingSelected() {
-
-    }
-
-
-    private void setLineChart(){
+    private void setLineChart(LineChart lineChart) {
         lineChart.getDescription().setEnabled(false);
         lineChart.setTouchEnabled(true);
-        lineChart.setDragEnabled(true);
-        lineChart.setScaleEnabled(true);
-        lineChart.setPinchZoom(true);
+        lineChart.setDragEnabled(false);
+        lineChart.setScaleEnabled(false);
         lineChart.setDrawGridBackground(false);
-        lineChart.setHighlightPerDragEnabled(true);
+        lineChart.setHighlightPerDragEnabled(false);
         lineChart.setBackgroundColor(Color.WHITE);
         lineChart.setViewPortOffsets(0f, 0f, 0f, 0f);
         Legend l = lineChart.getLegend();
@@ -252,20 +242,18 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         leftAxis.setTypeface(Typeface.DEFAULT);
         leftAxis.setTextColor(ColorTemplate.getHoloBlue());
-        leftAxis.setDrawGridLines(true);
+        leftAxis.setDrawGridLines(false);
         leftAxis.setGranularityEnabled(true);
         leftAxis.setYOffset(-9f);
         leftAxis.setTextColor(Color.rgb(255, 192, 56));
         YAxis rightAxis = lineChart.getAxisRight();
-        rightAxis.setEnabled(false);
+        rightAxis.setEnabled(true);
         lineChart.setAutoScaleMinMaxEnabled(true);
 
     }
 
 
-
-
-    private void setLineChartData(String period,PieChart pieChart) {
+    private void setLineChartData(LineChart lineChart, PieChart pieChart, String period) {
         String url = RestClient.BASE_URL + "report/" + period +"/" + house.getHid() + "/" + today;
             JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                     response -> {
@@ -529,6 +517,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
                         }else {
                             tools.toast_long(mContext,"No data for this period");
                         }
+                        lineChart.invalidate();
                     },
                     error -> {
                         tools.toast_long(mContext, error.toString());
@@ -559,7 +548,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         chart.setRotationAngle(0);
         // enable rotation of the chart by touch
         chart.setRotationEnabled(false);
-        chart.setHighlightPerTapEnabled(true);
+        chart.setHighlightPerTapEnabled(false);
 
        // chart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
         // chart.spin(2000, 0, 360);
@@ -590,6 +579,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     public void onAttach(Context context){
         super.onAttach(context);
         mContext = context;
+        appContext = context.getApplicationContext();
 
     }
 
@@ -629,7 +619,9 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
             PieChart pieChart = layout.findViewById(R.id.pc_water_usage);
             TextView tv_limitLiter = layout.findViewById(R.id.tv_limit_liter);
             TextView tv_totalLiter = layout.findViewById(R.id.liter_text);
+            LineChart lineChart = layout.findViewById(R.id.lc_water_usage);
             ProgressBar pg_status = layout.findViewById(R.id.pg_status);
+            setLineChart(lineChart);
             setPieChart(pieChart);
             int number = 0;
 
@@ -647,22 +639,74 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
                     tv_limitLiter.setText("Used of "+ number + " L");
                     break;
             }
-            setLineChartData(period,pieChart);
+            setLineChartData(lineChart, pieChart, period);
             int limitLiter = number;
             pg_status.setProgress((int) usedLiter*100/ (limitLiter == 0 ? 1 : limitLiter));
             tv_totalLiter.setText(usedLiter+" L");
-            tv_leftLiter.setText((int) (limitLiter - usedLiter)/house.getNop() + " left for the " + period  +" per person." );
+            tv_leftLiter.setText((int) (limitLiter - usedLiter) / house.getNop() + "L left for the " + period + " per person.");
             switch (position){
                 case 0:
                     constraintLayout.setVisibility(View.VISIBLE);
                     pieChart.setVisibility(View.GONE);
+                    lineChart.setVisibility(View.GONE);
                     break;
                 case 1:
                     constraintLayout.setVisibility(View.GONE);
                     pieChart.setVisibility(View.VISIBLE);
+                    lineChart.setVisibility(View.GONE);
+                    break;
+                case 2:
+                    constraintLayout.setVisibility(View.GONE);
+                    pieChart.setVisibility(View.GONE);
+                    lineChart.setVisibility(View.VISIBLE);
                     break;
 
             }
+            pieChart.setClickable(true);
+            pieChart.setOnChartGestureListener(new OnChartGestureListener() {
+                @Override
+                public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+                }
+
+                @Override
+                public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+                }
+
+                @Override
+                public void onChartLongPressed(MotionEvent me) {
+
+                }
+
+                @Override
+                public void onChartDoubleTapped(MotionEvent me) {
+
+                }
+
+                @Override
+                public void onChartSingleTapped(MotionEvent me) {
+                    openPieData = pieChart.getData();
+                    Intent intent = new Intent(getActivity(), ChartActivity.class);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+
+                }
+
+                @Override
+                public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+
+                }
+
+                @Override
+                public void onChartTranslate(MotionEvent me, float dX, float dY) {
+
+                }
+            });
+
             collection.addView(layout);
             return layout;
         }
@@ -674,7 +718,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         @Override

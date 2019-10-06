@@ -1,7 +1,6 @@
-package com.example.firebasetest1.FormalAct;
+package com.example.firebasetest1.Activity;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,14 +21,16 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.firebasetest1.AboutUsFragment;
+import com.example.firebasetest1.FragmentBottomNav.AreaFragment;
+import com.example.firebasetest1.FragmentBottomNav.RankingFragment;
+import com.example.firebasetest1.FragmentBottomNav.WaterUsageFragment;
+import com.example.firebasetest1.FragmentDrawer.AboutUsFragment;
+import com.example.firebasetest1.FragmentDrawer.AccountFragment;
+import com.example.firebasetest1.FragmentDrawer.HelpFragment;
 import com.example.firebasetest1.General.tools;
-import com.example.firebasetest1.HelpFragment;
-import com.example.firebasetest1.Model.Token;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.Model.House;
 import com.example.firebasetest1.RestClient.RestClient;
-import com.example.firebasetest1.SettingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Fragment waterusgfrag;
     private Fragment areaFrag;
-    private Fragment houseFrag;
+
     boolean doubleBackToExitPressedOnce = false;
     //Fragment rankingFrag;
 
@@ -105,10 +106,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bundle.putString("uuid", uuid);
         waterusgfrag = new WaterUsageFragment();
         areaFrag = new AreaFragment();
-        houseFrag = new HouseFragment();
+
         waterusgfrag.setArguments(bundle);
         areaFrag.setArguments(bundle);
-        houseFrag.setArguments(bundle);
+
 
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction().replace(R.id.frame_container,
@@ -194,9 +195,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         };
                         queue.add(putRequest);
 
-                        // Log and toast
-                        //new putREST().execute(token);
-                        //Log.d("Token:", msg);
 
                     });
 
@@ -205,9 +203,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_account) {
             nextFragment = new AccountFragment();
             // Handle the camera action
-        } else if (id == R.id.nav_settings) {
-            nextFragment = new SettingsFragment();
-
         } else if (id == R.id.nav_help) {
             nextFragment = new HelpFragment();
         } else if (id == R.id.nav_about_us) {
@@ -225,19 +220,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onDestroy() {
         super.onDestroy();
-     //   this.getSharedPreferences("HouseDAO", MODE_PRIVATE).edit().remove("SelectedHouse").apply();
+
     }
 
-    protected class putREST extends AsyncTask<String, Void, Void> {
 
-        @Override
-        protected Void doInBackground(String... strings) {
-            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-            Token token = new Token(strings[0]);
-            queue.add(RestClient.putToken("token", token));
-            return null;
-        }
-    }
 
 
 }

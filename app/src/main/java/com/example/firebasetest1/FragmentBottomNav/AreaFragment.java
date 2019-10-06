@@ -1,4 +1,4 @@
-package com.example.firebasetest1.FormalAct;
+package com.example.firebasetest1.FragmentBottomNav;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -26,11 +26,13 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.firebasetest1.Activity.TapActivity;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.Model.Area;
 import com.example.firebasetest1.RestClient.Model.House;
 import com.example.firebasetest1.RestClient.RestClient;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -63,7 +65,8 @@ public class AreaFragment extends Fragment {
 
         lv_area = vArea.findViewById(R.id.lv_area);
         FloatingActionButton lt_addArea = vArea.findViewById(R.id.abtn_addArea);
-
+        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation);
+        bottomNavigationView.getMenu().findItem(R.id.navigation_area).setChecked(true);
         house = WaterUsageFragment.house;
 //        house = (House) tools.getHouse(getActivity().getApplicationContext());
         if (house == null) {
@@ -278,7 +281,17 @@ public class AreaFragment extends Fragment {
                             myRef.child("turn").setValue(0);
                             break;
                         case R.id.remove_area:
-                            delArea((int) area.getAid());
+                            final AlertDialog delDialog = new AlertDialog.Builder(mContext)
+                                    .setTitle("Delete Area: " + areas.get(i).getName())
+                                    .setMessage("Are you sure?")
+                                    .setPositiveButton("Ok", null)
+                                    .setNegativeButton("No", null)
+                                    .show();
+                            Button btn_positive_del = delDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            btn_positive_del.setOnClickListener(view2 -> {
+                                delArea((int) area.getAid());
+                                delDialog.dismiss();
+                            });
                             break;
                         case R.id.rename_area:
                             final EditText editText = new EditText(context);
@@ -292,6 +305,7 @@ public class AreaFragment extends Fragment {
                             Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
                             btn_positive.setOnClickListener(v -> {
                                 String tmp = editText.getText().toString().trim();
+
                                 if (!(tmp.isEmpty())) {
                                     updateArea((int) area.getAid(),tmp);
                                     alertDialog.dismiss();

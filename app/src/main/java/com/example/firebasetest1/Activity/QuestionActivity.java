@@ -1,4 +1,4 @@
-package com.example.firebasetest1.FormalAct;
+package com.example.firebasetest1.Activity;
 
 import android.app.Dialog;
 import android.content.Context;

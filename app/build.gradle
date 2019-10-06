@@ -52,7 +52,7 @@ dependencies {
     implementation 'me.relex:circleindicator:2.1.4'
 
     //validation
-  //  implementation 'com.github.thyrlian:AwesomeValidation:v4.2'
+    //  implementation 'com.github.thyrlian:AwesomeValidation:v4.2'
 
     //firebase
     implementation 'com.google.firebase:firebase-messaging:20.0.0'

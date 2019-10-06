@@ -1,16 +1,14 @@
-package com.example.firebasetest1.FormalAct;
+package com.example.firebasetest1.Activity;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,7 +18,6 @@ import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.RestClient;
 
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

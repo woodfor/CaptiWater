@@ -1,43 +1,26 @@
-package com.example.firebasetest1.FormalAct;
+package com.example.firebasetest1.Activity;
+
+import android.app.Dialog;
+import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.NumberPicker;
-import android.widget.ProgressBar;
-import android.widget.Switch;
-import android.widget.TextView;
-
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
-import com.example.firebasetest1.RestClient.Model.Area;
 import com.example.firebasetest1.RestClient.Model.Tap;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.UUID;
-
-import static com.example.firebasetest1.General.tools.toast_long;
 
 public class TapSettingActivity extends AppCompatActivity {
 
@@ -46,18 +29,6 @@ public class TapSettingActivity extends AppCompatActivity {
     private Switch switch_notification;
     private Switch switch_timer;
     private Tap tap;
-    //bluetooth
-    private boolean isBtConnected = false;
-    private BluetoothAdapter myBluetooth = null;
-    private BluetoothSocket btSocket = null;
-    private BluetoothDevice mmDevice;
-    private OutputStream mmOutputStream;
-    private InputStream mmInputStream;
-    private Thread workerThread;
-    private byte[] readBuffer;
-    private int readBufferPosition;
-    private volatile boolean stopWorker;
-    private String btRespond;
     FirebaseDatabase database;
     DatabaseReference notifyRef;
     DatabaseReference myRef;
@@ -68,8 +39,10 @@ public class TapSettingActivity extends AppCompatActivity {
         TextView tv_title = findViewById(R.id.tv_title);
 
         Context mContext = this;
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         edt_notification = findViewById(R.id.edt_notification);
         switch_notification = findViewById(R.id.switch_notification);
+
 
 
         try {
@@ -81,6 +54,8 @@ public class TapSettingActivity extends AppCompatActivity {
             tools.toast_long(getApplicationContext(),"Can't get info of tap");
             finish();
         }
+
+        setTitle(tap.getName() + "'s Setting");
 
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
@@ -197,7 +172,12 @@ public class TapSettingActivity extends AppCompatActivity {
         dialog.show();
     }
 
-
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        finish();
+        return true;
+    }
 
 
 }

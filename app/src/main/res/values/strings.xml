@@ -115,4 +115,5 @@
     government.</string>
     <string name="monthly_ranking">Monthly Ranking</string>
     <string name="captiwater_web">Visit CaptiWater Webpage <a href="https://www.captiwater.ml/">https://www.captiwater.ml/</a></string>
+    <string name="title_activity_chart">ChartActivity</string>
 </resources>

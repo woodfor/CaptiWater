@@ -3,19 +3,12 @@ package com.example.firebasetest1.General;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.firebasetest1.FormalAct.TapActivity;
 import com.example.firebasetest1.RestClient.Model.Area;
 import com.example.firebasetest1.RestClient.Model.House;
 import com.example.firebasetest1.RestClient.Model.Tap;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -72,17 +65,13 @@ public class tools {
     }
 
 
-    public synchronized static Object getObject(Context context, String preName, String storeName, String className) throws ClassNotFoundException {
-        Object object = null;
-        Class name = Class.forName(className);
+    public synchronized static String getObjectString(Context context, String preName, String storeName) {
+
         SharedPreferences sharedPrefs = context.getSharedPreferences(
                 preName, MODE_PRIVATE);
         String tmp = sharedPrefs.getString(storeName, null);
-        if (tmp != null) {
-           object = new Gson().fromJson(tmp,name);
-        }
 
-        return object;
+        return tmp;
     }
 
     public synchronized static Object getHouse(Context context){
@@ -146,46 +135,6 @@ public class tools {
         prefsEditor.apply();
     }
 
-//    public static String SingleInputDialog(Context context, String title, String message){
-//        final EditText editText = new EditText(context);
-//        final AlertDialog alertDialog = new AlertDialog.Builder(context)
-//                .setTitle(title)
-//                .setMessage(message)
-//                .setView(editText)
-//                .setPositiveButton("Ok", null)
-//                .setNegativeButton("No", null)
-//                .show();
-//        Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-//        btn_positive.setOnClickListener(v -> {
-//            String tmp = editText.getText().toString().trim();
-//            if (!(tmp.isEmpty())) {
-//
-//                alertDialog.dismiss();
-//
-//            } else
-//                editText.setError("please input password");
-//        });
-//    }
-
-//    public static String getToken(){
-//
-//        FirebaseInstanceId.getInstance().getInstanceId()
-//                .addOnCompleteListener(task -> {
-//                    if (!task.isSuccessful()) {
-//                        Log.w("Token failure", "getInstanceId failed", task.getException());
-//                        return;
-//                    }
-//
-//                    // Get new Instance ID token
-//                      token = task.getResult().getToken();
-//
-//                    // Log and toast
-//                    //new putREST().execute(token);
-//                    //Log.d("Token:", msg);
-//
-//                });
-//        return token;
-//    }
 
 
 }

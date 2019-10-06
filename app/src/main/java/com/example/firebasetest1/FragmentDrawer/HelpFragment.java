@@ -1,13 +1,13 @@
-package com.example.firebasetest1;
+package com.example.firebasetest1.FragmentDrawer;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.firebasetest1.R;
 
 public class HelpFragment extends Fragment {
     View vHelp;

@@ -1,4 +1,4 @@
-package com.example.firebasetest1.FormalAct;
+package com.example.firebasetest1.FragmentDrawer;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -9,17 +9,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
-import android.widget.Switch;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-
+import com.example.firebasetest1.FragmentBottomNav.WaterUsageFragment;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
 import com.example.firebasetest1.RestClient.Model.House;

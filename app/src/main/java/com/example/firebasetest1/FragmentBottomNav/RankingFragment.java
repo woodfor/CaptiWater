@@ -1,33 +1,29 @@
-package com.example.firebasetest1.FormalAct;
+package com.example.firebasetest1.FragmentBottomNav;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.firebasetest1.General.tools;
 import com.example.firebasetest1.R;
-import com.example.firebasetest1.RestClient.Model.Area;
 import com.example.firebasetest1.RestClient.Model.RankResult;
 import com.example.firebasetest1.RestClient.RestClient;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -47,7 +43,8 @@ public class RankingFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         vRanking = inflater.inflate(R.layout.fragment_ranking, container, false);
-
+        BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.navigation);
+        bottomNavigationView.getMenu().findItem(R.id.navigation_house).setChecked(true);
         lv_ranking = (ListView) vRanking.findViewById(R.id.monthly_ranking_listview);
 
         //lv_ranking.setAdapter(customAdaptor);

@@ -1,9 +1,4 @@
-package com.example.firebasetest1.FormalAct;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentTransaction;
+package com.example.firebasetest1.Activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -23,19 +18,23 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -54,13 +53,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.reflect.TypeToken;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,7 +102,7 @@ public class TapActivity extends AppCompatActivity {
     SimpleAdapter arrayAdapter;
     private FirebaseDatabase database;
     private DatabaseReference statusRef;
-    private DatabaseReference myRef;
+    private DatabaseReference turnRef;
     //Rest
     RequestQueue queue;
     @Override
@@ -117,6 +115,7 @@ public class TapActivity extends AppCompatActivity {
         FloatingActionButton fab_addTap = findViewById(R.id.fab_addTap);
         pg = findViewById(R.id.pb);
         queue = Volley.newRequestQueue(getApplicationContext());
+
         //setup
         setTitle("Tap List");
         try {
@@ -128,6 +127,7 @@ public class TapActivity extends AppCompatActivity {
             tools.toast_long(getApplicationContext(),"Can't get info of area");
             finish();
         }
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //bluetooth
         myBluetooth = BluetoothAdapter.getDefaultAdapter();
         if (myBluetooth == null) {
@@ -142,30 +142,10 @@ public class TapActivity extends AppCompatActivity {
 
         //firebase
         database = FirebaseDatabase.getInstance();
-        myRef = database.getReference();
-        statusRef = myRef.child("turn");
-        statusRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(Integer.class) == 1 ? "ON" : "OFF";
-                if (tapListArray!=null){
-                    for ( HashMap<String, String> map : tapListArray){
-                        map.put("status",value);
-                    }
-                    arrayAdapter.notifyDataSetChanged();
-                }
+        DatabaseReference myRef = database.getReference();
+        statusRef = myRef.child("status");
+        turnRef = myRef.child("turn");
 
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w("Tap", "Failed to read value.", error.toException());
-            }
-        });
 
         getTaps();
 
@@ -568,7 +548,7 @@ private void addTap(){
                             } else {
                                 Tap tmptap = new Gson().fromJson(response.toString(),Tap.class);
                                 tap = tmptap;
-                                String array = "N:"  + tap.getName()+"/"+area.getAid()+ "/" + tmptap.getTid();
+                                String array = "N:" + tap.getName() + "/" + tmptap.getTid();
                                 new SendBTSignal().execute(array);
                                 getTaps();
                             }
@@ -595,9 +575,7 @@ private void addTap(){
                     }
                 };
                 queue.add(putRequest);
-                // Log and toast
-                //new putREST().execute(token);
-                //Log.d("Token:", msg);
+
 
             });
 
@@ -616,99 +594,8 @@ private void addTap(){
                         }.getType();
                         taps = new Gson().fromJson(response.toString(),listType);
                         if (taps != null) {
-
-                            statusRef.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    tapListArray = new ArrayList<>();
-                                    HashMap<String,String> map;
-                                    String status= dataSnapshot.getValue(Integer.class) == 1 ? "ON" : "OFF";
-                                    for (Tap a : taps) {
-                                        map=new HashMap<>();
-                                        map.put("name",a.getName());
-                                        map.put("status", status);
-                                        tapListArray.add(map);
-                                    }
-                                    String[] colHEAD = new String[] {"name","status"};
-                                    int[] dataCell = new int[] {R.id.text_tap_list,R.id.text_tap_control};
-                                    arrayAdapter = new SimpleAdapter(mContext,tapListArray, R.layout.listview_tap, colHEAD,dataCell){
-                                        @Override
-                                        public View getView(int position, View convertView, ViewGroup parent){
-                                            // Get the current item from ListView
-                                            View view = super.getView(position,convertView,parent);
-                                            ImageView option = view.findViewById(R.id.imageView_popup_tap);
-                                            option.setOnClickListener(view1 -> {
-                                                PopupMenu popupMenu = new PopupMenu(mContext, option);
-                                                popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
-                                                popupMenu.setOnMenuItemClickListener(menuItem -> {
-                                                    switch (menuItem.getItemId()) {
-                                                        case R.id.lock_tap:
-                                                            statusRef.setValue(0);
-                                                            break;
-                                                        case R.id.unlock_tap:
-                                                            statusRef.setValue(1);
-                                                            break;
-                                                        case R.id.connectWifi_tap:
-                                                            new ConnectBT().execute(taps.get(position).getBtaddress());
-                                                            function = 0;
-                                                            new ConnectWIFI().execute();
-
-                                                            break;
-                                                        case R.id.remove_tap:
-                                                            delTap(taps.get(position).getTid());
-                                                            break;
-                                                        case R.id.rename_tap:
-                                                            final EditText editText = new EditText(mContext);
-                                                            final AlertDialog alertDialog = new AlertDialog.Builder(mContext)
-                                                                    .setTitle("Rename Tap")
-                                                                    .setMessage("Please input the name you want.")
-                                                                    .setView(editText)
-                                                                    .setPositiveButton("Ok", null)
-                                                                    .setNegativeButton("No", null)
-                                                                    .show();
-                                                            Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                                                            btn_positive.setOnClickListener(v -> {
-                                                                String tmp = editText.getText().toString().trim();
-                                                                if (!(tmp.isEmpty())) {
-                                                                    updateTaps((int) taps.get(position).getTid(),tmp);
-                                                                    alertDialog.dismiss();
-
-                                                                } else
-                                                                    editText.setError("Please input something");
-                                                            });
-
-                                                            break;
-                                                        case R.id.settings_tap:
-                                                            tools.saveObject(getApplicationContext(),"tap","tap",taps.get(position));
-                                                            Intent intent = new Intent(TapActivity.this,TapSettingActivity.class);
-                                                            startActivity(intent);
-
-                                                    }
-                                                    return true;
-                                                });
-                                                popupMenu.show();
-
-                                            });
-                                            //set colour for status
-                                            TextView tv_status = view.findViewById(R.id.text_tap_control);
-                                            if (tv_status.getText().toString().equals("ON")){
-                                                tv_status.setTextColor(Color.parseColor("#4CAF50"));
-                                            }else {
-                                                tv_status.setTextColor(Color.parseColor("#D81B60"));
-                                            }
-                                            return view;
-                                        }
-                                    };
-                                    lv.setAdapter(arrayAdapter);
-
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-                                    tools.toast_long(getApplicationContext(),"can't get status");
-                                }
-                            });
-
+                            TapListAdapter adapter = new TapListAdapter(mContext, R.layout.listview_tap, taps);
+                            lv.setAdapter(adapter);
                         }
                     }
 
@@ -796,7 +683,163 @@ private void addTap(){
     }
 */
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        finish();
+        return true;
+    }
 
+    private class TapListAdapter extends ArrayAdapter<Tap> {
+        private Context context;
+        private List<Tap> taps;
+
+        public TapListAdapter(@NonNull Context context, int resource, @NonNull List<Tap> objects) {
+            super(context, resource, objects);
+            this.context = context;
+            this.taps = objects;
+        }
+
+        @Override
+        public Tap getItem(int i) {
+            return taps.get(i);
+        }
+
+        @NotNull
+        @Override
+        public View getView(int i, View view, @NotNull ViewGroup viewGroup) {
+            final ViewHolder holder;
+            Tap tap = getItem(i);
+            if (view == null) {
+                holder = new ViewHolder();
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                view = inflater.inflate(R.layout.listview_tap, viewGroup, false);
+                holder.iv_option = view.findViewById(R.id.imageView_popup_tap);
+                holder.tv_tapName = view.findViewById(R.id.text_tap_list);
+                holder.tv_status = view.findViewById(R.id.text_tap_control);
+                view.setTag(holder);
+            } else {
+                // the getTag returns the viewHolder object set as a tag to the view
+                holder = (ViewHolder) view.getTag();
+            }
+            holder.tv_tapName.setText(tap.getName());
+            holder.iv_option.setOnClickListener(view1 -> {
+                PopupMenu popupMenu = new PopupMenu(mContext, holder.iv_option);
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu_tap, popupMenu.getMenu());
+                popupMenu.setOnMenuItemClickListener(menuItem -> {
+                    switch (menuItem.getItemId()) {
+                        case R.id.lock_tap:
+                            turnRef.setValue(0);
+                            break;
+                        case R.id.unlock_tap:
+                            turnRef.setValue(1);
+                            break;
+                        case R.id.connectWifi_tap:
+                            new ConnectBT().execute(tap.getBtaddress());
+                            function = 0;
+                            new ConnectWIFI().execute();
+                            break;
+                        case R.id.remove_tap:
+                            final AlertDialog delDialog = new AlertDialog.Builder(mContext)
+                                    .setTitle("Delete Tap: " + tap.getName())
+                                    .setMessage("Are you sure?")
+                                    .setPositiveButton("Ok", null)
+                                    .setNegativeButton("No", null)
+                                    .show();
+                            Button btn_positive_del = delDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            btn_positive_del.setOnClickListener(view2 -> {
+                                delTap(tap.getTid());
+                                delDialog.dismiss();
+                            });
+
+                            break;
+                        case R.id.rename_tap:
+                            final EditText editText = new EditText(mContext);
+                            final AlertDialog alertDialog = new AlertDialog.Builder(mContext)
+                                    .setTitle("Rename Tap")
+                                    .setMessage("Please input the name you want.")
+                                    .setView(editText)
+                                    .setPositiveButton("Ok", null)
+                                    .setNegativeButton("No", null)
+                                    .show();
+                            Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                            btn_positive.setOnClickListener(v -> {
+                                String tmp = editText.getText().toString().trim();
+                                if (!(tmp.isEmpty())) {
+                                    updateTaps((int) tap.getTid(), tmp);
+                                    alertDialog.dismiss();
+
+                                } else
+                                    editText.setError("Please input something");
+                            });
+
+                            break;
+                        case R.id.settings_tap:
+                            tools.saveObject(getApplicationContext(), "tap", "tap", tap);
+                            Intent intent = new Intent(TapActivity.this, TapSettingActivity.class);
+                            startActivity(intent);
+
+                    }
+                    return true;
+                });
+                popupMenu.show();
+
+            });
+            turnRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // This method is called once with the initial value and again
+                    // whenever data at this location is updated.
+                    String value = dataSnapshot.getValue(Integer.class) == 0 ? "LOCKED" : "UNLOCKED";
+                    if (value.equals("LOCKED")) {
+                        holder.tv_status.setTextColor(Color.parseColor("#aaaaaa"));
+                    } else {
+                        holder.tv_status.setTextColor(Color.parseColor("#4CAF50"));
+                    }
+                    holder.tv_status.setText(value);
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to read value
+                    Log.w("Tap", "Failed to read value.", error.toException());
+                }
+            });
+
+            statusRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    String status = dataSnapshot.getValue(Integer.class) == 1 ? "ON" : "OFF";
+                    if (holder.tv_status.getText().toString().equals("LOCKED") && status.equals("OFF")) {
+
+                    } else {
+                        if (status.equals("ON")) {
+                            holder.tv_status.setTextColor(Color.parseColor("#4CAF50"));
+                        } else if (status.equals("OFF")) {
+                            holder.tv_status.setTextColor(Color.parseColor("#D81B60"));
+                        }
+                        holder.tv_status.setText(status);
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.w("Tap", "Failed to read value.", databaseError.toException());
+                }
+            });
+
+            return view;
+        }
+
+        private class ViewHolder {
+
+            private TextView tv_status;
+            private ImageView iv_option;
+            private TextView tv_tapName;
+        }
+    }
 
     @Override
     public void onPause() {
