@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.ResultReceiver;
 import android.util.Log;
 
@@ -28,7 +29,13 @@ public class FetchAddressIntentService extends IntentService {
             bundle.putParcelable(Constants.RESULT_DATA_KEY, message);
             resultReceiver.send(resultCode, bundle);
         }else {
-            tools.toast_long(getApplicationContext(),"error");
+            Handler mainHandler = new Handler(getMainLooper());
+            mainHandler.post(() -> {
+                // Do your stuff here related to UI, e.g. show toast
+                tools.toast_long(getApplicationContext(), "No information found with this postcode, Please try again");
+
+            });
+            // tools.toast_long(getApplicationContext(),"error");
         }
 
     }
