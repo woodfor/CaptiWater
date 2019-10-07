@@ -8,8 +8,8 @@
 
     <LinearLayout
         android:id="@+id/ly_1"
-        android:layout_width="285dp"
-        android:layout_height="96dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="24dp"
         android:gravity="center"
@@ -27,11 +27,12 @@
 
         <TextView
             android:id="@+id/time_text"
-            android:layout_width="wrap_content"
+            android:layout_width="130dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:text="Period"
+            android:textAlignment="center"
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/title_size" />
 
