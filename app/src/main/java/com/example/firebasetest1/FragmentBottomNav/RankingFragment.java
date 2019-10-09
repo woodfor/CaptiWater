@@ -113,7 +113,7 @@ public class RankingFragment extends Fragment {
             }else {
                 holder = (ViewHolder) convertView.getTag();
             }
-            holder.tv_liter.setText(rankResult.getTotalLiter() + " L");
+            holder.tv_liter.setText((float) rankResult.getTotalLiter() / 1000 + " L");
             holder.tv_houseName.setText(rankResult.getHouseName());
             switch (position){
                 case 0:

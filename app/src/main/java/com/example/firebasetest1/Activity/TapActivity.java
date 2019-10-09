@@ -272,7 +272,17 @@ public class TapActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... voids) {
+            int counter = 0;
             while (!isBtConnected) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+                if (counter > 5) {
+                    return false;
+                }
             }
 
             return true;
@@ -331,6 +341,8 @@ public class TapActivity extends AppCompatActivity {
                     Toast.makeText(TapActivity.this, "WiFi is disabled ... We need to enable it", Toast.LENGTH_LONG).show();
                     wifiManager.setWifiEnabled(true);
                 }
+            } else {
+                tools.toast_long(getApplicationContext(), "Bluetooth error, not connected");
             }
             pg.setVisibility(View.GONE);
         }
@@ -430,10 +442,6 @@ public class TapActivity extends AppCompatActivity {
 
             btRespond = "";
             int counter = 0;
-            while (!isBtConnected) {
-
-            }
-            counter = 0;
                 while (btRespond.isEmpty()) { // respond identifier
                     counter++;
                     if (btSocket != null) {
@@ -451,7 +459,7 @@ public class TapActivity extends AppCompatActivity {
                         e.printStackTrace();
                         return null;
                     }
-                    if (counter > 10) {
+                    if (counter > 12) {
                         return null;
                     }
                 }
