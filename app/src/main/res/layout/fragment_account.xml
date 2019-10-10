@@ -12,7 +12,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -24,13 +25,20 @@
                 android:textSize="@dimen/title_size" />
 
             <TextView
-                android:text="@string/question_one"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_marginLeft="@dimen/activity_horizontal_margin"
-                android:textSize="@dimen/text_size"
-                android:textColor="@color/colorBlack"
+                android:id="@+id/tv_houseID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textSize="18sp" />
+
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:text="@string/question_one"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/text_size" />
 
             <EditText
                 android:id="@+id/edt_houseName"
@@ -59,11 +67,10 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginRight="@dimen/activity_horizontal_margin"
                 android:backgroundTint="@android:color/holo_blue_dark"
-                android:inputType="none"
                 android:focusable="false"
+                android:inputType="none"
                 android:text="1"
                 android:textSize="@dimen/text_size" />
-
 
             <Button
                 android:id="@+id/btn_submit_changes"
@@ -72,9 +79,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="@dimen/button_vertical_margin"
-                android:text="Done"
                 android:background="@color/colorWhite"
-                android:textColor="@color/colorBlack"/>
+                android:text="Done"
+                android:textColor="@color/colorBlack" />
+
         </LinearLayout>
 
 

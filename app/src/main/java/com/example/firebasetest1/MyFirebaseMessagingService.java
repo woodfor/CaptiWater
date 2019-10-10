@@ -186,6 +186,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
+                Intent intent = new Intent();
+                intent.setAction("Data get");
+                sendBroadcast(intent);
                 // Do your stuff here related to UI, e.g. show toast
                 Toast.makeText(getApplicationContext(), data, Toast.LENGTH_LONG).show();
             }

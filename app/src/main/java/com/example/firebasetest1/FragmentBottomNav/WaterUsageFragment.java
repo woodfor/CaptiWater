@@ -1,7 +1,9 @@
 package com.example.firebasetest1.FragmentBottomNav;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -79,7 +81,12 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     Context appContext;
     private TextView tv_leftLiter;
     private String today = new SimpleDateFormat("yyyy-MM-dd",Locale.US).format(Calendar.getInstance().getTime()) ;
-
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            getSummary();
+        }
+    };
     private String[] selection = {"Daily","Monthly","Yearly"};
     private int index = 0;
     private RequestQueue queue;
@@ -573,7 +580,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     @Override
     public void onStop() {
         super.onStop();
-        //db.close();
+        mContext.unregisterReceiver(broadcastReceiver);
     }
     @Override
     public void onAttach(Context context){
@@ -581,6 +588,14 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         mContext = context;
         appContext = context.getApplicationContext();
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("Data get");
+        mContext.registerReceiver(broadcastReceiver, intentFilter);
     }
 
     private void refreshFrg()

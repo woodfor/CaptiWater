@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -45,7 +46,8 @@ public class AccountFragment extends Fragment{
             tools.toast_long(getActivity().getApplicationContext(), "House object error");
             getActivity().finish();
         }
-
+        TextView tv_houseID = vAccount.findViewById(R.id.tv_houseID);
+        tv_houseID.setText("Your house ID: " + house.getHid());
         edt_NoP = vAccount.findViewById(R.id.edt_No_people);
         edt_NoP.setText(String.valueOf(house.getNop()));
 
