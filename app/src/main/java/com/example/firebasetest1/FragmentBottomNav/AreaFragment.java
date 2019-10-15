@@ -46,6 +46,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Showing the Areas in ListView; Register the options related to each area;
+ *
+ * @author Junjie Lu
+ */
 public class AreaFragment extends Fragment {
 
     private View vArea;
@@ -59,6 +64,13 @@ public class AreaFragment extends Fragment {
 
     private DatabaseReference myRef;
 
+    /**
+     * Initial components
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         vArea = inflater.inflate(R.layout.fragment_area, container, false);
@@ -110,6 +122,10 @@ public class AreaFragment extends Fragment {
         return vArea;
     }
 
+    /**
+     * Add area into database by accessing REST web service
+     * @param areaName The area name.
+     */
     private void addArea(String areaName) {
 
         RequestQueue queue = Volley.newRequestQueue(mContext);
@@ -146,6 +162,9 @@ public class AreaFragment extends Fragment {
         queue.add(putRequest);
     }
 
+    /**
+     * Get areas by accessing REST web service
+     */
     private void getAreas() {
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String url = RestClient.BASE_URL + "area/" + house.getHid();
@@ -198,7 +217,10 @@ public class AreaFragment extends Fragment {
         queue.add(getRequest);
     }
 
-
+    /**
+     * Delete area by accessing REST web service
+     * @param ID area ID
+     */
     private void delArea(int ID) {
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String url = RestClient.BASE_URL + "area/" + ID;
@@ -213,6 +235,11 @@ public class AreaFragment extends Fragment {
         queue.add(delRequest);
     }
 
+    /**
+     * Update area information by accessing REST web service.
+     * @param ID Area ID
+     * @param name Area name
+     */
     private void updateArea(int ID, String name){
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String url = RestClient.BASE_URL + "area/update/" + ID + "/"+name;
@@ -239,6 +266,9 @@ public class AreaFragment extends Fragment {
         appContext = getActivity().getApplicationContext();
     }
 
+    /**
+     * Customize the ListView
+     */
     private class AreaListAdapter extends ArrayAdapter<Area> {
         private Context context;
         private List<Area> areas;

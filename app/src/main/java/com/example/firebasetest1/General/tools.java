@@ -1,6 +1,5 @@
 package com.example.firebasetest1.General;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.widget.Toast;
@@ -12,13 +11,24 @@ import com.google.gson.Gson;
 
 import static android.content.Context.MODE_PRIVATE;
 
+/**
+ * Tools to be used in application context
+ */
 public class tools {
     public static String token;
+
     public static boolean toast_short(Context context, String string) {
         Toast.makeText(context, string, Toast.LENGTH_SHORT).show();
         return true;
     }
 
+    /**
+     * show long toast,
+     *
+     * @param context where to show the toast
+     * @param string  message to be presented
+     * @return
+     */
     public static boolean toast_long(Context context, String string) {
         Toast.makeText(context, string, Toast.LENGTH_LONG).show();
         return true;
@@ -35,14 +45,11 @@ public class tools {
         return true;
     }
 
-    public static AlertDialog alertDialog(Context context, String title, String message) {
-        final AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-        alertDialog.setTitle(title);
-        alertDialog.setMessage(message);
-        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", (dialog, which) -> alertDialog.dismiss());
-        return alertDialog;
-    }
-
+    /**
+     * Get UUID stored in shared preference.
+     * @param context the context of storing
+     * @return
+     */
     public synchronized static String getID(Context context) {
         String uniqueID = null;
         String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
@@ -54,7 +61,12 @@ public class tools {
         return uniqueID;
     }
 
-    public synchronized static void saveID(Context context,String ID) {
+    /**
+     * Save UUID in shared preference
+     * @param context where to store
+     * @param ID uuid
+     */
+    public synchronized static void saveID(Context context, String ID) {
         String PREF_UNIQUE_ID = "PREF_UNIQUE_ID";
         SharedPreferences sharedPrefs = context.getSharedPreferences(
                 PREF_UNIQUE_ID, MODE_PRIVATE);
@@ -65,14 +77,11 @@ public class tools {
     }
 
 
-    public synchronized static String getObjectString(Context context, String preName, String storeName) {
-
-        SharedPreferences sharedPrefs = context.getSharedPreferences(
-                preName, MODE_PRIVATE);
-        String tmp = sharedPrefs.getString(storeName, null);
-
-        return tmp;
-    }
+    /**
+     * Get house object from shared preference.
+     * @param context the context of storing
+     * @return
+     */
 
     public synchronized static Object getHouse(Context context){
         String preName = "house";
@@ -89,6 +98,12 @@ public class tools {
         return object;
     }
 
+    /**
+     * Get area object from shared preference.
+     * @param context the context of storing
+     * @return
+     */
+
     public synchronized static Object getArea(Context context){
         String preName = "area";
         String storeName = "area";
@@ -103,6 +118,12 @@ public class tools {
 
         return object;
     }
+
+    /**
+     * Get tap object from shared preference.
+     * @param context the context of storing
+     * @return
+     */
 
     public synchronized static Tap getTap(Context context){
         String preName = "tap";
@@ -119,6 +140,13 @@ public class tools {
         return object;
     }
 
+    /**
+     * Save object in shared preference
+     * @param context the context of storing
+     * @param preName the name of preference
+     * @param storeName the name of entree in preference
+     * @param object object to be saved
+     */
     public synchronized static void saveObject(Context context, String preName, String storeName, Object object) {
         SharedPreferences mPrefs = context.getSharedPreferences(preName, MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
@@ -128,13 +156,19 @@ public class tools {
         prefsEditor.apply();
     }
 
+    /**
+     * Save particular string in shared preference
+     * @param context the context of storing
+     * @param preName the name of preference
+     * @param storeName the name of entree in preference
+     * @param object object to be saved
+     */
     public synchronized static void saveString(Context context, String preName, String storeName, String object) {
         SharedPreferences mPrefs = context.getSharedPreferences(preName, MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         prefsEditor.putString(storeName, object);
         prefsEditor.apply();
     }
-
 
 
 }

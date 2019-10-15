@@ -12,6 +12,11 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 
+/**
+ * show the detailed information in line chart
+ *
+ * @author Junjie Lu
+ */
 @SuppressLint("ViewConstructor")
 public class MyMarkerView extends MarkerView {
     private final TextView tvContent;

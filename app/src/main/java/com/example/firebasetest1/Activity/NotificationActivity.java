@@ -35,10 +35,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The class is for showing the ListView in Notification activity.
+ *
+ * @author Junjie Lu
+ */
 public class NotificationActivity extends AppCompatActivity {
 
     House house;
     ListView lv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +62,11 @@ public class NotificationActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Get notifications by accessing REST web service, and show the data in listview.
+     * @exception NoConnectionError throw exception when no Internet connection
+     * @exception com.android.volley.ServerError throw exception when return server error
+     */
     private void getNotifications() {
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = RestClient.BASE_URL + "notification/" + house.getHid();
@@ -96,6 +107,10 @@ public class NotificationActivity extends AppCompatActivity {
         queue.add(putRequest);
     }
 
+    /**
+     * register the return button in toolbar.
+     * @return
+     */
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
@@ -103,6 +118,9 @@ public class NotificationActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * The class is for generating customize ListView
+     */
     private class NotiListAdapter extends ArrayAdapter {
 
         Context context;

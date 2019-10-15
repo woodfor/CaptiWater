@@ -32,6 +32,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Showing ranks in ListView
+ *
+ * @author Junjie Lu
+ */
 public class RankingFragment extends Fragment {
     private View vRanking;
     private ListView lv_ranking;
@@ -40,6 +45,13 @@ public class RankingFragment extends Fragment {
     private Context appContext;
     private List<RankResult> ranks;
 
+    /**
+     * Initial the components
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         vRanking = inflater.inflate(R.layout.fragment_ranking, container, false);
@@ -52,6 +64,10 @@ public class RankingFragment extends Fragment {
         return vRanking;
     }
 
+    /**
+     * Get ranks from REST web service
+     * If received successfully, show them in ListView.
+     */
     private void getRanking(){
         RequestQueue queue = Volley.newRequestQueue(appContext);
         String url = RestClient.BASE_URL + "report/MonthlyRank";
@@ -67,36 +83,43 @@ public class RankingFragment extends Fragment {
                             lv_ranking.setAdapter(arrayAdapter);
                         }
                     }
-                },error -> tools.toast_long(mContext,error.toString())
+                }, error -> tools.toast_long(mContext,error.toString())
         ){
-                    @Override
-                    public Map<String, String> getHeaders(){
-                        Map<String, String> params = new HashMap<>();
-                        params.put("Accept", "application/json");
-                        return params;
-                    }
+            @Override
+            public Map<String, String> getHeaders(){
+                Map<String, String> params = new HashMap<>();
+                params.put("Accept", "application/json");
+                return params;
+            }
         };
         queue.add(getRequest);
     }
 
+    /**
+     * Customize the ListView
+     */
     class CustomAdaptor extends ArrayAdapter<RankResult> {
         private Context context;
         private List<RankResult> rankResults;
+
         CustomAdaptor(@NonNull Context context, int resource, @NonNull List<RankResult> objects) {
             super(context, resource, objects);
             this.context = context;
             this.rankResults = objects;
         }
+
         private class ViewHolder {
 
             private ImageView iv_ranking;
             private TextView tv_houseName;
             private TextView tv_liter;
         }
+
         @Override
         public RankResult getItem(int position){
             return rankResults.get(position);
         }
+
         @NotNull
         @Override
         public View getView(int position, View convertView, @NotNull ViewGroup parent) {

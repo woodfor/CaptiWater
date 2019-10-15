@@ -17,12 +17,16 @@ import java.util.Locale;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
+/**
+ * Gecode and broadcast the result
+ */
 public class FetchAddressIntentService extends IntentService {
 
     // ...
     public FetchAddressIntentService() {
         super("FetchAddressIntentService");
     }
+
     private void deliverResultToReceiver(ResultReceiver resultReceiver, int resultCode, Address message) {
         if (message!=null){
             Bundle bundle = new Bundle();
@@ -40,6 +44,11 @@ public class FetchAddressIntentService extends IntentService {
 
     }
 
+    /**
+     * Gecoder the postcode for full address.
+     *
+     * @param intent
+     */
     @Override
     protected void onHandleIntent(Intent intent) {
 
@@ -78,7 +87,7 @@ public class FetchAddressIntentService extends IntentService {
             deliverResultToReceiver(resultReceiver,Constants.FAILURE_RESULT, null);
         } else {
             Address address = addresses.get(0);
-          //  ArrayList<String> addressFragments = new ArrayList<String>();
+            //  ArrayList<String> addressFragments = new ArrayList<String>();
 
             // Fetch the address lines using getAddressLine,
             // join them, and send them to the thread.
@@ -87,7 +96,7 @@ public class FetchAddressIntentService extends IntentService {
             }*/
             Log.i(TAG, "address_found");
             deliverResultToReceiver(resultReceiver,Constants.SUCCESS_RESULT,
-                   address);
+                    address);
         }
     }
 }

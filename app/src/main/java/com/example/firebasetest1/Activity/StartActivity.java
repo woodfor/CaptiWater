@@ -22,7 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-
+/**
+ * This activity is for showing the logo when user open the application.
+ * Meanwhile, the activity will ask server for the data of house by querying with UUID.
+ * If there is no such information, it will direct the user to QuestionActivity to create an account.
+ *
+ * @author Junjie LU
+ */
 public class StartActivity extends AppCompatActivity {
 
     private static int TIME_OUT = 1000;

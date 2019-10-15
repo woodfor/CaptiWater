@@ -7,6 +7,9 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+/**
+ * Used by MyFirebaseMessagingService for the execution of time-consuming tasks
+ */
 public class MyWorker extends Worker {
 
     private static final String TAG = "MyWorker";

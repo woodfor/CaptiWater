@@ -1,5 +1,8 @@
 package com.example.firebasetest1.Gecoder;
 
+/**
+ * The different result of Gecoder handling
+ */
 public final class Constants {
     public static final int SUCCESS_RESULT = 0;
     public static final int FAILURE_RESULT = 1;

@@ -68,7 +68,11 @@ import java.util.Map;
 
 import me.relex.circleindicator.CircleIndicator;
 
-
+/**
+ * Showing the data in Progress bar, pie chart
+ *
+ * @author Junjie Lu
+ */
 public class WaterUsageFragment extends Fragment implements View.OnClickListener {
     public static House house =null;
     View vWaterUsage;
@@ -94,9 +98,15 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
     private ViewPager viewPager;
     private  CircleIndicator indicator;
 
+    /**
+     * Initial the components
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         vWaterUsage = inflater.inflate(R.layout.fragment_water_usage, container, false);
 
         indicator = vWaterUsage.findViewById(R.id.indicator);
@@ -121,15 +131,12 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         queue = Volley.newRequestQueue(getActivity().getApplicationContext());
 
 
-
-
         index = 0 ;
 //
         timeText.setText(selection[index]);
 
 
         //set chart
-
 
 
         //set color
@@ -154,7 +161,10 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         return vWaterUsage;
     }
 
-
+    /**
+     * Get Data from REST web service
+     * If received successfully, show them on progress bar and pie chart.
+     */
     private void getSummary()  {
         String period="";
         if(index == 0){
@@ -177,12 +187,16 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
                     }else {
                         tools.toast_long(mContext,"get data error");
                     }
-                },error -> {
-                    tools.toast_long(mContext,error.toString());
-                });
+                }, error -> {
+            tools.toast_long(mContext,error.toString());
+        });
         queue.add(getRequest);
     }
 
+    /**
+     * On click listener, present different Textview of date, month, Year and different imageView of left and right
+     * @param v
+     */
     @Override
     public void onClick(View v) {
 
@@ -208,17 +222,20 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         //change color
         if (index ==0){
             leftBtn.setImageResource(R.drawable.left_arrow_grey);
-          //  leftBtn.setVisibility(View.INVISIBLE);
+            //  leftBtn.setVisibility(View.INVISIBLE);
         }else if (index == 2){
             rightBtn.setImageResource(R.drawable.right_arrow_grey);
-           // rightBtn.setVisibility(View.INVISIBLE);
+            // rightBtn.setVisibility(View.INVISIBLE);
         }else {
             leftBtn.setImageResource(R.drawable.left_arrow);
             rightBtn.setImageResource(R.drawable.right_arrow);
         }
     }
 
-
+    /**
+     * Initial the settings of lineC hart
+     * @param lineChart the line chart object
+     */
     private void setLineChart(LineChart lineChart) {
         lineChart.getDescription().setEnabled(false);
         lineChart.setTouchEnabled(true);
@@ -259,280 +276,283 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
     }
 
-
-    private void setLineChartData(LineChart lineChart, PieChart pieChart, String period) {
+    /**
+     * Set Data of Line chart and pie chart
+     *
+     * @param lineChart line chart object
+     * @param pieChart  pie chart object
+     * @param period    specify date/month/year
+     */
+    private void setChartData(LineChart lineChart, PieChart pieChart, String period) {
         String url = RestClient.BASE_URL + "report/" + period +"/" + house.getHid() + "/" + today;
-            JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                    response -> {
-                        if (!response.toString().equals("[]") && !response.toString().isEmpty()) {
-                            if (period .equals("date")) {
-                                Type listType = new TypeToken<List<DailyResult>>() {
-                                }.getType();
-                                List<DailyResult> dailyResults = new Gson().fromJson(response.toString(), listType);
-                                //set pie chart
-                                Map<String,Integer> mapPie = new HashMap<>();
+        JsonArrayRequest getRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                response -> {
+                    if (!response.toString().equals("[]") && !response.toString().isEmpty()) {
+                        if (period .equals("date")) {
+                            Type listType = new TypeToken<List<DailyResult>>() {
+                            }.getType();
+                            List<DailyResult> dailyResults = new Gson().fromJson(response.toString(), listType);
+                            //set pie chart
+                            Map<String,Integer> mapPie = new HashMap<>();
 
-                                Map<String, ArrayList<DailyResult>> mapTap = new HashMap<>();
-                                    // increment by 1 hour
-                                    for (DailyResult d : dailyResults) {
-                                        if (mapTap.containsKey(d.getName())){
-                                            mapTap.get(d.getName()).add(d);
-                                        }
-                                        else{
-                                            ArrayList<DailyResult> list = new ArrayList<>();
-                                            list.add(d);
-                                            mapTap.put(d.getName(),list);
-                                        }
-                                        if (mapPie.containsKey(d.getArea())){
-                                             mapPie.put(d.getArea(),mapPie.get(d.getArea()) + (int) d.getSumUsage());
-                                        }else {
-                                            mapPie.put(d.getArea(),(int) d.getSumUsage());
-                                        }
-                                    }
-                                    //set piechart
-
-                                ArrayList<PieEntry> entries = new ArrayList<>();
-
-                                for (Map.Entry<String,Integer> cursor : mapPie.entrySet())
-                                {
-                                    entries.add(new PieEntry(cursor.getValue(),cursor.getKey()));
+                            Map<String, ArrayList<DailyResult>> mapTap = new HashMap<>();
+                            // increment by 1 hour
+                            for (DailyResult d : dailyResults) {
+                                if (mapTap.containsKey(d.getName())){
+                                    mapTap.get(d.getName()).add(d);
+                                } else{
+                                    ArrayList<DailyResult> list = new ArrayList<>();
+                                    list.add(d);
+                                    mapTap.put(d.getName(),list);
                                 }
-                                PieDataSet dataSet = new PieDataSet(entries, "Label(ml)");
-                                dataSet.setSliceSpace(3f);
-                                dataSet.setSelectionShift(5f);
-                                dataSet.setColors(colors);
-                                PieData piedata = new PieData(dataSet);
-                                piedata.setValueTextSize(11f);
-                                piedata.setValueTextColor(Color.BLACK);
-                                piedata.setValueTypeface(Typeface.DEFAULT);
-                                pieChart.setData(piedata);
-                                pieChart.invalidate();
-
-
-                                //set linechart
-                                    int j = 0;
-                                    List<ILineDataSet> dataSets = new ArrayList<>();
-                                    for (Map.Entry<String, ArrayList<DailyResult>> entry : mapTap.entrySet()) {
-                                        ArrayList<Entry> values = new ArrayList<>();
-                                        SparseIntArray mapHour = new SparseIntArray();
-                                        for(int i = 0; i <24;i++)
-                                        {
-                                            mapHour.put(i,0);
-                                        }
-                                        for (DailyResult d:entry.getValue()){
-                                            mapHour.put(d.getHour(),(int) d.getSumUsage());
-                                        }
-                                        for (int i = 0; i < mapHour.size(); i++) {
-                                            int key = mapHour.keyAt(i);
-                                            values.add(new Entry((float) key, (float) mapHour.get(key)));
-                                        }
-                                        if (j>4){
-                                            j=0;
-                                        }
-                                        LineDataSet set1 = new LineDataSet(values, entry.getKey());
-                                        set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-                                        set1.setColor(ColorTemplate.COLORFUL_COLORS[j]);
-                                        set1.setValueTextColor(ColorTemplate.COLORFUL_COLORS[j]);
-                                        set1.setLineWidth(1.5f);
-                                        set1.setDrawCircles(false);
-                                        set1.setDrawValues(false);
-                                        set1.setFillAlpha(65);
-                                        set1.setFillColor(ColorTemplate.getHoloBlue());
-                                        set1.setHighLightColor(Color.rgb(244, 117, 117));
-                                        set1.setDrawCircleHole(false);
-                                        dataSets.add(set1);
-                                        j++;
-                                        // create a data object with the data sets
-
-                                    }
-                                    if (!dataSets.isEmpty()){
-                                        LineData data = new LineData(dataSets);
-                                        // set data
-                                        lineChart.setData(data);
-                                    }else {
-                                        lineChart.clear();
-                                    }
-
-                                }  else if (period.equals("month")){
-                                        Type listType = new TypeToken<List<MonthlyResult>>() {
-                                        }.getType();
-                                        List<MonthlyResult> monthlyResults = new Gson().fromJson(response.toString(), listType);
-                                            Map<String,ArrayList<MonthlyResult>> mapTap = new HashMap<>();
-                                            Map<String,Integer> mapPie = new HashMap<>();
-                                            // increment by 1 hour
-                                            for (MonthlyResult d : monthlyResults) {
-                                                if (mapTap.containsKey(d.getName())){
-                                                    mapTap.get(d.getName()).add(d);
-                                                }
-                                                else{
-                                                    ArrayList<MonthlyResult> list = new ArrayList<>();
-                                                    list.add(d);
-                                                    mapTap.put(d.getName(),list);
-                                                }
-                                                if (mapPie.containsKey(d.getArea())){
-                                                    mapPie.put(d.getArea(),mapPie.get(d.getArea()) + (int) d.getUsage());
-                                                }else {
-                                                    mapPie.put(d.getArea(),(int) d.getUsage());
-                                                }
-                                            }
-                                            //set pie chart
-
-                                            ArrayList<PieEntry> entries = new ArrayList<>();
-
-                                            for (Map.Entry<String,Integer> cursor : mapPie.entrySet())
-                                            {
-                                                entries.add(new PieEntry(cursor.getValue(),cursor.getKey()));
-                                            }
-                                            PieDataSet dataSet = new PieDataSet(entries, "Label(ml)");
-                                            dataSet.setSliceSpace(3f);
-                                            dataSet.setSelectionShift(5f);
-                                            dataSet.setColors(colors);
-                                            PieData piedata = new PieData(dataSet);
-                                            piedata.setValueTextSize(11f);
-                                            piedata.setValueTextColor(Color.BLACK);
-                                            piedata.setValueTypeface(Typeface.DEFAULT);
-                                            pieChart.setData(piedata);
-                                            pieChart.invalidate();
-
-                                            //set line chart
-                                            int j = 0;
-                                            List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
-                                            for (Map.Entry<String, ArrayList<MonthlyResult>> entry : mapTap.entrySet()) {
-                                                ArrayList<Entry> values = new ArrayList<>();
-                                                SparseIntArray mapDate = new SparseIntArray();
-                                                for(int i = 0; i <31;i++)
-                                                {
-                                                    mapDate.put(i,0);
-                                                }
-                                                for (MonthlyResult d:entry.getValue()){
-                                                    mapDate.put(d.getDate(),(int) d.getUsage());
-                                                }
-                                                for (int i = 0; i < mapDate.size(); i++) {
-                                                    int key = mapDate.keyAt(i);
-                                                    values.add(new Entry((float) key, (float) mapDate.get(key)));
-                                                }
-                                                if (j>3){
-                                                    j=0;
-                                                }
-                                                LineDataSet set1 = new LineDataSet(values, entry.getKey());
-                                                set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-                                                set1.setColor(ColorTemplate.COLORFUL_COLORS[j]);
-                                                set1.setValueTextColor(ColorTemplate.COLORFUL_COLORS[j]);
-                                                set1.setLineWidth(1.5f);
-                                                set1.setDrawCircles(false);
-                                                set1.setDrawValues(false);
-                                                set1.setFillAlpha(65);
-                                                set1.setFillColor(ColorTemplate.getHoloBlue());
-                                                set1.setHighLightColor(Color.rgb(244, 117, 117));
-                                                set1.setDrawCircleHole(false);
-                                                dataSets.add(set1);
-                                                j++;
-                                                // create a data object with the data sets
-
-                                            }
-                                            if (!dataSets.isEmpty()){
-                                                LineData data = new LineData(dataSets);
-                                                // set data
-                                                lineChart.setData(data);
-                                            }else {
-                                                lineChart.clear();
-                                            }
-
-                                        }else if (period.equals("year")) {
-                                Type listType = new TypeToken<List<YearlyResult>>() {
-                                }.getType();
-                                List<YearlyResult> yearlyResults = new Gson().fromJson(response.toString(), listType);
-                                Map<String, ArrayList<YearlyResult>> mapTap = new HashMap<>();
-                                Map<String,Integer> mapPie = new HashMap<>();
-                                // increment by 1 hour
-                                for (YearlyResult d : yearlyResults) {
-                                    if (mapTap.containsKey(d.getName())) {
-                                        mapTap.get(d.getName()).add(d);
-                                    } else {
-                                        ArrayList<YearlyResult> list = new ArrayList<>();
-                                        list.add(d);
-                                        mapTap.put(d.getName(), list);
-                                    }
-                                    if (mapPie.containsKey(d.getArea())){
-                                        mapPie.put(d.getArea(),mapPie.get(d.getArea()) + (int) d.getUsage());
-                                    }else {
-                                        mapPie.put(d.getArea(),(int) d.getUsage());
-                                    }
-                                }
-                                //set piechart
-                                ArrayList<PieEntry> entries = new ArrayList<>();
-
-                                for (Map.Entry<String,Integer> cursor : mapPie.entrySet())
-                                {
-                                    entries.add(new PieEntry(cursor.getValue(),cursor.getKey()));
-                                }
-                                PieDataSet dataSet = new PieDataSet(entries, "Label(ml)");
-                                dataSet.setSliceSpace(3f);
-                                dataSet.setSelectionShift(5f);
-                                dataSet.setColors(colors);
-                                PieData piedata = new PieData(dataSet);
-                                piedata.setValueTextSize(11f);
-                                piedata.setValueTextColor(Color.BLACK);
-                                piedata.setValueTypeface(Typeface.DEFAULT);
-                                pieChart.setData(piedata);
-                                pieChart.invalidate();
-
-                                //set linechart
-                                int j = 0;
-                                List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
-                                for (Map.Entry<String, ArrayList<YearlyResult>> entry : mapTap.entrySet()) {
-                                    ArrayList<Entry> values = new ArrayList<>();
-                                    SparseIntArray mapMonth = new SparseIntArray();
-                                    for (int i = 0; i < 12; i++) {
-                                        mapMonth.put(i, 0);
-                                    }
-                                    for (YearlyResult d : entry.getValue()) {
-                                        mapMonth.put(d.getMonth(), (int) d.getUsage());
-                                    }
-                                    for (int i = 0; i < mapMonth.size(); i++) {
-                                        int key = mapMonth.keyAt(i);
-                                        values.add(new Entry((float) key, (float) mapMonth.get(key)));
-                                    }
-                                    if (j > 3) {
-                                        j = 0;
-                                    }
-                                    LineDataSet set1 = new LineDataSet(values, entry.getKey());
-                                    set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-                                    set1.setColor(ColorTemplate.COLORFUL_COLORS[j]);
-                                    set1.setValueTextColor(ColorTemplate.COLORFUL_COLORS[j]);
-                                    set1.setLineWidth(1.5f);
-                                    set1.setDrawCircles(false);
-                                    set1.setDrawValues(false);
-                                    set1.setFillAlpha(65);
-                                    set1.setFillColor(ColorTemplate.getHoloBlue());
-                                    set1.setHighLightColor(Color.rgb(244, 117, 117));
-                                    set1.setDrawCircleHole(false);
-                                    dataSets.add(set1);
-                                    j++;
-                                    // create a data object with the data sets
-
-                                }
-                                if (!dataSets.isEmpty()) {
-                                    LineData data = new LineData(dataSets);
-                                    // set data
-                                    lineChart.setData(data);
-                                } else {
-                                    lineChart.clear();
+                                if (mapPie.containsKey(d.getArea())){
+                                    mapPie.put(d.getArea(),mapPie.get(d.getArea()) + (int) d.getSumUsage());
+                                }else {
+                                    mapPie.put(d.getArea(),(int) d.getSumUsage());
                                 }
                             }
+                            //set piechart
 
-                        }else {
-                            tools.toast_long(mContext,"No data for this period");
+                            ArrayList<PieEntry> entries = new ArrayList<>();
+
+                            for (Map.Entry<String,Integer> cursor : mapPie.entrySet()) {
+                                entries.add(new PieEntry(cursor.getValue(),cursor.getKey()));
+                            }
+                            PieDataSet dataSet = new PieDataSet(entries, "Label(ml)");
+                            dataSet.setSliceSpace(3f);
+                            dataSet.setSelectionShift(5f);
+                            dataSet.setColors(colors);
+                            PieData piedata = new PieData(dataSet);
+                            piedata.setValueTextSize(11f);
+                            piedata.setValueTextColor(Color.BLACK);
+                            piedata.setValueTypeface(Typeface.DEFAULT);
+                            pieChart.setData(piedata);
+                            pieChart.invalidate();
+
+
+                            //set linechart
+                            int j = 0;
+                            List<ILineDataSet> dataSets = new ArrayList<>();
+                            for (Map.Entry<String, ArrayList<DailyResult>> entry : mapTap.entrySet()) {
+                                ArrayList<Entry> values = new ArrayList<>();
+                                SparseIntArray mapHour = new SparseIntArray();
+                                for(int i = 0; i <24; i++) {
+                                    mapHour.put(i,0);
+                                }
+                                for (DailyResult d:entry.getValue()){
+                                    mapHour.put(d.getHour(),(int) d.getSumUsage());
+                                }
+                                for (int i = 0; i < mapHour.size(); i++) {
+                                    int key = mapHour.keyAt(i);
+                                    values.add(new Entry((float) key, (float) mapHour.get(key)));
+                                }
+                                if (j>4){
+                                    j=0;
+                                }
+                                LineDataSet set1 = new LineDataSet(values, entry.getKey());
+                                set1.setAxisDependency(YAxis.AxisDependency.LEFT);
+                                set1.setColor(ColorTemplate.COLORFUL_COLORS[j]);
+                                set1.setValueTextColor(ColorTemplate.COLORFUL_COLORS[j]);
+                                set1.setLineWidth(1.5f);
+                                set1.setDrawCircles(false);
+                                set1.setDrawValues(false);
+                                set1.setFillAlpha(65);
+                                set1.setFillColor(ColorTemplate.getHoloBlue());
+                                set1.setHighLightColor(Color.rgb(244, 117, 117));
+                                set1.setDrawCircleHole(false);
+                                dataSets.add(set1);
+                                j++;
+                                // create a data object with the data sets
+
+                            }
+                            if (!dataSets.isEmpty()){
+                                LineData data = new LineData(dataSets);
+                                // set data
+                                lineChart.setData(data);
+                            }else {
+                                lineChart.clear();
+                            }
+
+                        }  else if (period.equals("month")){
+                            Type listType = new TypeToken<List<MonthlyResult>>() {
+                            }.getType();
+                            List<MonthlyResult> monthlyResults = new Gson().fromJson(response.toString(), listType);
+                            Map<String,ArrayList<MonthlyResult>> mapTap = new HashMap<>();
+                            Map<String,Integer> mapPie = new HashMap<>();
+                            // increment by 1 hour
+                            for (MonthlyResult d : monthlyResults) {
+                                if (mapTap.containsKey(d.getName())){
+                                    mapTap.get(d.getName()).add(d);
+                                } else{
+                                    ArrayList<MonthlyResult> list = new ArrayList<>();
+                                    list.add(d);
+                                    mapTap.put(d.getName(),list);
+                                }
+                                if (mapPie.containsKey(d.getArea())){
+                                    mapPie.put(d.getArea(),mapPie.get(d.getArea()) + (int) d.getUsage());
+                                }else {
+                                    mapPie.put(d.getArea(),(int) d.getUsage());
+                                }
+                            }
+                            //set pie chart
+
+                            ArrayList<PieEntry> entries = new ArrayList<>();
+
+                            for (Map.Entry<String,Integer> cursor : mapPie.entrySet()) {
+                                entries.add(new PieEntry(cursor.getValue(),cursor.getKey()));
+                            }
+                            PieDataSet dataSet = new PieDataSet(entries, "Label(ml)");
+                            dataSet.setSliceSpace(3f);
+                            dataSet.setSelectionShift(5f);
+                            dataSet.setColors(colors);
+                            PieData piedata = new PieData(dataSet);
+                            piedata.setValueTextSize(11f);
+                            piedata.setValueTextColor(Color.BLACK);
+                            piedata.setValueTypeface(Typeface.DEFAULT);
+                            pieChart.setData(piedata);
+                            pieChart.invalidate();
+
+                            //set line chart
+                            int j = 0;
+                            List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
+                            for (Map.Entry<String, ArrayList<MonthlyResult>> entry : mapTap.entrySet()) {
+                                ArrayList<Entry> values = new ArrayList<>();
+                                SparseIntArray mapDate = new SparseIntArray();
+                                for(int i = 0; i <31; i++) {
+                                    mapDate.put(i,0);
+                                }
+                                for (MonthlyResult d:entry.getValue()){
+                                    mapDate.put(d.getDate(),(int) d.getUsage());
+                                }
+                                for (int i = 0; i < mapDate.size(); i++) {
+                                    int key = mapDate.keyAt(i);
+                                    values.add(new Entry((float) key, (float) mapDate.get(key)));
+                                }
+                                if (j>3){
+                                    j=0;
+                                }
+                                LineDataSet set1 = new LineDataSet(values, entry.getKey());
+                                set1.setAxisDependency(YAxis.AxisDependency.LEFT);
+                                set1.setColor(ColorTemplate.COLORFUL_COLORS[j]);
+                                set1.setValueTextColor(ColorTemplate.COLORFUL_COLORS[j]);
+                                set1.setLineWidth(1.5f);
+                                set1.setDrawCircles(false);
+                                set1.setDrawValues(false);
+                                set1.setFillAlpha(65);
+                                set1.setFillColor(ColorTemplate.getHoloBlue());
+                                set1.setHighLightColor(Color.rgb(244, 117, 117));
+                                set1.setDrawCircleHole(false);
+                                dataSets.add(set1);
+                                j++;
+                                // create a data object with the data sets
+
+                            }
+                            if (!dataSets.isEmpty()){
+                                LineData data = new LineData(dataSets);
+                                // set data
+                                lineChart.setData(data);
+                            }else {
+                                lineChart.clear();
+                            }
+
+                        }else if (period.equals("year")) {
+                            Type listType = new TypeToken<List<YearlyResult>>() {
+                            }.getType();
+                            List<YearlyResult> yearlyResults = new Gson().fromJson(response.toString(), listType);
+                            Map<String, ArrayList<YearlyResult>> mapTap = new HashMap<>();
+                            Map<String,Integer> mapPie = new HashMap<>();
+                            // increment by 1 hour
+                            for (YearlyResult d : yearlyResults) {
+                                if (mapTap.containsKey(d.getName())) {
+                                    mapTap.get(d.getName()).add(d);
+                                } else {
+                                    ArrayList<YearlyResult> list = new ArrayList<>();
+                                    list.add(d);
+                                    mapTap.put(d.getName(), list);
+                                }
+                                if (mapPie.containsKey(d.getArea())){
+                                    mapPie.put(d.getArea(),mapPie.get(d.getArea()) + (int) d.getUsage());
+                                }else {
+                                    mapPie.put(d.getArea(),(int) d.getUsage());
+                                }
+                            }
+                            //set piechart
+                            ArrayList<PieEntry> entries = new ArrayList<>();
+
+                            for (Map.Entry<String,Integer> cursor : mapPie.entrySet()) {
+                                entries.add(new PieEntry(cursor.getValue(),cursor.getKey()));
+                            }
+                            PieDataSet dataSet = new PieDataSet(entries, "Label(ml)");
+                            dataSet.setSliceSpace(3f);
+                            dataSet.setSelectionShift(5f);
+                            dataSet.setColors(colors);
+                            PieData piedata = new PieData(dataSet);
+                            piedata.setValueTextSize(11f);
+                            piedata.setValueTextColor(Color.BLACK);
+                            piedata.setValueTypeface(Typeface.DEFAULT);
+                            pieChart.setData(piedata);
+                            pieChart.invalidate();
+
+                            //set linechart
+                            int j = 0;
+                            List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
+                            for (Map.Entry<String, ArrayList<YearlyResult>> entry : mapTap.entrySet()) {
+                                ArrayList<Entry> values = new ArrayList<>();
+                                SparseIntArray mapMonth = new SparseIntArray();
+                                for (int i = 0; i < 12; i++) {
+                                    mapMonth.put(i, 0);
+                                }
+                                for (YearlyResult d : entry.getValue()) {
+                                    mapMonth.put(d.getMonth(), (int) d.getUsage());
+                                }
+                                for (int i = 0; i < mapMonth.size(); i++) {
+                                    int key = mapMonth.keyAt(i);
+                                    values.add(new Entry((float) key, (float) mapMonth.get(key)));
+                                }
+                                if (j > 3) {
+                                    j = 0;
+                                }
+                                LineDataSet set1 = new LineDataSet(values, entry.getKey());
+                                set1.setAxisDependency(YAxis.AxisDependency.LEFT);
+                                set1.setColor(ColorTemplate.COLORFUL_COLORS[j]);
+                                set1.setValueTextColor(ColorTemplate.COLORFUL_COLORS[j]);
+                                set1.setLineWidth(1.5f);
+                                set1.setDrawCircles(false);
+                                set1.setDrawValues(false);
+                                set1.setFillAlpha(65);
+                                set1.setFillColor(ColorTemplate.getHoloBlue());
+                                set1.setHighLightColor(Color.rgb(244, 117, 117));
+                                set1.setDrawCircleHole(false);
+                                dataSets.add(set1);
+                                j++;
+                                // create a data object with the data sets
+
+                            }
+                            if (!dataSets.isEmpty()) {
+                                LineData data = new LineData(dataSets);
+                                // set data
+                                lineChart.setData(data);
+                            } else {
+                                lineChart.clear();
+                            }
                         }
-                        lineChart.invalidate();
-                    },
-                    error -> {
-                        tools.toast_long(mContext, error.toString());
-                    });
-            queue.add(getRequest);
+
+                    }else {
+                        tools.toast_long(mContext,"No data for this period");
+                    }
+                    lineChart.invalidate();
+                },
+                error -> {
+                    tools.toast_long(mContext, error.toString());
+                });
+        queue.add(getRequest);
 
     }
 
+    /**
+     * Initial the settings of pie chart
+     * @param chart pie chart object
+     */
     private void setPieChart(PieChart chart){
         chart.getDescription().setEnabled(false);
         chart.setDragDecelerationFrictionCoef(0.95f);
@@ -557,7 +577,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         chart.setRotationEnabled(false);
         chart.setHighlightPerTapEnabled(false);
 
-       // chart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
+        // chart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
         // chart.spin(2000, 0, 360);
 
         Legend l = chart.getLegend();
@@ -613,7 +633,9 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
         ft.detach(frg).attach(frg).commit();
     }
 
-
+    /**
+     * Customize the List View
+     */
     private class MyViewPagerAdapter extends PagerAdapter {
 
         private Context context;
@@ -654,7 +676,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
                     tv_limitLiter.setText("Used of "+ number + " L");
                     break;
             }
-            setLineChartData(lineChart, pieChart, period);
+            setChartData(lineChart, pieChart, period);
             int limitLiter = number;
             pg_status.setProgress((int) usedLiter*100/ (limitLiter == 0 ? 1 : limitLiter));
             tv_totalLiter.setText(usedLiter+" L");
@@ -733,7 +755,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override

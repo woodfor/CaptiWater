@@ -73,6 +73,12 @@ import java.util.UUID;
 
 import static com.example.firebasetest1.General.tools.toast_long;
 
+/**
+ * The activity is for showing the tap information in its ListView.
+ * The activity is also responsible for the bluetooth connection and data transferring,
+ *
+ * @author Junjie Lu
+ */
 public class TapActivity extends AppCompatActivity {
 
     private ListView lv;
@@ -105,6 +111,12 @@ public class TapActivity extends AppCompatActivity {
     private DatabaseReference turnRef;
     //Rest
     RequestQueue queue;
+
+    /**
+     * Initial the components.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -167,6 +179,9 @@ public class TapActivity extends AppCompatActivity {
 
     }
 
+    /**
+     *  The initial setting for application to listen the signal sent from IoT device.
+     */
     private void btBeginListenForData() {
         final Handler handler = new Handler();
         final byte delimiter = 10; //This is the ASCII code for a newline character
@@ -207,8 +222,264 @@ public class TapActivity extends AppCompatActivity {
         workerThread.start();
     }
 
+    /**
+     * Pop up the dialog for WIFI information: name and password.
+     *
+     * @param list the list generated after scanning the WIFI nearby.
+     */
+    private void showWifiDialog(ArrayList list) {
+
+        final Dialog dialog = new Dialog(mContext);
+        // dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.dialog_listview);
+        TextView textView = dialog.findViewById(R.id.tv_dialogTitle);
+        textView.setText("Wifi list:");
+        Button btndialog = dialog.findViewById(R.id.btnDialog);
+        btndialog.setOnClickListener(v -> dialog.dismiss());
+
+        ListView listView = dialog.findViewById(R.id.dialogListView);
+        ArrayAdapter arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, list);
+        listView.setAdapter(arrayAdapter);
+
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            //textView.setText("You have clicked : "+list.get((int)id));
+            String wifiName = (String) list.get((int) id);
+            final EditText edt_password = new EditText(mContext);
+            final AlertDialog alertDialog = new AlertDialog.Builder(mContext)
+                    .setTitle("Please input password")
+                    .setMessage("length greater than 7")
+                    .setView(edt_password)
+                    .setPositiveButton("Ok", null)
+                    .setNegativeButton("No", null)
+                    .show();
+            Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            btn_positive.setOnClickListener(v -> {
+                String tmp = edt_password.getText().toString().trim();
+                if (!(tmp.isEmpty())) {
+
+                    String[] array = {"C:" + wifiName + "/" + tmp};
+                    new SendBTSignal().execute(array);
+                    alertDialog.dismiss();
+                } else
+                    edt_password.setError("please input password");
+            });
+
+            dialog.dismiss();
+
+        });
+
+        dialog.show();
+
+    }
+
+    /**
+     * List all the scanned bluetooth devices in a ListView dialog.
+     *
+     * @param list the bluetooth list that generated after scanning.
+     */
+    private void showBluetoothDialog(ArrayList list) {
+        final Dialog dialog = new Dialog(this);
+        // dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.dialog_listview);
+        TextView textView = dialog.findViewById(R.id.tv_dialogTitle);
+        textView.setText("Bluetooth list:");
+        Button btndialog = dialog.findViewById(R.id.btnDialog);
+        btndialog.setOnClickListener(v -> dialog.dismiss());
+
+        ListView listView = dialog.findViewById(R.id.dialogListView);
+        //ArrayAdapter arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, list);
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.list_item, R.id.tv, list);
+        listView.setAdapter(arrayAdapter);
+
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            //textView.setText("You have clicked : "+list.get((int)id));
+            String info = (String) list.get((int) id);
+            String name = info.substring(0, info.length() - 17);
+            String address = info.substring(info.length() - 17).trim();
+            tap.setBtaddress(address);
+            new ConnectBT().execute(address);
+            function = 1;
+            new ConnectWIFI().execute();
+
+            dialog.dismiss();
+
+        });
+
+        dialog.show();
+    }
+
+    /**
+     * Delete the tap by accessing REST api
+     *
+     * @param tid tap id
+     */
+    private void delTap(long tid) {
+        String url = RestClient.BASE_URL + "tap/" + tid;
+        StringRequest delRequest = new StringRequest(Request.Method.DELETE, url,
+                response -> {
+                    getTaps();
+                },
+                error -> {
+                    Log.d("del Tap error:", "delTap: " + error.toString());
+                }
+        );
+        queue.add(delRequest);
+    }
+
+    /**
+     * Add tap by accessing REST api
+     * The tap object is declared in the Field
+     */
+    private void addTap() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("Token failure", "getInstanceId failed", task.getException());
+                        return;
+                    }
+
+                    // Get new Instance ID token
+                    String token = task.getResult().getToken();
+                    String url = RestClient.BASE_URL + "tap/" + area.getAid() + "/" + tap.getName() + "/" + tap.getBtaddress() + "/" + token;
+                    JsonObjectRequest putRequest = new JsonObjectRequest(Request.Method.PUT, url, null,
+                            response -> {
+                                if (response.toString().equals("[]") || response.toString().isEmpty()) {
+                                    tools.toast_long(this, "Add tap failure, Please try again");
+                                } else {
+                                    Tap tmptap = new Gson().fromJson(response.toString(), Tap.class);
+                                    tap = tmptap;
+                                    String array = "N:" + tap.getName() + "/" + tmptap.getTid();
+                                    new SendBTSignal().execute(array);
+                                    getTaps();
+                                }
+
+                            },
+                            error -> {
+                                try {
+                                    Log.d("Error.Response", error.getMessage());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                } finally {
+                                    tools.toast_long(getApplicationContext(), "Please check your Internet");
+
+                                }
+
+                            }
+
+                    ) {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> params = new HashMap<>();
+                            params.put("Accept", "application/json");
+                            return params;
+                        }
+                    };
+                    queue.add(putRequest);
 
 
+                });
+
+
+    }
+
+    /**
+     * Get tap by accessing REST api.
+     * If succeed, set them in ListView
+     */
+    private void getTaps() {
+
+        String url = RestClient.BASE_URL + "tap/" + area.getAid();
+        JsonArrayRequest putRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                response -> {
+                    if (response.toString().equals("[]") || response.toString().isEmpty()) {
+                        tools.toast_long(this, "No tap present, please add some");
+                    } else {
+
+                        Type listType = new TypeToken<List<Tap>>() {
+                        }.getType();
+                        taps = new Gson().fromJson(response.toString(), listType);
+                        if (taps != null) {
+                            TapListAdapter adapter = new TapListAdapter(mContext, R.layout.listview_tap, taps);
+                            lv.setAdapter(adapter);
+                        }
+                    }
+
+                },
+                error -> {
+                    try {
+                        Log.d("Error.Response", error.getMessage());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        tools.toast_long(getApplicationContext(), "Please check your Internet");
+
+                    }
+
+                }
+
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Accept", "application/json");
+                return params;
+            }
+        };
+        queue.add(putRequest);
+
+    }
+
+    /**
+     * Update tap name by accessing REST api
+     *
+     * @param ID   tap id
+     * @param name name to be updated
+     */
+    private void updateTaps(int ID, String name) {
+        RequestQueue queue = Volley.newRequestQueue(mContext);
+        String url = RestClient.BASE_URL + "Tap/update/" + ID + "/" + name;
+        StringRequest delRequest = new StringRequest(Request.Method.PUT, url,
+                response -> {
+                    if (response.equals("Success")) {
+                        getTaps();
+                    } else {
+                        tools.toast_long(getApplicationContext(), "Server error");
+                    }
+
+                },
+                error -> {
+                    tools.toast_long(getApplicationContext(), "Update error, " + error.toString());
+                }
+        );
+        queue.add(delRequest);
+    }
+
+    /**
+     * Present information by toast
+     *
+     * @param text message to be presented
+     */
+    private void msg(String text) {
+        tools.toast_long(getApplicationContext(), text);
+    }
+
+    /**
+     * register the return button in toolbar
+     *
+     * @return
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        finish();
+        return true;
+    }
+
+    /**
+     * Async task for connecting Bluetooth
+     */
     private class ConnectBT extends AsyncTask<String, Void, Void> {
         private boolean ConnectSuccess = true;
 
@@ -261,6 +532,10 @@ public class TapActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Async class for connecting WIFI.
+     * The class is executed after the successful connection of bluetooth.
+     */
     protected class ConnectWIFI extends AsyncTask<Void, Void, Boolean> {
 
         @Override
@@ -348,83 +623,52 @@ public class TapActivity extends AppCompatActivity {
         }
     }
 
-    private void showWifiDialog( ArrayList list) {
 
-        final Dialog dialog = new Dialog(mContext);
-        // dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
-        dialog.setContentView(R.layout.dialog_listview);
-        TextView textView = dialog.findViewById(R.id.tv_dialogTitle);
-        textView.setText("Wifi list:");
-        Button btndialog = dialog.findViewById(R.id.btnDialog);
-        btndialog.setOnClickListener(v -> dialog.dismiss());
+  /*  private void onStarClicked(DatabaseReference postRef) {
+        postRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                Post p = mutableData.getValue(Post.class);
+                if (p == null) {
+                    return Transaction.success(mutableData);
+                }
 
-        ListView listView = dialog.findViewById(R.id.dialogListView);
-        ArrayAdapter arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, list);
-        listView.setAdapter(arrayAdapter);
+                if (p.stars.containsKey(getUid())) {
+                    // Unstar the post and remove self from stars
+                    p.starCount = p.starCount - 1;
+                    p.stars.remove(getUid());
+                } else {
+                    // Star the post and add self to stars
+                    p.starCount = p.starCount + 1;
+                    p.stars.put(getUid(), true);
+                }
 
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            //textView.setText("You have clicked : "+list.get((int)id));
-            String wifiName = (String) list.get((int) id);
-            final EditText edt_password = new EditText(mContext);
-            final AlertDialog alertDialog = new AlertDialog.Builder(mContext)
-                    .setTitle("Please input password")
-                    .setMessage("length greater than 7")
-                    .setView(edt_password)
-                    .setPositiveButton("Ok", null)
-                    .setNegativeButton("No", null)
-                    .show();
-            Button btn_positive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            btn_positive.setOnClickListener(v -> {
-                String tmp = edt_password.getText().toString().trim();
-                if (!(tmp.isEmpty())) {
+                // Set value and report transaction success
+                mutableData.setValue(p);
+                return Transaction.success(mutableData);
+            }
 
-                    String[] array = {"C:" + wifiName + "/" + tmp, "2"};
-                    new SendBTSignal().execute(array);
-                    alertDialog.dismiss();
-                } else
-                    edt_password.setError("please input password");
-            });
-
-            dialog.dismiss();
-
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b,
+                                   DataSnapshot dataSnapshot) {
+                // Transaction completed
+                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
+            }
         });
-
-        dialog.show();
-
     }
+*/
 
-    private void showBluetoothDialog( ArrayList list){
-        final Dialog dialog = new Dialog(this);
-        // dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
-        dialog.setContentView(R.layout.dialog_listview);
-        TextView textView = dialog.findViewById(R.id.tv_dialogTitle);
-        textView.setText("Bluetooth list:");
-        Button btndialog = dialog.findViewById(R.id.btnDialog);
-        btndialog.setOnClickListener(v -> dialog.dismiss());
-
-        ListView listView = dialog.findViewById(R.id.dialogListView);
-        //ArrayAdapter arrayAdapter = new ArrayAdapter(mContext, R.layout.list_item, R.id.tv, list);
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, R.layout.list_item, R.id.tv, list);
-        listView.setAdapter(arrayAdapter);
-
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            //textView.setText("You have clicked : "+list.get((int)id));
-            String info = (String) list.get((int) id);
-            String name = info.substring(0, info.length() - 17);
-            String address = info.substring(info.length() - 17).trim();
-            tap.setBtaddress(address);
-            new ConnectBT().execute(address);
-            function = 1;
-            new ConnectWIFI().execute();
-
-            dialog.dismiss();
-
-        });
-
-        dialog.show();
-    }
+    /**
+     * Send Bluetooth signal and handle the callbacks from IoT device.
+     * @param {"C:" + wifiName + "/" + password}, String array = "N:" + tapname + "/" + tapID;
+     * callback:
+     *          1. "1": set name complete
+     *          2. "UC": name updated
+     *          3. "3": connect WIFI successfully
+     *          4. "-3": connect WIFI unsuccessfully
+     *          5. "-2": device can't find the WIFI name sent by application
+     *          6. nothing returned and exceed the 24 second waiting time, revert the creating operation in cloud database.
+     */
 
     private class SendBTSignal extends AsyncTask<String, Integer, String> {
 
@@ -442,27 +686,27 @@ public class TapActivity extends AppCompatActivity {
 
             btRespond = "";
             int counter = 0;
-                while (btRespond.isEmpty()) { // respond identifier
-                    counter++;
-                    if (btSocket != null) {
-                        try {
-                            mmOutputStream.write(strings[0].getBytes());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return null;
-                        }
-
-                    }
+            while (btRespond.isEmpty()) { // respond identifier
+                counter++;
+                if (btSocket != null) {
                     try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
+                        mmOutputStream.write(strings[0].getBytes());
+                    } catch (Exception e) {
                         e.printStackTrace();
                         return null;
                     }
-                    if (counter > 12) {
-                        return null;
-                    }
+
                 }
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                if (counter > 12) {
+                    return null;
+                }
+            }
 
             return btRespond == null ? btRespond : btRespond.trim();
         }
@@ -471,12 +715,12 @@ public class TapActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             if (result != null) {
                 if (result.equals("1")) {
-                //    new AreaFragment.getArea().execute();
+                    //    new AreaFragment.getArea().execute();
                     toast_long(mContext, "Set name complete");
 
                 } else if (result.equals("UC")) {
                     toast_long(mContext, "Update name complete");
-                   // new AreaFragment.updateTap().execute(tapname);
+                    // new AreaFragment.updateTap().execute(tapname);
                 } else if (result.equals("-2")) {
                     msg("No wifi found");
                 } else if (result.equals("3")) {
@@ -525,179 +769,9 @@ public class TapActivity extends AppCompatActivity {
 
     }
 
-private void delTap(long tid){
-    String url = RestClient.BASE_URL + "tap/" + tid;
-    StringRequest delRequest = new StringRequest(Request.Method.DELETE,url,
-            response -> {
-                getTaps();
-            },
-            error -> {
-                Log.d("del Tap error:", "delTap: " +  error.toString());
-            }
-            );
-    queue.add(delRequest);
-}
-
-private void addTap(){
-    FirebaseInstanceId.getInstance().getInstanceId()
-            .addOnCompleteListener(task -> {
-                if (!task.isSuccessful()) {
-                    Log.w("Token failure", "getInstanceId failed", task.getException());
-                    return;
-                }
-
-                // Get new Instance ID token
-                String token = task.getResult().getToken();
-                String url = RestClient.BASE_URL + "tap/" + area.getAid() + "/" + tap.getName()+"/"+ tap.getBtaddress()+"/"+token;
-                JsonObjectRequest putRequest = new JsonObjectRequest(Request.Method.PUT, url, null,
-                        response -> {
-                            if (response.toString().equals("[]") || response.toString().isEmpty()) {
-                                tools.toast_long(this, "Add tap failure, Please try again");
-                            } else {
-                                Tap tmptap = new Gson().fromJson(response.toString(),Tap.class);
-                                tap = tmptap;
-                                String array = "N:" + tap.getName() + "/" + tmptap.getTid();
-                                new SendBTSignal().execute(array);
-                                getTaps();
-                            }
-
-                        },
-                        error -> {
-                            try {
-                                Log.d("Error.Response", error.getMessage());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            } finally {
-                                tools.toast_long(getApplicationContext(), "Please check your Internet");
-
-                            }
-
-                        }
-
-                ) {
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("Accept", "application/json");
-                        return params;
-                    }
-                };
-                queue.add(putRequest);
-
-
-            });
-
-
-}
-    private void getTaps(){
-
-        String url = RestClient.BASE_URL + "tap/" + area.getAid();
-        JsonArrayRequest putRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                response -> {
-                    if (response.toString().equals("[]") || response.toString().isEmpty()) {
-                        tools.toast_long(this, "No tap present, please add some");
-                    } else {
-
-                        Type listType = new TypeToken<List<Tap>>() {
-                        }.getType();
-                        taps = new Gson().fromJson(response.toString(),listType);
-                        if (taps != null) {
-                            TapListAdapter adapter = new TapListAdapter(mContext, R.layout.listview_tap, taps);
-                            lv.setAdapter(adapter);
-                        }
-                    }
-
-                },
-                error -> {
-                    try {
-                        Log.d("Error.Response", error.getMessage());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        tools.toast_long(getApplicationContext(), "Please check your Internet");
-
-                    }
-
-                }
-
-        ) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("Accept", "application/json");
-                return params;
-            }
-        };
-        queue.add(putRequest);
-
-    }
-
-    private void updateTaps(int ID,String name){
-        RequestQueue queue = Volley.newRequestQueue(mContext);
-        String url = RestClient.BASE_URL + "Tap/update/" + ID +"/"+name;
-        StringRequest delRequest = new StringRequest(Request.Method.PUT, url,
-                response -> {
-                    if (response.equals("Success")){
-                        getTaps();
-                    }else {
-                        tools.toast_long(getApplicationContext(),"Server error");
-                    }
-
-                },
-                error -> {
-                    tools.toast_long(getApplicationContext(), "Update error, " + error.toString());
-                }
-        );
-        queue.add(delRequest);
-    }
-
-
-    private void msg(String text){
-        tools.toast_long(getApplicationContext(),text);
-    }
-
-
-  /*  private void onStarClicked(DatabaseReference postRef) {
-        postRef.runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData mutableData) {
-                Post p = mutableData.getValue(Post.class);
-                if (p == null) {
-                    return Transaction.success(mutableData);
-                }
-
-                if (p.stars.containsKey(getUid())) {
-                    // Unstar the post and remove self from stars
-                    p.starCount = p.starCount - 1;
-                    p.stars.remove(getUid());
-                } else {
-                    // Star the post and add self to stars
-                    p.starCount = p.starCount + 1;
-                    p.stars.put(getUid(), true);
-                }
-
-                // Set value and report transaction success
-                mutableData.setValue(p);
-                return Transaction.success(mutableData);
-            }
-
-            @Override
-            public void onComplete(DatabaseError databaseError, boolean b,
-                                   DataSnapshot dataSnapshot) {
-                // Transaction completed
-                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
-            }
-        });
-    }
-*/
-
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        finish();
-        return true;
-    }
-
+    /**
+     * Generating the customize ListView
+     */
     private class TapListAdapter extends ArrayAdapter<Tap> {
         private Context context;
         private List<Tap> taps;

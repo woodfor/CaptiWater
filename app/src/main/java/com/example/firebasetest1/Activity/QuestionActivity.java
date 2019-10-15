@@ -45,6 +45,12 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * This activity will activate when users use this application first time.
+ * And ask users for personal details
+ *
+ * @author Junjie Lu
+ */
 public class QuestionActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     protected String lastLocation;
@@ -56,6 +62,10 @@ public class QuestionActivity extends AppCompatActivity implements
     String nop;
     private AddressResultReceiver resultReceiver;
 
+    /**
+     * Initial the components
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,6 +121,10 @@ public class QuestionActivity extends AppCompatActivity implements
         });
     }
 
+    /**
+     * Start intent service for finding the full address according to the postcode provided by user.
+     * The service class is in the Gecoder package.
+     */
     protected void startIntentService() {
         Intent intent = new Intent(this, FetchAddressIntentService.class);
         intent.putExtra(Constants.RECEIVER, resultReceiver);
@@ -134,6 +148,12 @@ public class QuestionActivity extends AppCompatActivity implements
 
     }
 
+    /**
+     * Pop up the dialog showing number picker.
+     * @param context the context of showing activity
+     * @param min minimum number in number picker
+     * @param max Max number in number picker
+     */
     private void showNumberPicker(Context context, int min, int max) {
         final Dialog dialog = new Dialog(context);
         dialog.setTitle("Please pick a number");
@@ -155,6 +175,10 @@ public class QuestionActivity extends AppCompatActivity implements
         dialog.show();
     }
 
+    /**
+     * The class is for receiving the Gecoder result.
+     * Show the result in component after receiving,
+     */
     class AddressResultReceiver extends ResultReceiver {
         TextView edt_address = findViewById(R.id.edt_postcode);
 
@@ -204,6 +228,10 @@ public class QuestionActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * This async task is for transferring the information collected from user by accessing REST service.
+     * If the server return the succeed signal, the MainActivity will be shown next.
+     */
     protected class ExecuteAndTransfer extends AsyncTask<HouseCreation, Void, Void> {
 
 

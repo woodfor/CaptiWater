@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.firebasetest1.R;
 
+/**
+ * showing the page of help
+ */
 public class HelpFragment extends Fragment {
     View vHelp;
 

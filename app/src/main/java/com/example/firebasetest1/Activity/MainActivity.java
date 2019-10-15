@@ -40,6 +40,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The class is the host activity for the fragments in the bottom navigation bar.
+ *
+ * @author Junjie Lu
+ */
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private Fragment waterusgfrag;
@@ -47,7 +52,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     boolean doubleBackToExitPressedOnce = false;
     //Fragment rankingFrag;
-
+    /**
+     *  On click listener for bottom navigation bar
+     */
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
         Fragment selectedFragment = null;
@@ -61,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.navigation_area:
                 selectedFragment = areaFrag;
-               // selectedFragment = houseFrag;
+                // selectedFragment = houseFrag;
                 break;
 
         }
@@ -72,6 +79,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     };
 
+    /**
+     * initial the components.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,10 +92,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbar.setTitle("");
         toolbar.setSubtitle("");
-       // toolbar.setNavigationIcon(R.drawable.app_logo);
-       // Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.app_logo);
+        // toolbar.setNavigationIcon(R.drawable.app_logo);
+        // Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.app_logo);
 
-     //   toolbar.setLogo(R.drawable.app_logo);
+        //   toolbar.setLogo(R.drawable.app_logo);
 
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -116,6 +127,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 waterusgfrag).commit();
     }
 
+    /**
+     * Click back twice to close the application.
+     */
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -134,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         new Handler().postDelayed(() -> doubleBackToExitPressedOnce=false, 2000);
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -222,8 +237,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onDestroy();
 
     }
-
-
 
 
 }

@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.firebasetest1.R;
 
+/**
+ * showing the page of 'About us'
+ */
 public class AboutUsFragment extends Fragment {
     View vAboutUs;
 

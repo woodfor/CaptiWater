@@ -22,8 +22,18 @@ import com.github.mikephil.charting.data.PieData;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * The Class is for showing the chart after the click in pie chart in waterUsageFragment
+ *
+ * @author Junjie Lu
+ */
 public class ChartActivity extends AppCompatActivity {
 
+    /**
+     * Initial the ListView and send in the data from pie chart.
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +57,10 @@ public class ChartActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Register back button in the toolbar.
+     * @return
+     */
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
@@ -54,6 +68,9 @@ public class ChartActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * The class is for generating customize ListVIew
+     */
     private class ChartListAdapter extends ArrayAdapter {
         Context context;
         PieData pieData;

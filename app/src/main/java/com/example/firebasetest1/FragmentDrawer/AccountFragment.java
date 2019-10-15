@@ -25,7 +25,9 @@ import com.example.firebasetest1.RestClient.RestClient;
 import com.google.gson.Gson;
 
 
-
+/**
+ * Showing the settings for Account
+ */
 public class AccountFragment extends Fragment{
     View vAccount;
     EditText edt_NoP;
@@ -74,6 +76,13 @@ public class AccountFragment extends Fragment{
         return vAccount;
     }
 
+    /**
+     * Update house information
+     *
+     * @param houseName specify the house name
+     * @param nop       specify the 'number of people'
+     * @param ID        give the house ID
+     */
     private void updateHouseInfo(String houseName, String nop, String ID){
         RequestQueue queue = Volley.newRequestQueue(mContext);
         String url = RestClient.BASE_URL + "house/update/" + ID+"/"+houseName+"/"+nop;
@@ -100,7 +109,12 @@ public class AccountFragment extends Fragment{
     }
 
 
-
+    /**
+     * Pop up the number picker
+     * @param context give the showing context
+     * @param min specify the minimum number in the picker
+     * @param max specify the maximum number in the picker
+     */
     private void showNumberPicker(Context context, int min, int max) {
         final Dialog dialog = new Dialog(context);
         dialog.setTitle("Number of people");

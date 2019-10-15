@@ -22,6 +22,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+/**
+ * The activity is for setting the tap including notification and timer.
+ *
+ * @author Junjie Lu
+ */
 public class TapSettingActivity extends AppCompatActivity {
 
     private EditText edt_notification;
@@ -32,6 +37,11 @@ public class TapSettingActivity extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference notifyRef;
     DatabaseReference myRef;
+
+    /**
+     * initial the components
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +52,6 @@ public class TapSettingActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         edt_notification = findViewById(R.id.edt_notification);
         switch_notification = findViewById(R.id.switch_notification);
-
 
 
         try {
@@ -124,8 +133,14 @@ public class TapSettingActivity extends AppCompatActivity {
         edt_timer.setOnClickListener(view -> showNumberPickerTimer(mContext, 1, 60));
 
 
-
     }
+
+    /**
+     * Pop up the number picker dialog
+     * @param context showing context
+     * @param min minimum number for pick
+     * @param max maximum number for pick
+     */
     private void showNumberPickerTimer(Context context, int min, int max) {
         final Dialog dialog = new Dialog(context);
         dialog.setTitle("Set Timer for:");
@@ -148,6 +163,13 @@ public class TapSettingActivity extends AppCompatActivity {
         });
         dialog.show();
     }
+
+    /**
+     * Pop up the number picker dialog
+     * @param context showing context
+     * @param min minimum number for pick
+     * @param max maximum number for pick
+     */
 
     private void showNumberPickerNotification(Context context, int min, int max) {
         final Dialog dialog = new Dialog(context);
@@ -172,6 +194,10 @@ public class TapSettingActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Register the return button in toolbar.
+     * @return
+     */
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
