@@ -32,20 +32,12 @@ import androidx.core.app.NotificationCompat;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.example.firebasetest1.Activity.MainActivity;
 import com.example.firebasetest1.General.tools;
-import com.example.firebasetest1.RestClient.RestClient;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * NOTE: There can only be one service in each app that receives FCM messages. If multiple
@@ -113,7 +105,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (notiBody.equals("-1")) {
                 handleNow("Data Get");
             } else {
-                handleReminder(notiTitle, notiBody);
+                handleReminder();
             }
 
         }
@@ -153,28 +145,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // [END dispatch_job]
     }
 
-    private void handleReminder(String ID, String duration) {
+    private void handleReminder() {
         Handler mainHandler = new Handler(getMainLooper());
-        RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-        String today = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmX").format(Calendar.getInstance(TimeZone.getTimeZone("EST")).getTime());
-        String url = RestClient.BASE_URL + "notification/" + ID + "/" + today + "/" + duration;
-        StringRequest putRequest = new StringRequest(Request.Method.PUT, url,
-                response -> {
-                    if (response.equals("Success")) {
-                        mainHandler.post(() -> {
-                            // Do your stuff here related to UI, e.g. show toast
-                            tools.toast_long(getApplicationContext(), "Notification Get");
+        mainHandler.post(() -> {
+            // Do your stuff here related to UI, e.g. show toast
+            tools.toast_long(getApplicationContext(), "Notification Get");
 
-                        });
-
-                    } else {
-                        // tools.toast_long(getApplicationContext(),"noti set error");
-                    }
-                }, error -> {
-            //tools.toast_long(getApplicationContext(),error.toString());
-        }
-        );
-        queue.add(putRequest);
+        });
     }
 
     /**
