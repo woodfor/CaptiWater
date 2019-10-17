@@ -102,10 +102,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getNotification() != null) {
             String notiBody = remoteMessage.getNotification().getBody();
             String notiTitle = remoteMessage.getNotification().getTitle();
-            if (notiBody.equals("-1")) {
+            if (notiBody.equals("Data Get")) {
                 handleNow("Data Get");
             } else {
-                handleReminder();
+                Handler mainHandler = new Handler(getMainLooper());
+                mainHandler.post(() -> {
+                    // Do your stuff here related to UI, e.g. show toast
+                    tools.toast_long(getApplicationContext(), notiBody);
+
+                });
             }
 
         }
@@ -145,14 +150,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // [END dispatch_job]
     }
 
-    private void handleReminder() {
-        Handler mainHandler = new Handler(getMainLooper());
-        mainHandler.post(() -> {
-            // Do your stuff here related to UI, e.g. show toast
-            tools.toast_long(getApplicationContext(), "Notification Get");
 
-        });
-    }
 
     /**
      * Handle time allotted to BroadcastReceivers.

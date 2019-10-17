@@ -157,7 +157,7 @@ public class NotificationActivity extends AppCompatActivity {
                 // the getTag returns the viewHolder object set as a tag to the view
                 holder = (ViewHolder) view.getTag();
             }
-            holder.tv_info.setText("Tap: " + notification.getTapName() + " from area: " + notification.getAreaName() + " has been on for " + notification.getDuration() + " minutes");
+            holder.tv_info.setText("Tap: " + notification.getTapName() + " from area: " + notification.getAreaName() + " has been on for " + notification.getDuration() + " seconds");
             holder.tv_date.setText(new SimpleDateFormat("dd/MM/yyyy HH:mm").format(notification.getDateTime()));
             return view;
         }
