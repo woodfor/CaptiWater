@@ -723,9 +723,15 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
 
                 @Override
                 public void onChartSingleTapped(MotionEvent me) {
-                    openPieData = pieChart.getData();
-                    Intent intent = new Intent(getActivity(), ChartActivity.class);
-                    startActivity(intent);
+                    if (pieChart != null) {
+                        openPieData = pieChart.getData();
+                        if (openPieData != null) {
+                            Intent intent = new Intent(getActivity(), ChartActivity.class);
+                            startActivity(intent);
+                        }
+
+                    }
+
                 }
 
                 @Override
