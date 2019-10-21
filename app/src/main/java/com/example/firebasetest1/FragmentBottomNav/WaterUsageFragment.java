@@ -678,7 +678,7 @@ public class WaterUsageFragment extends Fragment implements View.OnClickListener
             }
             setChartData(lineChart, pieChart, period);
             int limitLiter = number;
-            pg_status.setProgress((int) usedLiter*100/ (limitLiter == 0 ? 1 : limitLiter));
+            pg_status.setProgress((int) ((float) usedLiter / (limitLiter == 0 ? 1 : limitLiter) * 100));
             tv_totalLiter.setText(usedLiter+" L");
             tv_leftLiter.setText((int) (limitLiter - usedLiter) / house.getNop() + "L left for the " + period + " per person.");
             switch (position){
